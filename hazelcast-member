@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+PRG="$0"
+PRGDIR="$(dirname "$(realpath $PRG)")"
+echo prgdir = $PRGDIR
+export HAZELCAST_HOME=${HAZELCAST_HOME:-$(cd "$PRGDIR/.." >/dev/null; pwd -P)}
+
+usage() {
+  CMD=$(basename $0)
+  echo "Usage:"
+  echo "$CMD" "start   starts Hazelcast member"
+  echo "$CMD" "status  show process status for Hazelcast member"
+  echo "$CMD" "stop    stops Hazelcast member"
+}
+
+if [[ $1 = '' ]]; then
+  usage
+  exit 0
+fi
+
+case "$1" in
+    start)
+        ${HAZELCAST_HOME}/bin/start.sh;;
+    status)
+        ${HAZELCAST_HOME}/bin/status.sh;;
+    stop)
+        ${HAZELCAST_HOME}/bin/stop.sh;;
+    *)
+        usage
+esac
