@@ -2,7 +2,7 @@
 PRG="$0"
 PRGDIR=`dirname "$PRG"`
 HAZELCAST_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
-PID_FILE="${HAZELCAST_HOME}"/bin/hazelcast_instance.pid
+PID_FILE="${HAZELCAST_HOME}"/hazelcast_instance.pid
 
 if [ ! -f "${PID_FILE}" ]; then
     echo "No hazelcast instance is running."

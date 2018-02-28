@@ -24,11 +24,13 @@ dist:
 	# copying docs and scripts
 	mkdir -p ${DIST}
 	mkdir -p ${HZ_BIN}
+	cp README-Running.txt ${DIST}/README.txt
 	cp start.sh ${HZ_BIN}
 	cp stop.sh ${HZ_BIN}
 	cp status.sh ${HZ_BIN}
-	cp README-Running.txt ${DIST}/README.txt
 	cp hazelcast-member ${HZ_BIN}
+	for f in ${HZ_BIN}/* ; do sed -i '.bak' 's/$${project.version}/${HAZELCAST_VERSION}/g' $$f ; done
+	rm -f ${HZ_BIN}/*.bak
 	chmod +x ${HZ_BIN}/*
 
 download:

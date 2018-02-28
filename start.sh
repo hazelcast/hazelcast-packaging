@@ -1,11 +1,11 @@
 #!/bin/sh
 
-HAZELCAST_VERSION=3.9.2
+HAZELCAST_VERSION=${project.version}
 
 PRG="$0"
 PRGDIR=`dirname "$PRG"`
 #HAZELCAST_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
-PID_FILE=$HAZELCAST_HOME/bin/hazelcast_instance.pid
+PID_FILE=$HAZELCAST_HOME/hazelcast_instance.pid
 
 if [ $JAVA_HOME ]
 then
@@ -22,8 +22,6 @@ then
     echo "please install Java 1.6 or higher!!!"
     exit 1
 fi
-
-	echo "Path to Java : $RUN_JAVA"
 
 #### you can enable following variables by uncommenting them
 
@@ -50,7 +48,7 @@ echo "# JAVA_OPTS=$JAVA_OPTS"
 echo "# starting now...."
 echo "########################################"
 
-PID=$(cat "${PID_FILE}");
+PID=$(cat "${PID_FILE}" 2>/dev/null);
 if [ -z "${PID}" ]; then
     echo "Process ID for Hazelcast instance is written to location: {$PID_FILE}"
     $RUN_JAVA -server $JAVA_OPTS com.hazelcast.core.server.StartServer &
