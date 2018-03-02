@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # templates meant to be resolved at build or install time
 HAZELCAST_VERSION=${hazelcast_version}
@@ -23,8 +23,7 @@ fi
 
 if [ -z $RUN_JAVA ]
 then
-    echo "Java could not be found in your system!"
-    echo "Please install Java 1.6 or higher in your PATH or set JAVA_HOME appropriately"
+    echo "Java not found. Please install Java 1.6 or higher in your PATH or set JAVA_HOME appropriately"
     exit 1
 fi
 

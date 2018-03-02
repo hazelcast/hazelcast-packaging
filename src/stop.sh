@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 #
-. $(dirname "$0")/env.sh
+. $(dirname "$0")/pid-utils.sh
 
 #
 PRG="$0"
