@@ -39,4 +39,4 @@ package: dist
 	# creating package
 	mkdir -p archive
 	tar -zcf archive/hazelcast-member-${HAZELCAST_VERSION}.tar.gz -C ${DIST} README.txt bin lib
-	@echo "[INFO] Archive archive/hazelcast-member-${HAZELCAST_VERSION}.tar.gz created successfully"
+	@echo "Archive archive/hazelcast-member-${HAZELCAST_VERSION}.tar.gz created successfully"

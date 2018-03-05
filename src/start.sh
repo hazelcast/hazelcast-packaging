@@ -5,19 +5,22 @@ HAZELCAST_VERSION=${hazelcast_version}
 VAR_RUN_DIR="${var_run}"
 
 #
-PRG="$0"
-PRGDIR=`dirname "$PRG"`
-mkdir -p "${VAR_RUN_DIR}/hazelcast"
-PIDDIR=$(mktemp -d "${VAR_RUN_DIR}/hazelcast/XXXX")
-HZ_ID=${PIDDIR: -4}
-PID_FILE="${PIDDIR}/hazelcast.pid"
+. $(dirname "$0")/utils.sh
+
+#
+mkdir -p "${PID_BASE_DIR}"
+mkdir -p "${LOG_BASE_DIR}"
+
+case "$1" in
+    -v | --verbose)
+        VERBOSE=1
+        shift;;
+esac
 
 if [ $JAVA_HOME ]
 then
-	echo "JAVA_HOME found at $JAVA_HOME"
 	RUN_JAVA=$JAVA_HOME/bin/java
 else
-	echo "JAVA_HOME environment variable not available"
     RUN_JAVA=`which java 2>/dev/null`
 fi
 
@@ -46,20 +49,22 @@ fi
 
 export CLASSPATH="$HAZELCAST_HOME/lib/hazelcast-all-${HAZELCAST_VERSION}.jar"
 
-echo "########################################"
-echo "# RUN_JAVA=$RUN_JAVA"
-echo "# JAVA_OPTS=$JAVA_OPTS"
-echo "# Starting now...."
-echo "########################################"
+if [ ${VERBOSE} ] ; then
+    echo "RUN_JAVA=$RUN_JAVA"
+    echo "JAVA_OPTS=$JAVA_OPTS"
+fi
+
+make_HID
 
 PID=$(cat "${PID_FILE}" 2>/dev/null);
 if [ -z "${PID}" ]; then
-    echo "PID for Hazelcast instance is written to location: {$PID_FILE}"
-    $RUN_JAVA -server $JAVA_OPTS com.hazelcast.core.server.StartServer &
+    [ ${VERBOSE} ] && echo "PID file for this Hazelcast member: $PID_FILE"
+    echo "Permanent logfile for this Hazelcast member: $LOG_FILE"
+    nohup $RUN_JAVA -server $JAVA_OPTS com.hazelcast.core.server.StartServer >>"${LOG_FILE}" 2>&1 &
     HZ_PID=$!
     echo ${HZ_PID} > ${PID_FILE}
+    echo "ID:  ${HID}"
     echo "PID: ${HZ_PID}"
-    echo "Member ID: ${HZ_ID}"
 else
     echo "Another Hazelcast instance (PID=${PID}) is already started in this folder"
     exit 1

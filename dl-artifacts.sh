@@ -18,7 +18,7 @@ mkdir -p ${WORKDIR}/build/cache
 cd ${WORKDIR}/build
 
 if [[ -f cache/${MVNW_ARCHIVE} ]]; then
-  echo "[INFO] using cached copy of ${MVNW_ARCHIVE}"
+  echo "Using cached copy of ${MVNW_ARCHIVE}"
   mv cache/${MVNW_ARCHIVE} .
 else
   curl -L -O ${MVNW_LOCATION}

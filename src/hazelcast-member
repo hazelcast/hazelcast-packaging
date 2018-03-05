@@ -29,12 +29,13 @@ function usage() {
     echo "Usage:  $CMD COMMAND"
     echo
     echo "Basic Commands:"
-    echo "  start       start Hazelcast member"
+    echo "  start       start a Hazelcast member"
     echo "  status      display process status for started members"
-    echo "  stop        stop member"
+    echo "  stop        stop a member"
     echo
     echo "Other Commands:"
     echo "  banner      display banner"
+    echo "  logs        display logs for a member"
     echo "  list        print started members IDs"
     echo "  usage       display usage information"
     echo "  version     print Hazelcast version"
@@ -52,6 +53,8 @@ case "$COMMAND" in
     banner)
         banner
         ;;
+    logs)
+        ${HAZELCAST_HOME}/bin/logs.sh "$@";;
     list)
         ${HAZELCAST_HOME}/bin/list.sh "$@";;
     start)
