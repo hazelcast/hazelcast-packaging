@@ -39,6 +39,8 @@ function usage() {
     echo "  list        print started members IDs"
     echo "  usage       display usage information"
     echo "  version     print Hazelcast version"
+    echo
+    echo "Run '$CMD' COMMAND --help for more information on a command."
 }
 
 if [[ $1 = '' ]]; then
@@ -53,17 +55,25 @@ case "$COMMAND" in
     banner)
         banner
         ;;
+    help)
+        ${HAZELCAST_HOME}/bin/help.sh "$@"
+        ;;
     logs)
-        ${HAZELCAST_HOME}/bin/logs.sh "$@";;
+        ${HAZELCAST_HOME}/bin/logs.sh "$@"
+        ;;
     list)
-        ${HAZELCAST_HOME}/bin/list.sh "$@";;
+        ${HAZELCAST_HOME}/bin/list.sh "$@"
+        ;;
     start)
-        ${HAZELCAST_HOME}/bin/start.sh "$@";;
+        ${HAZELCAST_HOME}/bin/start.sh "$@"
+        ;;
     status)
-        ${HAZELCAST_HOME}/bin/status.sh "$@";;
+        ${HAZELCAST_HOME}/bin/status.sh "$@"
+        ;;
     stop)
-        ${HAZELCAST_HOME}/bin/stop.sh "$@";;
-    usage | help | --help | -h)
+        ${HAZELCAST_HOME}/bin/stop.sh "$@"
+        ;;
+    usage | --help | -h)
         usage
         ;;
     version)

@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 
 #
+function help() {
+    echo "Usage:  hazelcast-member status [ID_PREFIX]"
+    echo
+    echo "Display process status for started Hazelcast members."
+    help_ID_PREFIX
+}
+
+#
 . $(dirname "$0")/utils.sh
 
 #

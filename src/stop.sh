@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 
 #
+function help() {
+    echo "Usage:  hazelcast-member stop ID"
+    echo
+    echo "Stop the Hazelcast member with the given ID."
+    help_single_ID
+}
+
+#
 . $(dirname "$0")/utils.sh
 
 #

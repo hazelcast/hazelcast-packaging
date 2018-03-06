@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 
 #
+function help() {
+    echo "Usage:  hazelcast-member list [ID_PREFIX]"
+    echo
+    echo "Print IDs of started Hazelcast members."
+    help_ID_PREFIX
+}
+
+#
 . $(dirname "$0")/utils.sh
 
 #

@@ -16,10 +16,10 @@ function find_HID() {
     local PATTERN="${VAR_RUN_DIR}/hazelcast/$1*"
     local NUM_ENTRIES=$(ls -d ${PATTERN} 2>/dev/null | wc -l | xargs)
     if [ ${NUM_ENTRIES} -gt 1 ] ; then
-        echo "Ambiguous command: $NUM_ENTRIES Hazelcast instances$([[ ! -z $1 ]] && echo " matching $1")"
+        echo "Error: Ambiguous command: $NUM_ENTRIES Hazelcast members$([[ ! -z $1 ]] && echo " matching $1")"
         return 1
     elif [ ${NUM_ENTRIES} -eq 0 ] ; then
-        echo "No Hazelcast instance$([[ ! -z $1 ]] && echo " matching $1")"
+        echo "Error: No Hazelcast member$([[ ! -z $1 ]] && echo " matching $1")"
         return 1
     fi
     local ENTRY=$(ls -d ${PATTERN} 2>/dev/null)
@@ -52,13 +52,13 @@ function find_LOG_FILE() {
 function read_PID() {
     find_PID_FILE $1
     if [ ! -f "${PID_FILE}" ]; then
-        echo "$1:   No PID file for Hazelcast instance in $PID_DIR"
+        echo "$1            Error: No PID file for Hazelcast member in $PID_DIR"
         return 1
     fi
 
     PID=$(cat "${PID_FILE}" 2>/dev/null);
     if [ -z "${PID}" ]; then
-        echo "$1:   Cannot read PID for Hazelcast instance from $PID_FILE"
+        echo "$1            Error: Cannot read PID for Hazelcast member from $PID_FILE"
         return 1
     fi
 }
@@ -72,3 +72,24 @@ function make_HID() {
     mkdir -p ${LOG_DIR}
     LOG_FILE="${LOG_DIR}/hazelcast.log"
 }
+
+#
+function help_single_ID() {
+    echo
+    echo "ID can be omitted when a single Hazelcast member was started."
+    echo "It can be shortened to any unambiguous prefix of a Hazelcast member ID."
+}
+
+#
+function help_ID_PREFIX() {
+    echo
+    echo "ID_PREFIX selects Hazelcast member IDs, it can be a glob pattern."
+    echo "If left out, all started Hazelcast members will be selected."
+}
+
+#
+case "$1" in
+    --help | -h)
+        help
+        exit 0;;
+esac

@@ -2,7 +2,18 @@
 
 # templates meant to be resolved at build or install time
 HAZELCAST_VERSION=${hazelcast_version}
-VAR_RUN_DIR="${var_run}"
+
+#
+function help() {
+    echo "Usage:  hazelcast-member start [-v | --verbose]"
+    echo
+    echo "Start a Hazelcast member."
+    echo
+    echo "Options:"
+    echo "  -v or --verbose"
+    echo "        Show extra info about running environment."
+    help_single_ID
+}
 
 #
 . $(dirname "$0")/utils.sh
@@ -26,7 +37,7 @@ fi
 
 if [ -z $RUN_JAVA ]
 then
-    echo "Java not found. Please install Java 1.6 or higher in your PATH or set JAVA_HOME appropriately"
+    echo "Error: Java not found. Please install Java 1.6 or higher in your PATH or set JAVA_HOME appropriately"
     exit 1
 fi
 
@@ -59,13 +70,13 @@ make_HID
 PID=$(cat "${PID_FILE}" 2>/dev/null);
 if [ -z "${PID}" ]; then
     [ ${VERBOSE} ] && echo "PID file for this Hazelcast member: $PID_FILE"
-    echo "Permanent logfile for this Hazelcast member: $LOG_FILE"
+    [ ${VERBOSE} ] && echo "Permanent logfile for this Hazelcast member: $LOG_FILE"
     nohup $RUN_JAVA -server $JAVA_OPTS com.hazelcast.core.server.StartServer >>"${LOG_FILE}" 2>&1 &
     HZ_PID=$!
     echo ${HZ_PID} > ${PID_FILE}
     echo "ID:  ${HID}"
-    echo "PID: ${HZ_PID}"
+    [ ${VERBOSE} ] && echo "PID: ${HZ_PID}"
 else
-    echo "Another Hazelcast instance (PID=${PID}) is already started in this folder"
+    echo "Error: Another Hazelcast instance (PID=${PID}) is already started in this folder"
     exit 1
 fi
