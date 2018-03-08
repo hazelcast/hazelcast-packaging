@@ -4,8 +4,8 @@
 HAZELCAST_VERSION=${hazelcast_version}
 
 #
-PRG="$0"
-PRGDIR="$(dirname "$(realpath $PRG 2>/dev/null || readlink -f $PRG)")"
+CMD=$(basename $0)
+PRGDIR="$(dirname "$(realpath "$0" 2>/dev/null || readlink -f "$0")")"
 export HAZELCAST_HOME=${HAZELCAST_HOME:-$(cd "$PRGDIR/.." >/dev/null; pwd -P)}
 
 function banner () {
@@ -23,7 +23,6 @@ function version() {
 }
 
 function usage() {
-    CMD=$(basename $0)
     echo "$CMD controls Hazelcast member instance(s) on the local machine"
     echo
     echo "Usage:  $CMD COMMAND"
@@ -55,29 +54,20 @@ case "$COMMAND" in
     banner)
         banner
         ;;
-    help)
-        ${HAZELCAST_HOME}/bin/help.sh "$@"
-        ;;
-    logs)
-        ${HAZELCAST_HOME}/bin/logs.sh "$@"
-        ;;
-    list)
-        ${HAZELCAST_HOME}/bin/list.sh "$@"
-        ;;
-    start)
-        ${HAZELCAST_HOME}/bin/start.sh "$@"
-        ;;
-    status)
-        ${HAZELCAST_HOME}/bin/status.sh "$@"
-        ;;
-    stop)
-        ${HAZELCAST_HOME}/bin/stop.sh "$@"
+    help | logs | list | start | status | stop | init)
+        CMD="${CMD}" "${HAZELCAST_HOME}/bin/${COMMAND}.sh" "$@"
         ;;
     usage | --help | -h)
         usage
         ;;
-    version)
+    version | --version | -v)
         version
+        ;;
+    --commandlist)
+        echo help logs list start status stop
+        ;;
+    --optionlist)
+        echo --help --version
         ;;
     *)
         usage

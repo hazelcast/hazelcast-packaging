@@ -1,11 +1,21 @@
 #!/usr/bin/env bash
 
-#
-function help() {
-    echo "Usage:  hazelcast-member status [ID_PREFIX]"
+# display help for this command
+function helper() {
+    echo "Usage:  $CMD status [ID_PREFIX]"
     echo
     echo "Display process status for started Hazelcast members."
     help_ID_PREFIX
+}
+
+# echo available options
+function optionlist() {
+    :
+}
+
+# echo available commands; ID for Hazelcast member IDs
+function commandlist() {
+    echo ID
 }
 
 #

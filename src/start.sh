@@ -3,16 +3,25 @@
 # templates meant to be resolved at build or install time
 HAZELCAST_VERSION=${hazelcast_version}
 
-#
-function help() {
-    echo "Usage:  hazelcast-member start [-v | --verbose]"
+# display help for this command
+function helper() {
+    echo "Usage:  $CMD start [-v | --verbose]"
     echo
     echo "Start a Hazelcast member."
     echo
     echo "Options:"
     echo "  -v or --verbose"
     echo "        Show extra info about running environment."
-    help_single_ID
+}
+
+# echo available options
+function optionlist() {
+    echo -v --verbose
+}
+
+# echo available commands; ID for Hazelcast member IDs
+function commandlist() {
+    :
 }
 
 #

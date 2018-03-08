@@ -1,11 +1,21 @@
 #!/usr/bin/env bash
 
-#
-function help() {
-    echo "Usage:  hazelcast-member stop ID"
+# display help for this command
+function helper() {
+    echo "Usage:  $CMD stop ID"
     echo
     echo "Stop the Hazelcast member with the given ID."
     help_single_ID
+}
+
+# echo available options
+function optionlist() {
+    :
+}
+
+# echo available commands; ID for Hazelcast member IDs
+function commandlist() {
+    echo ID
 }
 
 #

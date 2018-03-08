@@ -90,6 +90,15 @@ function help_ID_PREFIX() {
 #
 case "$1" in
     --help | -h)
-        help
-        exit 0;;
+        helper
+        exit 0
+        ;;
+    --commandlist)
+        commandlist
+        exit 0
+        ;;
+    --optionlist)
+        optionlist
+        exit 0
+        ;;
 esac
