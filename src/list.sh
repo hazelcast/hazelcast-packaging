@@ -2,7 +2,7 @@
 
 # display help for this command
 function helper() {
-    echo "Usage:  $CMD list [ID_PREFIX]"
+    echo "Usage:  $CMD list [ID_PREFIX ...]"
     echo
     echo "Print IDs of started Hazelcast members."
     help_ID_PREFIX
@@ -23,7 +23,7 @@ function commandlist() {
 
 #
 PRG="$0"
-find_HID_LIST "$1"
+find_HID_LIST "$@"
 
 for hid in "${HID_LIST[@]}"
 do

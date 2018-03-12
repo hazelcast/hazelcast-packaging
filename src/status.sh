@@ -2,7 +2,7 @@
 
 # display help for this command
 function helper() {
-    echo "Usage:  $CMD status [ID_PREFIX]"
+    echo "Usage:  $CMD status [ID_PREFIX ...]"
     echo
     echo "Display process status for started Hazelcast members."
     help_ID_PREFIX
@@ -23,9 +23,7 @@ function commandlist() {
 
 #
 PRG="$0"
-find_HID_LIST "$1"
-
-#echo "HID_LIST: ${HID_LIST[@]}"
+find_HID_LIST "$@"
 
 printf "%-8s%-8s%-8s\n" "ID" "PID" "STATUS"
 for hid in "${HID_LIST[@]}"

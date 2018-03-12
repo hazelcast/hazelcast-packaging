@@ -2,14 +2,17 @@
 
 # templates meant to be resolved at build or install time
 VAR_DIR="${var}"
+ETC_DIR="${etc}"
 
 #
 VAR_DIR="${VAR_DIR:-/var}"
+ETC_DIR="${ETC_DIR:-/etc}"
 
 VAR_RUN_DIR="${VAR_DIR}/run"
 PID_BASE_DIR="${VAR_RUN_DIR}/hazelcast"
 VAR_LOG_DIR="${VAR_DIR}/log"
 LOG_BASE_DIR="${VAR_LOG_DIR}/hazelcast"
+CONF_DIR="${ETC_DIR}/hazelcast"
 
 #
 function find_HID() {
@@ -28,11 +31,17 @@ function find_HID() {
 
 #
 function find_HID_LIST() {
-    local PATTERN="${VAR_RUN_DIR}/hazelcast/$1*"
-    local DIR_ENTRIES=$(ls -d ${PATTERN} 2>/dev/null)
+    local ARGS=$@
+    if [ $# -eq 0 ] ; then
+        ARGS=("?")
+    fi
     HID_LIST=()
-    for ENTRY in ${DIR_ENTRIES} ; do
-          HID_LIST+=(${ENTRY: -4})
+    for i in ${ARGS[@]} ; do
+        local PATTERN="${VAR_RUN_DIR}/hazelcast/$i*"
+        local DIR_ENTRIES=$(ls -d ${PATTERN} 2>/dev/null)
+        for ENTRY in ${DIR_ENTRIES} ; do
+            HID_LIST+=(${ENTRY: -4})
+        done
     done
 }
 
