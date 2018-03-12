@@ -5,18 +5,21 @@ HAZELCAST_VERSION=${hazelcast_version}
 
 # display help for this command
 function helper() {
-    echo "Usage:  $CMD start [-v | --verbose]"
+    echo "Usage:  $CMD start [-v | --verbose] [-j <path> | --jar <path>]"
     echo
     echo "Start a Hazelcast member."
     echo
     echo "Options:"
     echo "  -v or --verbose"
     echo "        Show extra info about running environment."
+    echo
+    echo "  -j or --jar <path>"
+    echo "        Add <path> to Hazelcast class path."
 }
 
 # echo available options
 function optionlist() {
-    echo -v --verbose
+    echo -v --verbose -j --jar
 }
 
 # echo available commands; ID for Hazelcast member IDs
@@ -31,11 +34,28 @@ function commandlist() {
 mkdir -p "${PID_BASE_DIR}"
 mkdir -p "${LOG_BASE_DIR}"
 
-case "$1" in
-    -v | --verbose)
-        VERBOSE=1
-        shift;;
-esac
+# parse options
+declare VERBOSE CP
+while (( "$#" ))
+do
+    case "$1" in
+        -v | --verbose)
+            VERBOSE=1
+            shift
+            ;;
+        -j | --jar)
+            CP="$2"
+            if [[ -z ${CP} ]] ; then
+                printf "Error: missing <path> after %s\n\n" "$1"
+                helper && exit 1
+            fi
+            shift 2
+            ;;
+        *)
+            printf "Invalid argument: %s\n\n" "$1"
+            helper && exit 1
+    esac
+done
 
 if [ $JAVA_HOME ]
 then
@@ -68,10 +88,14 @@ if [ "x$MAX_HEAP_SIZE" != "x" ]; then
 fi
 
 export CLASSPATH="$HAZELCAST_HOME/lib/hazelcast-all-${HAZELCAST_VERSION}.jar"
+if [ ${CP} ]; then
+	CLASSPATH="$CLASSPATH:$CP"
+fi
 
 if [ ${VERBOSE} ] ; then
     echo "RUN_JAVA=$RUN_JAVA"
     echo "JAVA_OPTS=$JAVA_OPTS"
+    echo "CLASSPATH=$CLASSPATH"
 fi
 
 make_HID

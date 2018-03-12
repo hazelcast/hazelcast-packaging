@@ -25,9 +25,12 @@ function trycat() {
 }
 
 if [[ $1 = '-' ]] ; then
- trycat $(dirname "$0")/hazelcast-member-completion.sh
- trycat $(dirname "$0")/../../etc/bash_completion.d/hazelcast-member
- trycat ${VAR_DIR}/../etc/bash_completion.d/hazelcast-member
+    trycat $(dirname "$0")/hazelcast-member-completion.sh
+    trycat $(dirname "$0")/../../etc/bash_completion.d/hazelcast-member
+    trycat ${VAR_DIR}/../etc/bash_completion.d/hazelcast-member
+    trycat /usr/local/etc/bash_completion.d/hazelcast-member
+    trycat /etc/bash_completion.d/hazelcast-member
+    exit 1
 fi
 
-exit 1
+helper

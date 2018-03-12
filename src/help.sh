@@ -6,7 +6,7 @@ function helper() {
     echo
     echo "Display help text for the given COMMAND."
     echo
-    echo "Type '$CMD' with no options to display a list of supported COMMANDs."
+    echo "Run '$CMD --help' to display a list of supported COMMANDs."
 }
 
 # echo available options
@@ -16,7 +16,7 @@ function optionlist() {
 
 # echo available commands; ID for Hazelcast member IDs
 function commandlist() {
-    k$(dirname "$0")/${CMD} --commandlist
+    $(dirname "$0")/${CMD} --commandlist
 }
 
 #

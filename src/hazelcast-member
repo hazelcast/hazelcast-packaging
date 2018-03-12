@@ -28,18 +28,23 @@ function usage() {
     echo "Usage:  $CMD COMMAND"
     echo
     echo "Basic Commands:"
+    echo "  logs        display logs for a member"
     echo "  start       start a Hazelcast member"
     echo "  status      display process status for started members"
     echo "  stop        stop a member"
     echo
     echo "Other Commands:"
-    echo "  banner      display banner"
-    echo "  logs        display logs for a member"
     echo "  list        print started members IDs"
     echo "  usage       display usage information"
-    echo "  version     print Hazelcast version"
     echo
-    echo "Run '$CMD' COMMAND --help for more information on a command."
+    echo "Options:"
+    echo "  -h or --help"
+    echo "        display usage and options"
+    echo
+    echo "  -v or --version"
+    echo "        print Hazelcast version"
+    echo
+    echo "Run '$CMD help COMMAND' for more information on a command."
 }
 
 if [[ $1 = '' ]]; then
@@ -57,10 +62,10 @@ case "$COMMAND" in
     help | logs | list | start | status | stop | init)
         CMD="${CMD}" "${HAZELCAST_HOME}/bin/${COMMAND}.sh" "$@"
         ;;
-    usage | --help | -h)
+    --help | -h)
         usage
         ;;
-    version | --version | -v)
+    --version | -v)
         version
         ;;
     --commandlist)
