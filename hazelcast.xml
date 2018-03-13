@@ -64,7 +64,7 @@
             <discovery-strategies>
             </discovery-strategies>
         </join>
-        <interfaces enabled="true">
+        <interfaces enabled="${interfaces.enabled}">
             <interface>${network.interface}</interface>
         </interfaces>
         <ssl enabled="false"/>
@@ -277,6 +277,6 @@
 
     <!-- -->
     <properties>
-        <property name="hazelcast.socket.bind.any">false</property>
+        <property name="hazelcast.socket.bind.any">${bind.any}</property>
     </properties>
 </hazelcast>

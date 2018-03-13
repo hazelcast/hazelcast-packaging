@@ -53,10 +53,12 @@ mkdir -p "${PID_BASE_DIR}"
 mkdir -p "${LOG_BASE_DIR}"
 
 #
-declare CONF_PORT CONF_IF CONF_GROUP_NAME CONF_GROUP_PASSWORD CONF
+declare CONF_PORT CONF_IF CONF_IF_ENABLED CONF_BIND_ANY CONF_GROUP_NAME CONF_GROUP_PASSWORD CONF
 function default_config() {
     CONF_PORT="${CONF_PORT:-5701}"
     CONF_IF="${CONF_IF:-127.0.0.1}"
+    CONF_IF_ENABLED="${CONF_IF_ENABLED:-false}"
+    CONF_BIND_ANY="${CONF_BIND_ANY:-true}"
     CONF_GROUP_NAME="${CONF_GROUP_NAME:-dev}"
     CONF_GROUP_PASSWORD="${CONF_GROUP_PASSWORD:-dev-pass}"
     CONF="${CONF_DIR}/hazelcast.xml"
@@ -113,6 +115,8 @@ do
                 helper && exit 1
             fi
             CONF_IF="$2"
+            CONF_IF_ENABLED="true"
+            CONF_BIND_ANY="false"
             shift 2
             ;;
         -cn | --cluster-name)
@@ -185,6 +189,8 @@ if [ "$CONF_PORT" -o "$CONF_IF" -o "$CONF_GROUP_NAME" -o "$CONF_GROUP_PASSWORD" 
     JAVA_OPTS="$JAVA_OPTS -Dgroup.name=${CONF_GROUP_NAME}"
     JAVA_OPTS="$JAVA_OPTS -Dgroup.password=${CONF_GROUP_PASSWORD}"
     JAVA_OPTS="$JAVA_OPTS -Dnetwork.interface=${CONF_IF}"
+    JAVA_OPTS="$JAVA_OPTS -Dinterfaces.enabled=${CONF_IF_ENABLED}"
+    JAVA_OPTS="$JAVA_OPTS -Dbind.any=${CONF_BIND_ANY}"
     JAVA_OPTS="$JAVA_OPTS -Dnetwork.port=${CONF_PORT}"
 fi
 
