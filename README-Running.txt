@@ -1,11 +1,22 @@
-Run a new Hazelcast member instance with:
+hazelcast-member controls Hazelcast member instance(s) on the local machine
 
-    $ hazelcast-member start
+Usage:  hazelcast-member COMMAND
 
-Stop a running member instance with:
+Basic Commands:
+  logs        display logs for a member
+  start       start a Hazelcast member
+  status      display process status for started members
+  stop        stop a member
 
-    $ hazelcast-member stop
+Other Commands:
+  list        print started members IDs
+  usage       display usage information
 
-Inspect a current member instance status with:
+Options:
+  -h or --help
+        display usage and options
 
-    $ hazelcast-member status
+  -v or --version
+        print Hazelcast version
+
+Run 'hazelcast-member help COMMAND' for more information on a command.
