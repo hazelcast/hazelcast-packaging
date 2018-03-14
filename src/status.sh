@@ -19,7 +19,7 @@ function commandlist() {
 }
 
 #
-. $(dirname "$0")/utils.sh
+source $(dirname "$0")/utils.sh
 
 #
 PRG="$0"
@@ -34,7 +34,7 @@ do
        if [[ STATUS -eq 0 ]]; then
            printf "%-8s%-8s%s\n" "$hid" "$PID" "Running"
        else
-           printf "%-8s%-8s%s\n" "$hid" "$PID" "Not running. Please remove ${PID_DIR}"
+           printf "%-8s%-8s%s\n" "$hid" "$PID" "Not running. Run '$CMD stop $hid' to remove stale PID file."
        fi
     fi
 done

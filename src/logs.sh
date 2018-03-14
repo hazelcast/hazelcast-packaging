@@ -23,7 +23,7 @@ function commandlist() {
 }
 
 #
-. $(dirname "$0")/utils.sh
+source $(dirname "$0")/utils.sh
 
 #
 PRG="$0"

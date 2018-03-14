@@ -46,7 +46,7 @@ function commandlist() {
 }
 
 #
-. $(dirname "$0")/utils.sh
+source $(dirname "$0")/utils.sh
 
 #
 mkdir -p "${PID_BASE_DIR}"
@@ -227,3 +227,5 @@ else
     echo "Error: Another Hazelcast instance (PID=${PID}) is already started in this folder"
     exit 1
 fi
+
+exit 0

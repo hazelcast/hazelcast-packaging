@@ -18,7 +18,7 @@ function commandlist() {
 }
 
 #
-. $(dirname "$0")/utils.sh
+source $(dirname "$0")/utils.sh
 
 function trycat() {
     [ -f "$1" ] && cat "$1" && exit 0

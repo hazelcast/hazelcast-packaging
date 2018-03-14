@@ -20,6 +20,6 @@ function commandlist() {
 }
 
 #
-. $(dirname "$0")/utils.sh
+source $(dirname "$0")/utils.sh
 
 $(dirname "$0")/${CMD} "$1" --help
