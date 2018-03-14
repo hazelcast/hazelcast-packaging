@@ -11,7 +11,7 @@ This repository contains:
 ## Getting started
 
 **macOS users** please use the Homebrew Formula
-available at [https://github.com/hazelcast/homebrew-hazelcast]()
+available at https://github.com/hazelcast/homebrew-hazelcast
 
 ### Manual installation
 
