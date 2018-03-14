@@ -27,15 +27,20 @@ Create a `hazelcast` directory under your `ETC_DIR` and copy
 
 ### A note about the provided `hazelcast.xml`
 
-The provided `hazelcast.xml` configuration file will be used as a template configuration file.
+The provided `hazelcast.xml` configuration file is used as a template configuration file.
 It contains variables such as `${network.port}` that will be resolved at runtime with values
-provided through options such as `--port`.
+provided through special options such as `--port`.
 
-As such, we recommend that you don't edit that file directly, but make a copy of it for specifying
-custom configurations. You may want to replace all the above-mentioned variables with specific
-values.
+As such, we don't recommend that you edit the file directly.
+You may want to create a copy of it for specifying custom configurations, then use
+`hazelcast-member start -c <file>` to use the new file.
 
-Run `hazelcast-member help start` to display the available options.
+In that case, you may either replace the above-mentioned variables with specific
+values, or – if you want to provide a value for a specific variable – you can use
+the `-J` option followed by `-D` in order to set a system property,
+e.g., `-J -Dnetwork.port=8000`.
+
+Run `hazelcast-member help start` to display all the available options.
 
 ### READMEs
 
