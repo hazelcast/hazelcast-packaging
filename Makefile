@@ -1,5 +1,5 @@
 HAZELCAST_VERSION=3.9.3
-HAZELCAST_MEMBER_REV=2
+HAZELCAST_MEMBER_REV=3
 
 DIST=build/dist
 HZ_BIN=${DIST}/bin
@@ -16,7 +16,7 @@ clean: cleandist
 cleanall:
 	# cleaning up everything
 	rm -fr build
-	rm -f archive/hazelcast-member-${HAZELCAST_VERSION}_${HAZELCAST_MEMBER_REV}.tar.gz
+	rm -f archive/hazelcast-member-${HAZELCAST_VERSION}.${HAZELCAST_MEMBER_REV}.tar.gz
 
 cleandist:
 	# cleaning up dist
@@ -42,5 +42,5 @@ download:
 package: dist
 	# creating package
 	mkdir -p archive
-	tar -zcf archive/hazelcast-member-${HAZELCAST_VERSION}_${HAZELCAST_MEMBER_REV}.tar.gz -C ${DIST} README.txt bin lib etc
-	@echo "Archive archive/hazelcast-member-${HAZELCAST_VERSION}_${HAZELCAST_MEMBER_REV}.tar.gz created successfully"
+	tar -zcf archive/hazelcast-member-${HAZELCAST_VERSION}.${HAZELCAST_MEMBER_REV}.tar.gz -C ${DIST} README.txt bin lib etc
+	@echo "Archive archive/hazelcast-member-${HAZELCAST_VERSION}.${HAZELCAST_MEMBER_REV}.tar.gz created successfully"
