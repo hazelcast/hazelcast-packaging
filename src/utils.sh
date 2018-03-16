@@ -8,15 +8,13 @@ ETC_DIR="${etc}"
 VAR_DIR="${VAR_DIR:-/var}"
 ETC_DIR="${ETC_DIR:-/etc}"
 
-VAR_RUN_DIR="${VAR_DIR}/run"
-PID_BASE_DIR="${VAR_RUN_DIR}/hazelcast"
-VAR_LOG_DIR="${VAR_DIR}/log"
-LOG_BASE_DIR="${VAR_LOG_DIR}/hazelcast"
+PID_BASE_DIR="${VAR_DIR}/run/hazelcast"
+LOG_BASE_DIR="${VAR_DIR}/log/hazelcast"
 CONF_DIR="${ETC_DIR}/hazelcast"
 
 #
 function find_HID() {
-    local PATTERN="${VAR_RUN_DIR}/hazelcast/$1*"
+    local PATTERN="${PID_BASE_DIR}/$1*"
     local NUM_ENTRIES=$(ls -d ${PATTERN} 2>/dev/null | wc -l | xargs)
     if [ ${NUM_ENTRIES} -gt 1 ] ; then
         echo "Error: Ambiguous command: $NUM_ENTRIES Hazelcast members$([[ ! -z $1 ]] && echo " matching $1")"
@@ -37,7 +35,7 @@ function find_HID_LIST() {
     fi
     HID_LIST=()
     for i in ${ARGS[@]} ; do
-        local PATTERN="${VAR_RUN_DIR}/hazelcast/$i*"
+        local PATTERN="${PID_BASE_DIR}/$i*"
         local DIR_ENTRIES=$(ls -d ${PATTERN} 2>/dev/null)
         for ENTRY in ${DIR_ENTRIES} ; do
             HID_LIST+=(${ENTRY: -4})

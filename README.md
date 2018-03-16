@@ -16,14 +16,14 @@ available at https://github.com/hazelcast/homebrew-hazelcast
 ### Manual installation
 
 Extract `hazelcast-member-<version>.tar.gz` to a directory of your choice.
-Make sure that `<your-directory>/bin/hazelcast-member` is on your `PATH`,
+Make sure that `<install-directory>/bin/hazelcast-member` is on your `PATH`,
 e.g., create a symlink to it in `/usr/local/bin`.
 
-Edit `<your-directory>/bin/utils.sh` and configure `VAR_DIR` and `ETC_DIR`,
+Edit `<install-directory>/bin/utils.sh` and configure `VAR_DIR` and `ETC_DIR`,
 e.g. `/usr/local/var` and `/usr/local/etc/` may work for you.
 
 Create a `hazelcast` directory under your `ETC_DIR` and copy
-`<your-directory>/etc/hazelcast.xml` there.
+`<install-directory>/etc/hazelcast/hazelcast.xml` there.
 
 ### A note about the provided `hazelcast.xml`
 
@@ -33,7 +33,7 @@ provided through special options such as `--port`.
 
 As such, we don't recommend that you edit the file directly.
 You may want to create a copy of it for specifying custom configurations, then use
-`hazelcast-member start -c <file>` to use the new file.
+`hazelcast-member start --config <file>` to use the custom file.
 
 In that case, you may either replace the above-mentioned variables with specific
 values, or – if you want to provide a value for a specific variable – you can use

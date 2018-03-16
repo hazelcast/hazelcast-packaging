@@ -1,5 +1,5 @@
 HAZELCAST_VERSION=3.9.3
-HAZELCAST_MEMBER_REV=3
+HAZELCAST_MEMBER_REV=4
 
 DIST=build/dist
 HZ_BIN=${DIST}/bin
@@ -26,9 +26,9 @@ dist:
 	# copying docs and scripts
 	mkdir -p ${DIST}
 	mkdir -p ${HZ_BIN}
-	mkdir -p ${HZ_ETC}
+	mkdir -p ${HZ_ETC}/hazelcast
 	cp README-Running.txt ${DIST}/README.txt
-	cp hazelcast.xml ${HZ_ETC}
+	cp hazelcast.xml ${HZ_ETC}/hazelcast
 	cp src/hazelcast-member ${HZ_BIN}
 	cp src/*.sh ${HZ_BIN}
 	for f in ${HZ_BIN}/* ; do sed -i '.bak' 's/$${hazelcast_version}/${HAZELCAST_VERSION}/g' $$f ; done

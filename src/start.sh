@@ -10,29 +10,30 @@ function helper() {
     echo "Start a Hazelcast member."
     echo
     echo "Options:"
-    echo "  -v or --verbose"
-    echo "        Show extra info about running environment."
+    echo "  -c or --config <file>"
+    echo "        Use <file> for Hazelcast configuration."
+    echo "        If <file> is '-', read the standard input."
+    echo
+    echo "  -cn or --cluster-name <name>"
+    echo "        Use the specified cluster <name> (default: 'dev')."
+    echo
+    echo "  -cp or --cluster-password <password>"
+    echo "        Use the specified cluster <password> (default: 'password')."
+    echo
+    echo "  -i or --interface <interface>"
+    echo "        Bind to the specified <interface> (default: bind to all interfaces)."
     echo
     echo "  -j or --jar <path>"
     echo "        Add <path> to Hazelcast class path."
     echo
-    echo "  -c or --config <file>"
-    echo "        Use <file> for Hazelcast configuration."
+    echo "  -p or --port <port>"
+    echo "        Bind to the specified <port> (default: 5701)."
+    echo
+    echo "  -v or --verbose"
+    echo "        Show extra info about running environment."
     echo
     echo "  -J or --JAVA_OPTS <options>"
     echo "        Specify additional Java <options>."
-    echo
-    echo "  -p or --port <port>"
-    echo "        Bind to the specified <port> (default 5701)"
-    echo
-    echo "  -i or --interface <interface>"
-    echo "        Bind to the specified <interface> (default 127.0.0.1)"
-    echo
-    echo "  -cn or --cluster-name <name>"
-    echo "        Use the specified cluster <name> (default dev)"
-    echo
-    echo "  -cp or --cluster-password <password>"
-    echo "        Use the specified cluster <password> (default password)"
 }
 
 # echo available options
@@ -53,19 +54,29 @@ mkdir -p "${PID_BASE_DIR}"
 mkdir -p "${LOG_BASE_DIR}"
 
 #
-declare CONF_PORT CONF_IF CONF_IF_ENABLED CONF_BIND_ANY CONF_GROUP_NAME CONF_GROUP_PASSWORD CONF
+declare VERBOSE CP CONF
+declare CONF_PORT CONF_IF CONF_IF_ENABLED CONF_BIND_ANY CONF_GROUP_NAME CONF_GROUP_PASSWORD
+
 function default_config() {
     CONF_PORT="${CONF_PORT:-5701}"
-    CONF_IF="${CONF_IF:-127.0.0.1}"
+    CONF_IF="${CONF_IF:-}"
     CONF_IF_ENABLED="${CONF_IF_ENABLED:-false}"
     CONF_BIND_ANY="${CONF_BIND_ANY:-true}"
     CONF_GROUP_NAME="${CONF_GROUP_NAME:-dev}"
     CONF_GROUP_PASSWORD="${CONF_GROUP_PASSWORD:-dev-pass}"
-    CONF="${CONF_DIR}/hazelcast.xml"
+    CONF="${CONF:-${CONF_DIR}/hazelcast.xml}"
+}
+
+function check_config_file() {
+    if [[ ${CONF} = '-' ]] ; then
+        return 0
+    elif [[ ! -f ${CONF} ]] ; then
+        echo "Error: ${CONF} not found!"
+        exit 1
+    fi
 }
 
 # parse options
-declare VERBOSE CP CONF
 while (( "$#" ))
 do
     case "$1" in
@@ -99,6 +110,7 @@ do
                 helper && exit 1
             fi
             CONF="$2"
+            check_config_file
             shift 2
             ;;
         -p | --port)
@@ -142,7 +154,7 @@ do
 done
 
 # config options or config file
-if [ "$CONF" -a '(' "$CONF_PORT" -o "$CONF_IF" -o "$CONF_GROUP_NAME" -o "$CONF_GROUP_PASSWORD" ')' ]; then
+if [ -n "$CONF" -a '(' "$CONF_PORT" -o "$CONF_IF" -o "$CONF_GROUP_NAME" -o "$CONF_GROUP_PASSWORD" ')' ]; then
     printf "Error: Config option(s) and config file are mutually exclusive.\n\n"
     helper && exit 1
 fi
@@ -182,17 +194,18 @@ if [ ${CP} ]; then
 	CLASSPATH="${CLASSPATH}${CP}"
 fi
 
+default_config
+
+check_config_file
+
 make_HID
 
-if [ "$CONF_PORT" -o "$CONF_IF" -o "$CONF_GROUP_NAME" -o "$CONF_GROUP_PASSWORD" ] ; then
-    default_config
-    JAVA_OPTS="$JAVA_OPTS -Dgroup.name=${CONF_GROUP_NAME}"
-    JAVA_OPTS="$JAVA_OPTS -Dgroup.password=${CONF_GROUP_PASSWORD}"
-    JAVA_OPTS="$JAVA_OPTS -Dnetwork.interface=${CONF_IF}"
-    JAVA_OPTS="$JAVA_OPTS -Dinterfaces.enabled=${CONF_IF_ENABLED}"
-    JAVA_OPTS="$JAVA_OPTS -Dbind.any=${CONF_BIND_ANY}"
-    JAVA_OPTS="$JAVA_OPTS -Dnetwork.port=${CONF_PORT}"
-fi
+JAVA_OPTS="$JAVA_OPTS -Dgroup.name=${CONF_GROUP_NAME}"
+JAVA_OPTS="$JAVA_OPTS -Dgroup.password=${CONF_GROUP_PASSWORD}"
+JAVA_OPTS="$JAVA_OPTS -Dnetwork.interface=${CONF_IF}"
+JAVA_OPTS="$JAVA_OPTS -Dinterfaces.enabled=${CONF_IF_ENABLED}"
+JAVA_OPTS="$JAVA_OPTS -Dbind.any=${CONF_BIND_ANY}"
+JAVA_OPTS="$JAVA_OPTS -Dnetwork.port=${CONF_PORT}"
 
 if [[ ${CONF} = '-' ]]; then
     CONF=$(mktemp -q "${PID_DIR}/${CMD}.XXXXXX")
@@ -206,6 +219,7 @@ fi
 if [ ${CONF} ]; then
     JAVA_OPTS="$JAVA_OPTS -Dhazelcast.config=${CONF}"
 fi
+
 #
 if [ ${VERBOSE} ] ; then
     echo "Java executable: $RUN_JAVA"
@@ -216,12 +230,14 @@ fi
 
 PID=$(cat "${PID_FILE}" 2>/dev/null);
 if [ -z "${PID}" ]; then
+    echo "ID:  ${HID}"
     [ ${VERBOSE} ] && echo "PID file for this Hazelcast member: $PID_FILE"
     [ ${VERBOSE} ] && echo "Permanent logfile for this Hazelcast member: $LOG_FILE"
-    nohup $RUN_JAVA -server $JAVA_OPTS com.hazelcast.core.server.StartServer >>"${LOG_FILE}" 2>&1 &
+    HZ_CMD="${RUN_JAVA} -server ${JAVA_OPTS} com.hazelcast.core.server.StartServer"
+    [ ${VERBOSE} ] && echo "Command line: $HZ_CMD"
+    nohup ${HZ_CMD} >>"${LOG_FILE}" 2>&1 &
     HZ_PID=$!
     echo ${HZ_PID} > ${PID_FILE}
-    echo "ID:  ${HID}"
     [ ${VERBOSE} ] && echo "PID: ${HZ_PID}"
 else
     echo "Error: Another Hazelcast instance (PID=${PID}) is already started in this folder"
