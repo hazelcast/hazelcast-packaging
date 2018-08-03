@@ -20,6 +20,9 @@ function helper() {
     echo "  -cp or --cluster-password <password>"
     echo "        Use the specified cluster <password> (default: 'password')."
     echo
+    echo "  -fg or --foreground"
+    echo "        Run in the foreground."
+    echo
     echo "  -i or --interface <interface>"
     echo "        Bind to the specified <interface> (default: bind to all interfaces)."
     echo
@@ -38,7 +41,7 @@ function helper() {
 
 # echo available options
 function optionlist() {
-    echo -v --verbose -j --jar -c --config -J --JAVA_OPTS -p --port -i --interface -cn --cluster-name -cp --cluster-password
+    echo -v --verbose -j --jar -c --config -J --JAVA_OPTS -p --port -i --interface -cn --cluster-name -cp --cluster-password -fg --foreground
 }
 
 # echo available commands; ID for Hazelcast member IDs
@@ -55,8 +58,7 @@ mkdir -p "${LOG_BASE_DIR}"
 
 #
 declare VERBOSE CP CONF
-declare CONF_PORT CONF_IF CONF_IF_ENABLED CONF_BIND_ANY CONF_GROUP_NAME CONF_GROUP_PASSWORD
-
+declare CONF_PORT CONF_IF CONF_IF_ENABLED CONF_BIND_ANY CONF_GROUP_NAME CONF_GROUP_PASSWORD CONF_FOREGROUND
 function default_config() {
     CONF_PORT="${CONF_PORT:-5701}"
     CONF_IF="${CONF_IF:-}"
@@ -147,6 +149,10 @@ do
             CONF_GROUP_PASSWORD="$2"
             shift 2
             ;;
+        -fg | --foreground)
+            CONF_FOREGROUND=1
+            shift
+            ;;
         *)
             printf "Invalid argument: %s\n\n" "$1"
             helper && exit 1
@@ -232,13 +238,22 @@ PID=$(cat "${PID_FILE}" 2>/dev/null);
 if [ -z "${PID}" ]; then
     echo "ID:  ${HID}"
     [ ${VERBOSE} ] && echo "PID file for this Hazelcast member: $PID_FILE"
-    [ ${VERBOSE} ] && echo "Permanent logfile for this Hazelcast member: $LOG_FILE"
+    [ ${VERBOSE} -a ! ${CONF_FOREGROUND} ] && echo "Permanent logfile for this Hazelcast member: $LOG_FILE"
     HZ_CMD="${RUN_JAVA} -server ${JAVA_OPTS} com.hazelcast.core.server.StartServer"
     [ ${VERBOSE} ] && echo "Command line: $HZ_CMD"
-    nohup ${HZ_CMD} >>"${LOG_FILE}" 2>&1 &
+    if [ ${CONF_FOREGROUND} ] ; then
+        set -m
+        ${HZ_CMD} &
+    else
+        nohup ${HZ_CMD} >>"${LOG_FILE}" 2>&1 &
+    fi
     HZ_PID=$!
     echo ${HZ_PID} > ${PID_FILE}
-    [ ${VERBOSE} ] && echo "PID: ${HZ_PID}"
+    if [ ${CONF_FOREGROUND} ] ; then
+        fg %- >/dev/null
+    else
+        [ ${VERBOSE} ] && echo "PID: ${HZ_PID}"
+    fi
 else
     echo "Error: Another Hazelcast instance (PID=${PID}) is already started in this folder"
     exit 1
