@@ -24,7 +24,7 @@ function find_HID() {
         return 1
     fi
     local ENTRY=$(ls -d ${PATTERN} 2>/dev/null)
-    HID=${ENTRY: -4}
+    HID=$(basename $ENTRY)
 }
 
 #
@@ -38,7 +38,7 @@ function find_HID_LIST() {
         local PATTERN="${PID_BASE_DIR}/$i*"
         local DIR_ENTRIES=$(ls -d ${PATTERN} 2>/dev/null)
         for ENTRY in ${DIR_ENTRIES} ; do
-            HID_LIST+=(${ENTRY: -4})
+            HID_LIST+=($(basename $ENTRY))
         done
     done
 }
@@ -72,12 +72,38 @@ function read_PID() {
 
 #
 function make_HID() {
-    PID_DIR=$(mktemp -d "${PID_BASE_DIR}/XXXX")
-    HID=${PID_DIR: -4}
+    HID=$(get_MOBYNAME)
+    PID_DIR=$(mktemp -d "${PID_BASE_DIR}/${HID}")
+    if [ $? -ne 0 ] ; then
+        echo "Error: Can't create temp directory"
+        exit 1
+    fi
     PID_FILE="${PID_DIR}/hazelcast.pid"
     LOG_DIR="${LOG_BASE_DIR}/$HID"
     mkdir -p ${LOG_DIR}
     LOG_FILE="${LOG_DIR}/hazelcast.log"
+}
+
+#
+function find_RUN_JAVA() {
+    if [ $JAVA_HOME ]
+    then
+        RUN_JAVA=$JAVA_HOME/bin/java
+    else
+        RUN_JAVA=`which java 2>/dev/null`
+    fi
+
+    if [ -z $RUN_JAVA ]
+    then
+        echo "Error: Java not found. Please install Java 1.6 or higher in your PATH or set JAVA_HOME appropriately"
+        exit 1
+    fi
+}
+
+#
+function get_MOBYNAME() {
+    find_RUN_JAVA
+    ${RUN_JAVA} -jar "$HAZELCAST_HOME/lib/mobynames-1.0.jar"
 }
 
 #

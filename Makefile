@@ -31,6 +31,7 @@ dist:
 	cp hazelcast.xml ${HZ_ETC}/hazelcast
 	cp src/hazelcast-member ${HZ_BIN}
 	cp src/*.sh ${HZ_BIN}
+	cp lib/*.jar ${DIST}/lib
 	for f in ${HZ_BIN}/* ; do sed -i '.bak' 's/$${hazelcast_version}/${HAZELCAST_VERSION}/g' $$f ; done
 	rm -f ${HZ_BIN}/*.bak
 	chmod +x ${HZ_BIN}/*

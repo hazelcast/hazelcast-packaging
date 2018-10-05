@@ -165,18 +165,7 @@ if [ -n "$CONF" -a '(' "$CONF_PORT" -o "$CONF_IF" -o "$CONF_GROUP_NAME" -o "$CON
     helper && exit 1
 fi
 
-if [ $JAVA_HOME ]
-then
-	RUN_JAVA=$JAVA_HOME/bin/java
-else
-    RUN_JAVA=`which java 2>/dev/null`
-fi
-
-if [ -z $RUN_JAVA ]
-then
-    echo "Error: Java not found. Please install Java 1.6 or higher in your PATH or set JAVA_HOME appropriately"
-    exit 1
-fi
+find_RUN_JAVA
 
 #### you can enable following variables by uncommenting them
 
