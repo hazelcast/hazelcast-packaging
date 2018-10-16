@@ -73,14 +73,15 @@ function read_PID() {
 #
 function make_HID() {
     HID=$(get_MOBYNAME)
-    PID_DIR=$(mktemp -d "${PID_BASE_DIR}/${HID}")
+    PID_DIR="${PID_BASE_DIR}/${HID}"
+    mkdir -m 0700 "${PID_BASE_DIR}/${HID}"
     if [ $? -ne 0 ] ; then
         echo "Error: Can't create temp directory"
         exit 1
     fi
     PID_FILE="${PID_DIR}/hazelcast.pid"
     LOG_DIR="${LOG_BASE_DIR}/$HID"
-    mkdir -p ${LOG_DIR}
+    mkdir -m 0700 -p ${LOG_DIR}
     LOG_FILE="${LOG_DIR}/hazelcast.log"
 }
 
