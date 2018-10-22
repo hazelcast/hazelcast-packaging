@@ -16,7 +16,6 @@ clean: cleandist
 cleanall:
 	# cleaning up everything
 	rm -fr build
-	rm -f archive/hazelcast-member-${HAZELCAST_VERSION}.${HAZELCAST_MEMBER_REV}.tar.gz
 
 cleandist:
 	# cleaning up dist
@@ -42,6 +41,6 @@ download:
 
 package: dist
 	# creating package
-	mkdir -p archive
-	tar -zcf archive/hazelcast-member-${HAZELCAST_VERSION}.${HAZELCAST_MEMBER_REV}.tar.gz -C ${DIST} README.txt bin lib etc
-	@echo "Archive archive/hazelcast-member-${HAZELCAST_VERSION}.${HAZELCAST_MEMBER_REV}.tar.gz created successfully"
+	mkdir -p build/package
+	tar -zcf build/package/hazelcast-member-${HAZELCAST_VERSION}.${HAZELCAST_MEMBER_REV}.tar.gz -C ${DIST} README.txt bin lib etc
+	@echo "Archive build/package/hazelcast-member-${HAZELCAST_VERSION}.${HAZELCAST_MEMBER_REV}.tar.gz created successfully"
