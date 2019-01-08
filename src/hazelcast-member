@@ -35,7 +35,7 @@ function usage() {
     echo
     echo "Other Commands:"
     echo "  list        print started members IDs"
-    echo "  usage       display usage information"
+    echo "  help        display usage information"
     echo
     echo "Options:"
     echo "  -h or --help"
