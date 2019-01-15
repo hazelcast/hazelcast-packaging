@@ -10,7 +10,7 @@ Basic Commands:
 
 Other Commands:
   list        print started members IDs
-  usage       display usage information
+  help        display usage information
 
 Options:
   -h or --help
