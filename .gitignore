@@ -1,26 +1,18 @@
-# Build directory
-build/
-
-# Compiled class file
-*.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.ear
-*.zip
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-
-.idea
+target/
+.clover/
+.idea/
+.settings/
+.attach_pid*
+.classpath
+.directory
+.patch
+.project
+.surefire-*
+.DS_Store
+*.iml
+*.ipr
+*.iws
+atlassian-ide-plugin.xml
+*dependency-reduced-pom.xml
+hazelcast/src/main/java/com/hazelcast/instance/GeneratedBuildProperties.java
+diagnostics-*.log
