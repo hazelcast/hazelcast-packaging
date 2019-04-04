@@ -12,6 +12,7 @@ target/
 *.iml
 *.ipr
 *.iws
+*.dat
 atlassian-ide-plugin.xml
 *dependency-reduced-pom.xml
 hazelcast/src/main/java/com/hazelcast/instance/GeneratedBuildProperties.java

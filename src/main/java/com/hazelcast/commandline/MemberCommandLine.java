@@ -7,9 +7,12 @@ import java.lang.reflect.Field;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 
 import static picocli.CommandLine.*;
 
@@ -24,6 +27,7 @@ public class MemberCommandLine implements Callable<Void> {
     private final PrintStream out;
     private final PrintStream err;
     private final String FILE_PATH = "instances.dat";
+    private Stream<String> processOutput;
 
     public MemberCommandLine(PrintStream out, PrintStream err) {
         this.out = out;
@@ -37,9 +41,16 @@ public class MemberCommandLine implements Callable<Void> {
     @Command(description = "Starts a new Hazelcast IMDG member",
             mixinStandardHelpOptions = true
     )
-    public void start() throws IOException, ClassNotFoundException {
+    public void start(
+            @Option(names = {"-c", "--config"},
+            description = "Use <file> for Hazelcast configuration.")
+            String configFilePath) throws IOException, ClassNotFoundException {
         println("Starting a new Hazelcast IMDG member...");
-        Integer pid = buildJavaProcess(HazelcastMember.class);
+        List<String> parameters = new ArrayList<>();
+        if (configFilePath != null && !configFilePath.isEmpty()) {
+            parameters.add("-Dhazelcast.config=" + configFilePath);
+        }
+        Integer pid = buildJavaProcess(HazelcastMember.class, parameters);
         saveProcess(new HazelcastProcess(pid));
         println("Hazelcast IMDG Member started with pid: " + pid);
     }
@@ -87,8 +98,7 @@ public class MemberCommandLine implements Callable<Void> {
         Map<Integer, HazelcastProcess> processes = new HashMap<>();
         try {
             Path path = FileSystems.getDefault().getPath(FILE_PATH);
-            boolean exists = Files.exists(path);
-            if (!exists){
+            if (!Files.exists(path)){
                 Files.createFile(path);
             }
             fileInputStream = new FileInputStream(FILE_PATH);
@@ -104,16 +114,22 @@ public class MemberCommandLine implements Callable<Void> {
         return processes;
     }
 
-    private Integer buildJavaProcess(Class aClass) throws IOException, ClassNotFoundException {
+    private Integer buildJavaProcess(Class aClass, List<String> parameters) throws IOException{
+        List<String> commandList = new ArrayList<>();
         String separator = System.getProperty("file.separator");
         String classpath = System.getProperty("java.class.path");
         String path = System.getProperty("java.home")
                 + separator + "bin" + separator + "java";
-        ProcessBuilder processBuilder =
-                new ProcessBuilder(path, "-cp",
-                        classpath,
-                        aClass.getName());
+        commandList.add(path);
+        commandList.add("-cp");
+        commandList.add(classpath);
+        commandList.add(aClass.getName());
+        commandList.addAll(parameters);
+        ProcessBuilder processBuilder = new ProcessBuilder(commandList);
+        processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        processOutput = bufferedReader.lines();
         return getPid(process);
     }
 
@@ -155,5 +171,9 @@ public class MemberCommandLine implements Callable<Void> {
 
     private void println(String msg) {
         out.println(msg);
+    }
+
+    public Stream<String> getProcessOutput() {
+        return processOutput;
     }
 }

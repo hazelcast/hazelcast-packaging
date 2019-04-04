@@ -44,7 +44,7 @@ public class HazelcastCommandLine implements Callable<Void> {
         if (args.length == 0) {
             cmd.usage(out);
         } else {
-            CommandLine.DefaultExceptionHandler<List<Object>> excHandler =
+            DefaultExceptionHandler<List<Object>> excHandler =
                     new ExceptionHandler<List<Object>>().useErr(err).useAnsi(Help.Ansi.AUTO);
             if (shouldExit) {
                 excHandler.andExit(1);
@@ -70,7 +70,7 @@ public class HazelcastCommandLine implements Callable<Void> {
         }
     }
 
-    static class ExceptionHandler<R> extends CommandLine.DefaultExceptionHandler<R> {
+    static class ExceptionHandler<R> extends DefaultExceptionHandler<R> {
         @Override
         public R handleExecutionException(ExecutionException ex, ParseResult parseResult) {
             // find top level command
