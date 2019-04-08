@@ -54,12 +54,33 @@ public class MemberCommandLine implements Callable<Void> {
     )
     public void start(
             @Option(names = {"-c", "--config"},
-            description = "Use <file> for Hazelcast configuration.")
-            String configFilePath) throws IOException, ClassNotFoundException {
+                    description = "Use <file> for Hazelcast configuration.")
+            String configFilePath,
+            @Option(names = {"-cn", "--cluster-name"},
+                    description = "Use the specified cluster <name> (default: 'dev')",
+                    defaultValue = "dev")
+            String clusterName,
+            @Option(names = {"-p", "--port"},
+                    description = "Bind to the specified <port> (default: 5701)",
+                    defaultValue = "5701")
+            String port,
+            @Option(names = {"-i", "--interface"},
+                    description = "Bind to the specified <interface> (default: bind to all interfaces).")
+            String hzInterface) throws IOException, ClassNotFoundException {
         List<String> args = new ArrayList<>();
-        if (configFilePath != null && !configFilePath.isEmpty()) {
+        if (!isNullOrEmpty(configFilePath)) {
             args.add("-Dhazelcast.config=" + configFilePath);
         }
+        args.add("-Dgroup.name=" + (!isNullOrEmpty(clusterName) ? clusterName : "dev"));
+        args.add("-Dnetwork.port=" + (!isNullOrEmpty(port) ? port : "5701"));
+        if (!isNullOrEmpty(hzInterface)) {
+            args.add("-Dbind.any=false");
+            args.add("-Dinterfaces.enabled=true");
+        }else {
+            args.add("-Dbind.any=true");
+            args.add("-Dinterfaces.enabled=false");
+        }
+        args.add("-Dnetwork.interface=" + hzInterface);
 
         //TODO replace
         String processUniqueId = UUID.randomUUID().toString();
@@ -71,6 +92,10 @@ public class MemberCommandLine implements Callable<Void> {
         saveProcess(new HazelcastProcess(processUniqueId, pid));
 
         println(processUniqueId);
+    }
+
+    private boolean isNullOrEmpty(@Option(names = {"-c", "--config"}, description = "Use <file> for Hazelcast configuration.") String configFilePath) {
+        return configFilePath == null || configFilePath.isEmpty();
     }
 
     private String createProcessDirs(String processUniqueId) {
