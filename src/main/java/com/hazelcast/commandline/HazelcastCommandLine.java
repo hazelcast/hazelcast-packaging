@@ -20,6 +20,9 @@ import static picocli.CommandLine.*;
 )
 public class HazelcastCommandLine implements Callable<Void> {
 
+    public static String HAZELCAST_HOME = System.getProperty("user.home") + "/.hazelcast";
+    public final static String SEPARATOR = System.getProperty("file.separator");
+
     @Mixin(name = "verbosity")
     private Verbosity verbosity;
 

@@ -1,17 +1,28 @@
 package com.hazelcast.commandline;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-public class CommandLineTestSupport {
+public class CommandLineTestSupport{
+
+    static {
+        HazelcastCommandLine.HAZELCAST_HOME = System.getProperty("user.home") + "/.hazelcastTest";
+    }
+
     private ByteArrayOutputStream baosOut;
     private ByteArrayOutputStream baosErr;
     protected PrintStream out;
     protected PrintStream err;
 
-    void resetOut() {
+    public CommandLineTestSupport() {
         baosOut = new ByteArrayOutputStream();
         baosErr = new ByteArrayOutputStream();
+    }
+
+    void resetOut() {
+        baosOut.reset();
+        baosErr.reset();
         out = new PrintStream(baosOut);
         err = new PrintStream(baosErr);
     }
