@@ -66,8 +66,11 @@ public class MemberCommandLine implements Callable<Void> {
                     defaultValue = "5701")
             String port,
             @Option(names = {"-i", "--interface"},
-                    description = "Bind to the specified <interface> (default: bind to all interfaces).")
-            String hzInterface) throws IOException, ClassNotFoundException {
+                    description = "Bind to the specified <interface> (default: bind to all interfaces)")
+            String hzInterface,
+            @Option(names = {"-fg", "--foreground"},
+                    description = "Run in the foreground")
+            boolean foreground) throws IOException, ClassNotFoundException, InterruptedException {
         List<String> args = new ArrayList<>();
         if (!isNullOrEmpty(configFilePath)) {
             args.add("-Dhazelcast.config=" + configFilePath);
@@ -83,13 +86,12 @@ public class MemberCommandLine implements Callable<Void> {
         }
         args.add("-Dnetwork.interface=" + hzInterface);
 
-        //TODO replace
         String processUniqueId = MobyNames.getRandomName(0);
         String processDir = createProcessDirs(processUniqueId);
         String loggingPropertiesPath = createLoggingPropertiesFile(processUniqueId, processDir);
         args.add("-Djava.util.logging.config.file=" + loggingPropertiesPath);
 
-        Integer pid = buildJavaProcess(HazelcastMember.class, args);
+        Integer pid = buildJavaProcess(HazelcastMember.class, args, foreground);
         saveProcess(new HazelcastProcess(processUniqueId, pid));
 
         println(processUniqueId);
@@ -215,8 +217,8 @@ public class MemberCommandLine implements Callable<Void> {
         return processes;
     }
 
-    private Integer buildJavaProcess(Class aClass, List<String> parameters)
-            throws IOException{
+    private Integer buildJavaProcess(Class aClass, List<String> parameters, boolean foreground)
+            throws IOException, InterruptedException {
         List<String> commandList = new ArrayList<>();
         String classpath = System.getProperty("java.class.path");
         String path = System.getProperty("java.home")
@@ -228,7 +230,13 @@ public class MemberCommandLine implements Callable<Void> {
         commandList.add(aClass.getName());
         ProcessBuilder processBuilder = new ProcessBuilder(commandList);
         processBuilder.redirectErrorStream(true);
+        if (foreground) {
+            processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        }
         Process process = processBuilder.start();
+        if (foreground) {
+            process.waitFor();
+        }
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         processOutput = bufferedReader.lines();
         return getPid(process);

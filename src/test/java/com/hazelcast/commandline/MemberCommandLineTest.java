@@ -59,14 +59,14 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
     }
 
     @Test(timeout = 10000)
-    public void test_start() throws IOException, ClassNotFoundException {
-        memberCommandLine.start(null, null, null, null);
+    public void test_start() throws IOException, ClassNotFoundException, InterruptedException {
+        memberCommandLine.start(null, null, null, null, false);
         assertTrue(memberCommandLine.getProcessOutput().anyMatch(out ->
                 out.contains(LifecycleEvent.LifecycleState.STARTED.toString())));
     }
 
     @Test(timeout = 10000)
-    public void test_start_withConfigFile() throws IOException, ClassNotFoundException {
+    public void test_start_withConfigFile() throws IOException, ClassNotFoundException, InterruptedException {
         String groupName = "member-command-line-test";
         startMemberWithConfigFile();
         assertTrue(memberCommandLine.getProcessOutput().anyMatch(out ->
@@ -74,24 +74,24 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
     }
 
     @Test(timeout = 10000)
-    public void test_start_withClusterName() throws IOException, ClassNotFoundException {
+    public void test_start_withClusterName() throws IOException, ClassNotFoundException, InterruptedException {
         String groupName = "member-command-line-test";
-        memberCommandLine.start(null, groupName, null, null);
+        memberCommandLine.start(null, groupName, null, null, false);
         assertTrue(memberCommandLine.getProcessOutput().anyMatch(out ->
                 out.contains(groupName) && out.contains(LifecycleEvent.LifecycleState.STARTED.toString())));
     }
 
     @Test(timeout = 10000)
-    public void test_start_withPort() throws IOException, ClassNotFoundException {
+    public void test_start_withPort() throws IOException, ClassNotFoundException, InterruptedException {
         String port = "9898";
-        memberCommandLine.start(null, null, port, null);
+        memberCommandLine.start(null, null, port, null, false);
         assertTrue(memberCommandLine.getProcessOutput().anyMatch(out ->
                 out.contains(port + " is " + LifecycleEvent.LifecycleState.STARTED.toString())));
     }
 
     @Test
     public void test_stop() throws IOException, ClassNotFoundException, InterruptedException {
-        memberCommandLine.start(null, null, null, null);
+        memberCommandLine.start(null, null, null, null, false);
         String processUniqueID = captureOut().replace("\n", "");
         int pid = memberCommandLine.getProcessMap().get(processUniqueID).getPid();
         memberCommandLine.stop(processUniqueID);
@@ -100,10 +100,10 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
 
     @Test
     public void test_list() throws ClassNotFoundException, IOException, InterruptedException {
-        memberCommandLine.start(null, null, null, null);
+        memberCommandLine.start(null, null, null, null, false);
         String processUniqueId1 = captureOut().replace("\n", "");
         resetOut();
-        memberCommandLine.start(null, null, null, null);
+        memberCommandLine.start(null, null, null, null, false);
         String processUniqueId2 = captureOut().replace("\n", "");
         resetOut();
         memberCommandLine.list();
@@ -126,8 +126,8 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
         assertTrue(captureOut().contains(groupName));
     }
 
-    private void startMemberWithConfigFile() throws IOException, ClassNotFoundException {
-        memberCommandLine.start("src/test/resources/test-hazelcast.xml", null, null, null);
+    private void startMemberWithConfigFile() throws IOException, ClassNotFoundException, InterruptedException {
+        memberCommandLine.start("src/test/resources/test-hazelcast.xml", null, null, null, false);
     }
 
     private String getRunningProcesses() throws IOException, InterruptedException {
