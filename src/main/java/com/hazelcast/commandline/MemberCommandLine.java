@@ -1,5 +1,6 @@
 package com.hazelcast.commandline;
 
+import com.hazelcast.commandline.names.MobyNames;
 import com.hazelcast.core.HazelcastException;
 
 import java.io.*;
@@ -83,7 +84,7 @@ public class MemberCommandLine implements Callable<Void> {
         args.add("-Dnetwork.interface=" + hzInterface);
 
         //TODO replace
-        String processUniqueId = UUID.randomUUID().toString();
+        String processUniqueId = MobyNames.getRandomName(0);
         String processDir = createProcessDirs(processUniqueId);
         String loggingPropertiesPath = createLoggingPropertiesFile(processUniqueId, processDir);
         args.add("-Djava.util.logging.config.file=" + loggingPropertiesPath);
