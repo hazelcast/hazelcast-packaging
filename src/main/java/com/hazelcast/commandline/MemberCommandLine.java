@@ -257,7 +257,10 @@ public class MemberCommandLine implements Callable<Void> {
 
     private int getPid(Process process) {
         int pid = 0;
-        if(process.getClass().getName().equals("java.lang.UNIXProcess")) {
+        String className = process.getClass().getName();
+        if(className.equals("java.lang.UNIXProcess")
+                || className.equals("java.lang.ProcessImpl") /* to get the PID on Java9+ */
+        ) {
             /* get the PID on unix/linux systems */
             try {
                 Field f = process.getClass().getDeclaredField("pid");
