@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class MemberCommandLineTest extends CommandLineTestSupport {
@@ -147,8 +148,24 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
         TimeUnit.SECONDS.sleep(5);
         assertTrue(Files.exists(Paths.get(HazelcastCommandLine.HAZELCAST_HOME
                 + "/" + processUniqueId + "/logs/hazelcast.log")));
-        memberCommandLine.logs(processUniqueId);
+        memberCommandLine.logs(processUniqueId, 1000);
         assertTrue(captureOut().contains(groupName));
+    }
+
+    @Test
+    public void test_logs_withLineCount() throws IOException, ClassNotFoundException, InterruptedException {
+        memberCommandLine.start(null, null, null, null,
+                false, null, null);
+        String processUniqueId = captureOut().replace("\n", "");
+        resetOut();
+        //await for the logs to be created
+        TimeUnit.SECONDS.sleep(5);
+        assertTrue(Files.exists(Paths.get(HazelcastCommandLine.HAZELCAST_HOME
+                + "/" + processUniqueId + "/logs/hazelcast.log")));
+        int numberOfLines = 10;
+        memberCommandLine.logs(processUniqueId, numberOfLines);
+        int outputLength = captureOut().split("\\n").length;
+        assertEquals("Not expected number of lines in logs.", numberOfLines, outputLength);
     }
 
     private void startMemberWithConfigFile() throws IOException, ClassNotFoundException, InterruptedException {

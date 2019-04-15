@@ -6,7 +6,6 @@ import com.hazelcast.core.HazelcastException;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -154,9 +153,9 @@ public class MemberCommandLine implements Callable<Void> {
     )
     public void stop(
             @Parameters(index = "0",
-            paramLabel = "<process-id>",
-            description = "Process id of the process to stop")
-                                 String processUniqueId) throws IOException, ClassNotFoundException {
+                        paramLabel = "<process-id>",
+                        description = "Process id of the process to stop")
+                        String processUniqueId) throws IOException, ClassNotFoundException {
         HazelcastProcess process = getProcessMap().get(processUniqueId);
         if (process == null){
             printlnErr("No process found with process id: " + processUniqueId);
@@ -185,23 +184,32 @@ public class MemberCommandLine implements Callable<Void> {
     @Command(description = "Display the logs for Hazelcast member with the given ID.",
             mixinStandardHelpOptions = true
     )
-    public void logs(@Parameters(index = "0",
-            paramLabel = "<process-id>",
-            description = "Process id of the process to show the logs")
-                                 String processUniqueId) throws ClassNotFoundException, IOException {
+    public void logs(
+            @Parameters(index = "0",
+                        paramLabel = "<process-id>",
+                        description = "Process id of the process to show the logs")
+                        String processUniqueId,
+            @Option(names = {"-n"},
+                    paramLabel = "<lines>",
+                    description = "Display the specified number of lines",
+                    defaultValue = "10")
+                    int numberOfLines) throws ClassNotFoundException, IOException {
         if (!getProcessMap().containsKey(processUniqueId)) {
             printlnErr("No process found with process id: " + processUniqueId);
         }
-        println(getLogs(processUniqueId));
+        getLogs(out, processUniqueId, numberOfLines);
     }
 
-    private String getLogs(String processUniqueId) throws IOException {
+    private void getLogs(PrintStream out, String processUniqueId, int numberOfLines) throws IOException {
         String logsPath = HAZELCAST_HOME + SEPARATOR + processUniqueId + SEPARATOR
                 + logsDirString + SEPARATOR + logsFileNameString;
-        StringBuilder output = new StringBuilder();
-        Stream<String> stream = Files.lines( Paths.get(logsPath), StandardCharsets.UTF_8);
-        stream.forEach(s -> output.append(s).append("\n"));
-        return output.toString();
+        long totalLineCount = Files.lines(Paths.get(logsPath)).count();
+        long skipLineCount = 0;
+        if (totalLineCount > numberOfLines){
+            skipLineCount = totalLineCount - numberOfLines;
+        }
+        Stream<String> stream = Files.lines( Paths.get(logsPath)).skip(skipLineCount);
+        stream.forEach(out::println);
     }
 
     private void removeProcess(String processUniqueId) throws IOException, ClassNotFoundException {
