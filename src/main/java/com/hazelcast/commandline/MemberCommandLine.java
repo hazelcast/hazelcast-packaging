@@ -57,29 +57,34 @@ public class MemberCommandLine implements Callable<Void> {
     public void start(
             @Option(names = {"-c", "--config"},
                     paramLabel = "<file>",
-                    description = "Use <file> for Hazelcast configuration.")
-            String configFilePath,
+                    description = "Use <file> for Hazelcast configuration")
+                    String configFilePath,
             @Option(names = {"-cn", "--cluster-name"},
                     paramLabel = "<name>",
                     description = "Use the specified cluster <name> (default: 'dev')",
                     defaultValue = "dev")
-            String clusterName,
+                    String clusterName,
             @Option(names = {"-p", "--port"},
                     paramLabel = "<port>",
                     description = "Bind to the specified <port> (default: 5701)",
                     defaultValue = "5701")
-            String port,
+                    String port,
             @Option(names = {"-i", "--interface"},
                     paramLabel = "<interface>",
                     description = "Bind to the specified <interface> (default: bind to all interfaces)")
-            String hzInterface,
+                    String hzInterface,
             @Option(names = {"-fg", "--foreground"},
                     description = "Run in the foreground")
-            boolean foreground,
+                    boolean foreground,
             @Option(names = {"-j", "--jar"},
                     paramLabel = "<path>",
-                    description = "Add <path> to Hazelcast class path.)")
-            String additionalClassPath) throws IOException, ClassNotFoundException, InterruptedException {
+                    description = "Add <path> to Hazelcast class path")
+                    String additionalClassPath,
+            @Option(names = {"-J", "--JAVA_OPTS"},
+                    paramLabel = "<option>",
+                    split = ",",
+                    description = "Specify additional Java <option> (Use ',' char to split multiple options)")
+                    List<String> javaOptions) throws IOException, ClassNotFoundException, InterruptedException {
         List<String> args = new ArrayList<>();
         if (!isNullOrEmpty(configFilePath)) {
             args.add("-Dhazelcast.config=" + configFilePath);
@@ -94,6 +99,9 @@ public class MemberCommandLine implements Callable<Void> {
             args.add("-Dinterfaces.enabled=false");
         }
         args.add("-Dnetwork.interface=" + hzInterface);
+        if (javaOptions != null && javaOptions.size() > 0){
+            args.addAll(javaOptions);
+        }
 
         String processUniqueId = MobyNames.getRandomName(0);
         String processDir = createProcessDirs(processUniqueId);
