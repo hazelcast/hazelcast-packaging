@@ -189,8 +189,8 @@ public class MemberCommandLine implements Callable<Void> {
                         paramLabel = "<process-id>",
                         description = "Process id of the process to show the logs")
                         String processUniqueId,
-            @Option(names = {"-n"},
-                    paramLabel = "<lines>",
+            @Option(names = {"-n", "--numberOfLines"},
+                    paramLabel = "<lineCount>",
                     description = "Display the specified number of lines",
                     defaultValue = "10")
                     int numberOfLines) throws ClassNotFoundException, IOException {
