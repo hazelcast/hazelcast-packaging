@@ -56,23 +56,28 @@ public class MemberCommandLine implements Callable<Void> {
     )
     public void start(
             @Option(names = {"-c", "--config"},
+                    paramLabel = "<file>",
                     description = "Use <file> for Hazelcast configuration.")
             String configFilePath,
             @Option(names = {"-cn", "--cluster-name"},
+                    paramLabel = "<name>",
                     description = "Use the specified cluster <name> (default: 'dev')",
                     defaultValue = "dev")
             String clusterName,
             @Option(names = {"-p", "--port"},
+                    paramLabel = "<port>",
                     description = "Bind to the specified <port> (default: 5701)",
                     defaultValue = "5701")
             String port,
             @Option(names = {"-i", "--interface"},
+                    paramLabel = "<interface>",
                     description = "Bind to the specified <interface> (default: bind to all interfaces)")
             String hzInterface,
             @Option(names = {"-fg", "--foreground"},
                     description = "Run in the foreground")
             boolean foreground,
             @Option(names = {"-j", "--jar"},
+                    paramLabel = "<path>",
                     description = "Add <path> to Hazelcast class path.)")
             String additionalClassPath) throws IOException, ClassNotFoundException, InterruptedException {
         List<String> args = new ArrayList<>();
@@ -172,7 +177,7 @@ public class MemberCommandLine implements Callable<Void> {
             mixinStandardHelpOptions = true
     )
     public void logs(@Parameters(index = "0",
-            paramLabel = "<pid>",
+            paramLabel = "<process-id>",
             description = "Process id of the process to show the logs")
                                  String processUniqueId) throws ClassNotFoundException, IOException {
         if (!getProcessMap().containsKey(processUniqueId)) {
