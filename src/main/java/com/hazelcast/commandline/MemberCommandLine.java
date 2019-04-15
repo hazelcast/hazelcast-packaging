@@ -31,6 +31,7 @@ public class MemberCommandLine implements Callable<Void> {
     private final String logsFileNameString = "hazelcast.log";
     private Stream<String> processOutput;
     public final String instancesFilePath = HAZELCAST_HOME + SEPARATOR + "instances.dat";
+    private String CLASSPATH_SEPARATOR = System.getProperty("os.name").startsWith("Windows") ? ";" : ":";
 
     public MemberCommandLine(PrintStream out, PrintStream err) {
         this.out = out;
@@ -70,7 +71,10 @@ public class MemberCommandLine implements Callable<Void> {
             String hzInterface,
             @Option(names = {"-fg", "--foreground"},
                     description = "Run in the foreground")
-            boolean foreground) throws IOException, ClassNotFoundException, InterruptedException {
+            boolean foreground,
+            @Option(names = {"-j", "--jar"},
+                    description = "Add <path> to Hazelcast class path.)")
+            String additionalClassPath) throws IOException, ClassNotFoundException, InterruptedException {
         List<String> args = new ArrayList<>();
         if (!isNullOrEmpty(configFilePath)) {
             args.add("-Dhazelcast.config=" + configFilePath);
@@ -91,14 +95,14 @@ public class MemberCommandLine implements Callable<Void> {
         String loggingPropertiesPath = createLoggingPropertiesFile(processUniqueId, processDir);
         args.add("-Djava.util.logging.config.file=" + loggingPropertiesPath);
 
-        Integer pid = buildJavaProcess(HazelcastMember.class, args, foreground);
+        Integer pid = buildJavaProcess(HazelcastMember.class, args, foreground, additionalClassPath);
         saveProcess(new HazelcastProcess(processUniqueId, pid));
 
         println(processUniqueId);
     }
 
-    private boolean isNullOrEmpty(@Option(names = {"-c", "--config"}, description = "Use <file> for Hazelcast configuration.") String configFilePath) {
-        return configFilePath == null || configFilePath.isEmpty();
+    private boolean isNullOrEmpty(String string) {
+        return string == null || string.isEmpty();
     }
 
     private String createProcessDirs(String processUniqueId) {
@@ -217,10 +221,13 @@ public class MemberCommandLine implements Callable<Void> {
         return processes;
     }
 
-    private Integer buildJavaProcess(Class aClass, List<String> parameters, boolean foreground)
+    private Integer buildJavaProcess(Class aClass, List<String> parameters, boolean foreground, String additionalClassPath)
             throws IOException, InterruptedException {
         List<String> commandList = new ArrayList<>();
         String classpath = System.getProperty("java.class.path");
+        if (!isNullOrEmpty(additionalClassPath)){
+            classpath += CLASSPATH_SEPARATOR + additionalClassPath;
+        }
         String path = System.getProperty("java.home")
                 + SEPARATOR + "bin" + SEPARATOR + "java";
         commandList.add(path);
