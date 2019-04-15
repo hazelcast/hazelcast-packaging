@@ -1,5 +1,9 @@
-package com.hazelcast.commandline;
+package com.hazelcast.commandline.member;
 
+import com.hazelcast.commandline.CommandLineTestSupport;
+import com.hazelcast.commandline.HazelcastCommandLine;
+import com.hazelcast.commandline.member.HazelcastMember;
+import com.hazelcast.commandline.member.MemberCommandLine;
 import com.hazelcast.core.LifecycleEvent;
 import org.junit.After;
 import org.junit.Before;

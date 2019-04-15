@@ -1,4 +1,4 @@
-package com.hazelcast.commandline.names;
+package com.hazelcast.commandline.member.names;
 
 import java.util.Random;
 

@@ -20,14 +20,14 @@ public class CommandLineTestSupport{
         baosErr = new ByteArrayOutputStream();
     }
 
-    void resetOut() {
+    public void resetOut() {
         baosOut.reset();
         baosErr.reset();
         out = new PrintStream(baosOut);
         err = new PrintStream(baosErr);
     }
 
-    String captureOut() {
+    public String captureOut() {
         out.flush();
         return new String(baosOut.toByteArray());
     }

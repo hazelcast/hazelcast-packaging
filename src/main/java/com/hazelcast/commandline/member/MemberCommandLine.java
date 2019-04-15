@@ -1,6 +1,7 @@
-package com.hazelcast.commandline;
+package com.hazelcast.commandline.member;
 
-import com.hazelcast.commandline.names.MobyNames;
+import com.hazelcast.commandline.HazelcastVersionProvider;
+import com.hazelcast.commandline.member.names.MobyNames;
 import com.hazelcast.core.HazelcastException;
 
 import java.io.*;
@@ -213,7 +214,7 @@ public class MemberCommandLine implements Callable<Void> {
         updateFile(processMap);
     }
 
-    protected Map<String, HazelcastProcess> getProcessMap() throws ClassNotFoundException {
+    public Map<String, HazelcastProcess> getProcessMap() throws ClassNotFoundException {
         FileInputStream fileInputStream;
         Map<String, HazelcastProcess> processes = new HashMap<>();
         try {

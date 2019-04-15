@@ -1,5 +1,6 @@
 package com.hazelcast.commandline;
 
+import com.hazelcast.commandline.member.MemberCommandLine;
 import picocli.CommandLine;
 
 import java.io.PrintStream;

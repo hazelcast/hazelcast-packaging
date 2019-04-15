@@ -1,4 +1,4 @@
-package com.hazelcast.commandline;
+package com.hazelcast.commandline.member;
 
 import java.io.Serializable;
 
