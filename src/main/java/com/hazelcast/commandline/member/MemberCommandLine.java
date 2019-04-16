@@ -3,6 +3,7 @@ package com.hazelcast.commandline.member;
 import com.hazelcast.commandline.HazelcastVersionProvider;
 import com.hazelcast.commandline.member.names.MobyNames;
 import com.hazelcast.core.HazelcastException;
+import picocli.CommandLine;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -25,6 +26,9 @@ import static picocli.CommandLine.*;
         sortOptions = false
 )
 public class MemberCommandLine implements Callable<Void> {
+    @Spec
+    Model.CommandSpec spec;
+
     private final PrintStream out;
     private final PrintStream err;
     private final String logsDirString = "logs";
@@ -48,6 +52,10 @@ public class MemberCommandLine implements Callable<Void> {
     }
 
     public Void call() {
+        List<CommandLine> parsed = spec.commandLine().getParseResult().asCommandLineList();
+        if (parsed != null && parsed.size() == 1) {
+            spec.commandLine().usage(out);
+        }
         return null;
     }
 
