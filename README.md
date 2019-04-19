@@ -1,4 +1,4 @@
-# Hazelcast Member Tool Prototype
+# Hazelcast Command Line Tool
 
 ## Usage
 

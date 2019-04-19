@@ -13,8 +13,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -42,8 +42,8 @@
     </build>
 
     <properties>
-        <hazelcast.version>3.11.2</hazelcast.version>
-        <picocli.version>3.9.0</picocli.version>
+        <hazelcast.version>3.12</hazelcast.version>
+        <picocli.version>3.9.6</picocli.version>
     </properties>
 
     <dependencies>

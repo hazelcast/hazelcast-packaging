@@ -4,11 +4,17 @@ import com.hazelcast.commandline.member.MemberCommandLine;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
+import java.nio.file.FileSystems;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.hazelcast.instance.BuildInfoProvider.getBuildInfo;
-import static picocli.CommandLine.*;
+import static picocli.CommandLine.Command;
+import static picocli.CommandLine.Mixin;
+import static picocli.CommandLine.DefaultExceptionHandler;
+import static picocli.CommandLine.Help;
+import static picocli.CommandLine.RunAll;
+import static picocli.CommandLine.Option;
 
 @Command(
         name = "hazelcast",
@@ -22,10 +28,10 @@ import static picocli.CommandLine.*;
 public class HazelcastCommandLine implements Callable<Void> {
 
     public static String HAZELCAST_HOME = System.getProperty("user.home") + "/.hazelcast";
-    public final static String SEPARATOR = System.getProperty("file.separator");
+    public final static String SEPARATOR = FileSystems.getDefault().getSeparator();
 
     @Mixin(name = "verbosity")
-    private Verbosity verbosity;
+    public Verbosity verbosity;
 
     public Void call() {
         return null;
@@ -35,11 +41,7 @@ public class HazelcastCommandLine implements Callable<Void> {
         runCommandLine(System.out, System.err, true, args);
     }
 
-    static void runCommandLine(
-            PrintStream out, PrintStream err,
-            boolean shouldExit,
-            String[] args
-    ) {
+    private static void runCommandLine(PrintStream out, PrintStream err, boolean shouldExit, String[] args) {
         CommandLine cmd = new CommandLine(new HazelcastCommandLine())
                 .addSubcommand("member", new MemberCommandLine(out, err));
 
@@ -54,7 +56,7 @@ public class HazelcastCommandLine implements Callable<Void> {
                 excHandler.andExit(1);
             }
             List<Object> parsed = cmd.parseWithHandlers(new RunAll().useOut(out).useAnsi(Help.Ansi.AUTO), excHandler, args);
-            // only top command was executed
+            // when only top command was executed, print usage info
             if (parsed != null && parsed.size() == 1) {
                 cmd.usage(out);
             }
@@ -69,31 +71,12 @@ public class HazelcastCommandLine implements Callable<Void> {
         )
         private boolean isVerbose;
 
-        void merge(Verbosity other) {
-            isVerbose |= other.isVerbose;
+        public boolean isVerbose() {
+            return isVerbose;
         }
-    }
 
-    static class ExceptionHandler<R> extends DefaultExceptionHandler<R> {
-        @Override
-        public R handleExecutionException(ExecutionException ex, ParseResult parseResult) {
-            // find top level command
-            CommandLine cmdLine = ex.getCommandLine();
-            while (cmdLine.getParent() != null) {
-                cmdLine = cmdLine.getParent();
-            }
-            HazelcastCommandLine hzCmd = cmdLine.getCommand();
-            if (hzCmd.verbosity.isVerbose) {
-                ex.printStackTrace(err());
-            } else {
-                err().println("ERROR: " + ex.getCause().getMessage());
-                err().println();
-                err().println("To see the full stack trace, re-run with the -v/--verbosity option");
-            }
-            if (hasExitCode()) {
-                exit(exitCode());
-            }
-            throw ex;
+        public void merge(Verbosity other) {
+            isVerbose |= other.isVerbose;
         }
     }
 }
