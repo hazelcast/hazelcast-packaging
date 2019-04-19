@@ -25,7 +25,7 @@ import static picocli.CommandLine.Option;
         mixinStandardHelpOptions = true,
         sortOptions = false
 )
-public class HazelcastCommandLine implements Callable<Void> {
+public class HazelcastCommandLine implements Runnable {
 
     public static String HAZELCAST_HOME = System.getProperty("user.home") + "/.hazelcast";
     public final static String SEPARATOR = FileSystems.getDefault().getSeparator();
@@ -33,8 +33,7 @@ public class HazelcastCommandLine implements Callable<Void> {
     @Mixin(name = "verbosity")
     public Verbosity verbosity;
 
-    public Void call() {
-        return null;
+    public void run() {
     }
 
     public static void main(String[] args) {

@@ -35,7 +35,7 @@ import static picocli.CommandLine.*;
         mixinStandardHelpOptions = true,
         sortOptions = false
 )
-public class MemberCommandLine implements Callable<Void> {
+public class MemberCommandLine implements Runnable {
     @Spec
     Model.CommandSpec spec;
 
@@ -45,7 +45,7 @@ public class MemberCommandLine implements Callable<Void> {
     private final String logsFileNameString = "hazelcast.log";
     private Stream<String> processOutput;
     public final String instancesFilePath = HAZELCAST_HOME + SEPARATOR + "instances.dat";
-    private String CLASSPATH_SEPARATOR = System.getProperty("os.name").startsWith("Windows") ? ";" : ":";
+    private String CLASSPATH_SEPARATOR = ":";
 
     public MemberCommandLine(PrintStream out, PrintStream err) {
         this.out = out;
@@ -57,16 +57,16 @@ public class MemberCommandLine implements Callable<Void> {
         try {
             new File(HAZELCAST_HOME).mkdirs();
         } catch (Exception e) {
-            throw new HazelcastException("Process directories couldn't created.");
+            throw new HazelcastException("Process directories couldn't created. This might be related to user " +
+                    "permissions, please check your write permissions at: " + HAZELCAST_HOME, e);
         }
     }
 
-    public Void call() {
+    public void run() {
         List<CommandLine> parsed = spec.commandLine().getParseResult().asCommandLineList();
         if (parsed != null && parsed.size() == 1) {
             spec.commandLine().usage(out);
         }
-        return null;
     }
 
     @Command(description = "Starts a new Hazelcast IMDG member",

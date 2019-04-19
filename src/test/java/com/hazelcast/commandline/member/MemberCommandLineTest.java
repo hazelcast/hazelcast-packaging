@@ -31,7 +31,7 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
 
     @After
     public void close() throws IOException, InterruptedException {
-        killAllRunningInstances();
+        killAllRunningHazelcastInstances();
         removeFiles();
     }
 
@@ -44,14 +44,14 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
                 .forEach(File::delete);
     }
 
-    private void killAllRunningInstances() throws IOException, InterruptedException {
-        String out = getRunningProcesses();
-        List<String> pids = getPids(out);
+    private void killAllRunningHazelcastInstances() throws IOException, InterruptedException {
+        String out = getRunningJavaProcesses();
+        List<String> pids = getHazelcastInstancePids(out);
         runCommand("/bin/kill -9 " + String.join(" ", pids));
 
     }
 
-    private List<String> getPids(String out) {
+    private List<String> getHazelcastInstancePids(String out) {
         List<String> pids = new ArrayList<>();
         for (String line : out.split("\n")) {
             if (line.contains(HazelcastMember.class.getSimpleName())) {
@@ -119,7 +119,7 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
         String processUniqueID = captureOut().replace("\n", "");
         int pid = memberCommandLine.getProcessMap().get(processUniqueID).getPid();
         memberCommandLine.stop(processUniqueID);
-        assertTrue(!getRunningProcesses().contains(String.valueOf(pid)));
+        assertTrue(!getRunningJavaProcesses().contains(String.valueOf(pid)));
     }
 
     @Test
@@ -173,7 +173,7 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
                 null, null, false, null, null);
     }
 
-    private String getRunningProcesses() throws IOException, InterruptedException {
+    private String getRunningJavaProcesses() throws IOException, InterruptedException {
         return runCommand("jps");
     }
 
