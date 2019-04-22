@@ -22,7 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
 import static com.hazelcast.commandline.HazelcastCommandLine.*;
@@ -172,7 +171,7 @@ public class MemberCommandLine implements Runnable {
     public void stop(
             @Parameters(index = "0",
                         paramLabel = "<process-id>",
-                        description = "Process id of the process to stop")
+                        description = "Process id of the process to stop, for ex.: brave_frog")
                         String processUniqueId) throws IOException, ClassNotFoundException {
         HazelcastProcess process = getProcessMap().get(processUniqueId);
         if (process == null){
@@ -205,7 +204,7 @@ public class MemberCommandLine implements Runnable {
     public void logs(
             @Parameters(index = "0",
                         paramLabel = "<process-id>",
-                        description = "Process id of the process to show the logs")
+                        description = "Process id of the process to show the logs, for ex.: brave_frog")
                         String processUniqueId,
             @Option(names = {"-n", "--numberOfLines"},
                     paramLabel = "<lineCount>",
