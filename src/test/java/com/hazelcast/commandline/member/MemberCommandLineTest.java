@@ -7,7 +7,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.File;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,6 +24,8 @@ import static junit.framework.TestCase.assertTrue;
 
 public class MemberCommandLineTest extends CommandLineTestSupport {
 
+    private final String DEFAULT_CLUSTER_NAME = "dev";
+    private final String DEFAULT_PORT = "5701";
     private MemberCommandLine memberCommandLine;
 
     @Before
@@ -30,7 +35,7 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
     }
 
     @After
-    public void close() throws IOException, InterruptedException {
+    public void close() throws IOException {
         killAllRunningHazelcastInstances();
         removeFiles();
     }
@@ -44,7 +49,7 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
                 .forEach(File::delete);
     }
 
-    private void killAllRunningHazelcastInstances() throws IOException, InterruptedException {
+    private void killAllRunningHazelcastInstances() throws IOException {
         String out = getRunningJavaProcesses();
         List<String> pids = getHazelcastInstancePids(out);
         runCommand("/bin/kill -9 " + String.join(" ", pids));
@@ -62,15 +67,15 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
     }
 
     @Test(timeout = 10000)
-    public void test_start() throws IOException, ClassNotFoundException, InterruptedException {
-        memberCommandLine.start(null, null, null, null,
+    public void test_start() throws IOException, InterruptedException {
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null,
                 false, null, null);
         assertTrue(memberCommandLine.getProcessOutput().anyMatch(out ->
                 out.contains(LifecycleEvent.LifecycleState.STARTED.toString())));
     }
 
     @Test(timeout = 10000)
-    public void test_start_withConfigFile() throws IOException, ClassNotFoundException, InterruptedException {
+    public void test_start_withConfigFile() throws IOException, InterruptedException {
         String groupName = "member-command-line-test";
         startMemberWithConfigFile();
         assertTrue(memberCommandLine.getProcessOutput().anyMatch(out ->
@@ -78,29 +83,29 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
     }
 
     @Test(timeout = 10000)
-    public void test_start_withClusterName() throws IOException, ClassNotFoundException, InterruptedException {
+    public void test_start_withClusterName() throws IOException, InterruptedException {
         String groupName = "member-command-line-test";
-        memberCommandLine.start(null, groupName, null, null, false,
+        memberCommandLine.start(null, groupName, DEFAULT_PORT, null, false,
                 null, null);
         assertTrue(memberCommandLine.getProcessOutput().anyMatch(out ->
                 out.contains(groupName) && out.contains(LifecycleEvent.LifecycleState.STARTED.toString())));
     }
 
     @Test(timeout = 10000)
-    public void test_start_withPort() throws IOException, ClassNotFoundException, InterruptedException {
+    public void test_start_withPort() throws IOException, InterruptedException {
         String port = "9898";
-        memberCommandLine.start(null, null, port, null,
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, port, null,
                 false, null, null);
         assertTrue(memberCommandLine.getProcessOutput().anyMatch(out ->
                 out.contains(port + " is " + LifecycleEvent.LifecycleState.STARTED.toString())));
     }
 
     @Test
-    public void test_start_withJVMOptions() throws IOException, ClassNotFoundException, InterruptedException {
+    public void test_start_withJVMOptions() throws IOException, InterruptedException {
         List<String> javaOptions = new ArrayList<>();
         String option = "-Xmx128m";
         javaOptions.add(option);
-        memberCommandLine.start(null, null, null, null,
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null,
                 false, null, javaOptions);
         String output = runCommand("jps -v");
         String memberOutput = "";
@@ -113,22 +118,22 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
     }
 
     @Test
-    public void test_stop() throws IOException, ClassNotFoundException, InterruptedException {
-        memberCommandLine.start(null, null, null, null,
+    public void test_stop() throws IOException, InterruptedException {
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null,
                 false, null, null);
         String processUniqueID = captureOut().replace("\n", "");
-        int pid = memberCommandLine.getProcessMap().get(processUniqueID).getPid();
+        int pid = ProcessUtil.getProcess(processUniqueID).getPid();
         memberCommandLine.stop(processUniqueID);
         assertTrue(!getRunningJavaProcesses().contains(String.valueOf(pid)));
     }
 
     @Test
-    public void test_list() throws ClassNotFoundException, IOException, InterruptedException {
-        memberCommandLine.start(null, null, null, null,
+    public void test_list() throws IOException, InterruptedException {
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null,
                 false, null, null);
         String processUniqueId1 = captureOut().replace("\n", "");
         resetOut();
-        memberCommandLine.start(null, null, null, null,
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null,
                 false, null, null);
         String processUniqueId2 = captureOut().replace("\n", "");
         resetOut();
@@ -139,7 +144,7 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
     }
 
     @Test
-    public void test_logs() throws IOException, ClassNotFoundException, InterruptedException {
+    public void test_logs() throws IOException, InterruptedException {
         String groupName = "member-command-line-test";
         startMemberWithConfigFile();
         String processUniqueId = captureOut().replace("\n", "");
@@ -153,8 +158,8 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
     }
 
     @Test
-    public void test_logs_withLineCount() throws IOException, ClassNotFoundException, InterruptedException {
-        memberCommandLine.start(null, null, null, null,
+    public void test_logs_withLineCount() throws IOException, InterruptedException {
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null,
                 false, null, null);
         String processUniqueId = captureOut().replace("\n", "");
         resetOut();
@@ -168,16 +173,16 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
         assertEquals("Not expected number of lines in logs.", numberOfLines, outputLength);
     }
 
-    private void startMemberWithConfigFile() throws IOException, ClassNotFoundException, InterruptedException {
+    private void startMemberWithConfigFile() throws IOException, InterruptedException {
         memberCommandLine.start("src/test/resources/test-hazelcast.xml", null,
                 null, null, false, null, null);
     }
 
-    private String getRunningJavaProcesses() throws IOException, InterruptedException {
+    private String getRunningJavaProcesses() throws IOException {
         return runCommand("jps");
     }
 
-    private String runCommand(String command) throws IOException, InterruptedException {
+    private String runCommand(String command) throws IOException {
         Process exec = Runtime.getRuntime().exec(command);
         BufferedReader stdInput = new BufferedReader(new
                 InputStreamReader(exec.getInputStream()));

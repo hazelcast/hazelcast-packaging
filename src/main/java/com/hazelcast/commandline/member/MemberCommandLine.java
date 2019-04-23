@@ -1,31 +1,26 @@
 package com.hazelcast.commandline.member;
 
 import com.hazelcast.commandline.HazelcastVersionProvider;
-import com.hazelcast.commandline.member.names.MobyNames;
 import com.hazelcast.core.HazelcastException;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.hazelcast.commandline.HazelcastCommandLine.*;
-import static picocli.CommandLine.*;
+import static com.hazelcast.commandline.HazelcastCommandLine.SEPARATOR;
+import static picocli.CommandLine.Command;
+import static picocli.CommandLine.Spec;
+import static picocli.CommandLine.Model;
+import static picocli.CommandLine.Option;
+import static picocli.CommandLine.Parameters;
+
 
 @Command(
         name = "member",
@@ -40,25 +35,12 @@ public class MemberCommandLine implements Runnable {
 
     private final PrintStream out;
     private final PrintStream err;
-    private final String logsDirString = "logs";
-    private final String logsFileNameString = "hazelcast.log";
     private Stream<String> processOutput;
-    public final String instancesFilePath = HAZELCAST_HOME + SEPARATOR + "instances.dat";
     private String CLASSPATH_SEPARATOR = ":";
 
     public MemberCommandLine(PrintStream out, PrintStream err) {
         this.out = out;
         this.err = err;
-        createHomeDirectory();
-    }
-
-    private void createHomeDirectory() {
-        try {
-            new File(HAZELCAST_HOME).mkdirs();
-        } catch (Exception e) {
-            throw new HazelcastException("Process directories couldn't created. This might be related to user " +
-                    "permissions, please check your write permissions at: " + HAZELCAST_HOME, e);
-        }
     }
 
     public void run() {
@@ -101,13 +83,13 @@ public class MemberCommandLine implements Runnable {
                     paramLabel = "<option>",
                     split = ",",
                     description = "Specify additional Java <option> (Use ',' char to split multiple options)")
-                    List<String> javaOptions) throws IOException, ClassNotFoundException, InterruptedException {
+                    List<String> javaOptions) throws IOException, InterruptedException {
         List<String> args = new ArrayList<>();
         if (!isNullOrEmpty(configFilePath)) {
             args.add("-Dhazelcast.config=" + configFilePath);
         }
-        args.add("-Dgroup.name=" + (!isNullOrEmpty(clusterName) ? clusterName : "dev"));
-        args.add("-Dnetwork.port=" + (!isNullOrEmpty(port) ? port : "5701"));
+        args.add("-Dgroup.name=" + clusterName);
+        args.add("-Dnetwork.port=" + port);
         if (!isNullOrEmpty(hzInterface)) {
             args.add("-Dbind.any=false");
             args.add("-Dinterfaces.enabled=true");
@@ -120,144 +102,19 @@ public class MemberCommandLine implements Runnable {
             args.addAll(javaOptions);
         }
 
-        String processUniqueId = MobyNames.getRandomName(0);
-        String processDir = createProcessDirs(processUniqueId);
-        String loggingPropertiesPath = createLoggingPropertiesFile(processUniqueId, processDir);
-        args.add("-Djava.util.logging.config.file=" + loggingPropertiesPath);
+        HazelcastProcess process = ProcessUtil.createProcess();
+
+        args.add("-Djava.util.logging.config.file=" + process.getLoggingPropertiesPath());
 
         Integer pid = buildJavaProcess(HazelcastMember.class, args, foreground, additionalClassPath);
-        saveProcess(new HazelcastProcess(processUniqueId, pid));
+        process.setPid(pid);
+        ProcessUtil.saveProcess(process);
 
-        println(processUniqueId);
+        println(process.getName());
     }
 
-    private boolean isNullOrEmpty(String string) {
+    private static boolean isNullOrEmpty(String string) {
         return string == null || string.isEmpty();
-    }
-
-    private String createProcessDirs(String processUniqueId) {
-        String processPath = HAZELCAST_HOME + SEPARATOR + processUniqueId;
-        String logPath = processPath + SEPARATOR + logsDirString;
-        try {
-            new File(logPath).mkdirs();
-        } catch (Exception e) {
-            throw new HazelcastException("Process directories couldn't created.");
-        }
-        return processPath;
-    }
-
-    private String createLoggingPropertiesFile(String processUniqueId, String processDir)
-            throws FileNotFoundException {
-        String loggingPropertiesPath = processDir + SEPARATOR + "logging.properties";
-        PrintWriter printWriter = new PrintWriter(loggingPropertiesPath);
-        String fileContent = "handlers= java.util.logging.FileHandler, java.util.logging.ConsoleHandler\n" +
-                ".level= INFO\n" +
-                "java.util.logging.FileHandler.pattern = " +
-                processDir + SEPARATOR + logsDirString + SEPARATOR + "hazelcast.log\n" +
-                "java.util.logging.FileHandler.limit = 50000\n" +
-                "java.util.logging.FileHandler.count = 1\n" +
-                "java.util.logging.FileHandler.maxLocks = 100\n" +
-                "java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter\n" +
-                "java.util.logging.FileHandler.append=true\n" +
-                "java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter";
-        printWriter.println(fileContent);
-        printWriter.close();
-        return loggingPropertiesPath;
-    }
-
-    @Command(description = "Stops a Hazelcast IMDG member",
-            mixinStandardHelpOptions = true
-    )
-    public void stop(
-            @Parameters(index = "0",
-                        paramLabel = "<process-id>",
-                        description = "Process id of the process to stop, for ex.: brave_frog")
-                        String processUniqueId) throws IOException, ClassNotFoundException {
-        HazelcastProcess process = getProcessMap().get(processUniqueId);
-        if (process == null){
-            printlnErr("No process found with process id: " + processUniqueId);
-            return;
-        }
-        int pid = process.getPid();
-        Runtime.getRuntime().exec("kill -15 " + pid);
-        removeProcess(processUniqueId);
-        println(processUniqueId + " stopped.");
-    }
-
-    @Command(description = "Lists running Hazelcast IMDG members",
-            mixinStandardHelpOptions = true
-    )
-    public void list() throws ClassNotFoundException {
-        Map<String, HazelcastProcess> processMap = getProcessMap();
-        if (processMap.isEmpty()){
-            println("No running process exists.");
-            return;
-        }
-        for (HazelcastProcess process : processMap.values()) {
-            println(process.getProcessUniqueId());
-        }
-    }
-
-    @Command(description = "Display the logs for Hazelcast member with the given ID.",
-            mixinStandardHelpOptions = true
-    )
-    public void logs(
-            @Parameters(index = "0",
-                        paramLabel = "<process-id>",
-                        description = "Process id of the process to show the logs, for ex.: brave_frog")
-                        String processUniqueId,
-            @Option(names = {"-n", "--numberOfLines"},
-                    paramLabel = "<lineCount>",
-                    description = "Display the specified number of lines",
-                    defaultValue = "10")
-                    int numberOfLines) throws ClassNotFoundException, IOException {
-        if (!getProcessMap().containsKey(processUniqueId)) {
-            printlnErr("No process found with process id: " + processUniqueId);
-        }
-        getLogs(out, processUniqueId, numberOfLines);
-    }
-
-    private void getLogs(PrintStream out, String processUniqueId, int numberOfLines) throws IOException {
-        String logsPath = HAZELCAST_HOME + SEPARATOR + processUniqueId + SEPARATOR
-                + logsDirString + SEPARATOR + logsFileNameString;
-        long totalLineCount = Files.lines(Paths.get(logsPath)).count();
-        long skipLineCount = 0;
-        if (totalLineCount > numberOfLines){
-            skipLineCount = totalLineCount - numberOfLines;
-        }
-        Stream<String> stream = Files.lines( Paths.get(logsPath)).skip(skipLineCount);
-        stream.forEach(out::println);
-    }
-
-    private void removeProcess(String processUniqueId) throws IOException, ClassNotFoundException {
-        Map<String, HazelcastProcess> processMap = getProcessMap();
-        if (processMap == null || !processMap.containsKey(processUniqueId)){
-            println("No process found with pid: " + processUniqueId);
-            return;
-        }
-        processMap.remove(processUniqueId);
-        updateFile(processMap);
-    }
-
-    public Map<String, HazelcastProcess> getProcessMap() throws ClassNotFoundException {
-        FileInputStream fileInputStream;
-        Map<String, HazelcastProcess> processes = new HashMap<>();
-        try {
-            Path path = FileSystems.getDefault().getPath(instancesFilePath);
-            if (!Files.exists(path)){
-                Files.createFile(path);
-            }
-            fileInputStream = new FileInputStream(instancesFilePath);
-            if (Files.size(path) == 0){
-                return processes;
-            }
-            ObjectInputStream input = new ObjectInputStream(fileInputStream);
-            processes = (Map<String, HazelcastProcess>) input.readObject();
-            input.close();
-        } catch (IOException e) {
-            throw new HazelcastException("Error when reading from file.", e);
-        }
-        return processes;
     }
 
     private Integer buildJavaProcess(Class aClass, List<String> parameters, boolean foreground, String additionalClassPath)
@@ -288,39 +145,87 @@ public class MemberCommandLine implements Runnable {
         return getPid(process);
     }
 
-    private void saveProcess(HazelcastProcess process) throws IOException, ClassNotFoundException {
-        Map<String, HazelcastProcess> processMap = getProcessMap();
-        processMap.put(process.getProcessUniqueId(), process);
-        updateFile(processMap);
-    }
-
-    private void updateFile(Map<String, HazelcastProcess> processMap) throws IOException {
-        FileOutputStream fileOut = new FileOutputStream(instancesFilePath);
-        ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
-        objectOut.writeObject(processMap);
-        objectOut.close();
-    }
-
     private int getPid(Process process) {
-        int pid = 0;
+        int pid;
         String className = process.getClass().getName();
         if(className.equals("java.lang.UNIXProcess")
                 || className.equals("java.lang.ProcessImpl") /* to get the PID on Java9+ */
         ) {
-            /* get the PID on unix/linux systems */
             try {
                 Field f = process.getClass().getDeclaredField("pid");
                 f.setAccessible(true);
                 pid = f.getInt(process);
             } catch (Throwable e) {
-                throw new HazelcastException("Exception when accesing the pid of a process.", e);
+                throw new HazelcastException("Exception when accessing the pid of a process.", e);
             }
         }else {
-            /* other plattforms */
             throw new UnsupportedOperationException("Platforms other than UNIX are not supported right now.");
         }
 
         return pid;
+    }
+
+    @Command(description = "Stops a Hazelcast IMDG member",
+            mixinStandardHelpOptions = true
+    )
+    public void stop(
+            @Parameters(index = "0",
+                        paramLabel = "<name>",
+                        description = "Unique name of the process to stop, for ex.: brave_frog")
+                        String name) throws IOException {
+        HazelcastProcess process = ProcessUtil.getProcess(name);
+        if (process == null){
+            printlnErr("No process found with process id: " + name);
+            return;
+        }
+        int pid = process.getPid();
+        Runtime.getRuntime().exec("kill -15 " + pid);
+        ProcessUtil.removeProcess(name);
+        println(name + " stopped.");
+    }
+
+    @Command(description = "Lists running Hazelcast IMDG members",
+            mixinStandardHelpOptions = true
+    )
+    public void list() {
+        Map<String, HazelcastProcess> processes = ProcessUtil.getProcesses();
+        if (processes.isEmpty()){
+            println("No running process exists.");
+            return;
+        }
+        for (HazelcastProcess process : processes.values()) {
+            println(process.getName());
+        }
+    }
+
+    @Command(description = "Display the logs for Hazelcast member with the given ID.",
+            mixinStandardHelpOptions = true
+    )
+    public void logs(
+            @Parameters(index = "0",
+                        paramLabel = "<name>",
+                        description = "Unique name of the process to show the logs, for ex.: brave_frog")
+                        String name,
+            @Option(names = {"-n", "--numberOfLines"},
+                    paramLabel = "<lineCount>",
+                    description = "Display the specified number of lines (default: 10)",
+                    defaultValue = "10")
+                    int numberOfLines) throws IOException {
+        if (!ProcessUtil.processExists(name)) {
+            printlnErr("No process found with process id: " + name);
+        }
+        getLogs(out, name, numberOfLines);
+    }
+
+    private void getLogs(PrintStream out, String name, int numberOfLines) throws IOException {
+        String logsPath = ProcessUtil.getProcess(name).getLogFilePath();
+        long totalLineCount = Files.lines(Paths.get(logsPath)).count();
+        long skipLineCount = 0;
+        if (totalLineCount > numberOfLines){
+            skipLineCount = totalLineCount - numberOfLines;
+        }
+        Stream<String> stream = Files.lines(Paths.get(logsPath)).skip(skipLineCount);
+        stream.forEach(out::println);
     }
 
     private void printf(String format, Object... objects) {

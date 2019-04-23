@@ -6,7 +6,6 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.nio.file.FileSystems;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import static com.hazelcast.instance.BuildInfoProvider.getBuildInfo;
 import static picocli.CommandLine.Command;
@@ -14,7 +13,6 @@ import static picocli.CommandLine.Mixin;
 import static picocli.CommandLine.DefaultExceptionHandler;
 import static picocli.CommandLine.Help;
 import static picocli.CommandLine.RunAll;
-import static picocli.CommandLine.Option;
 
 @Command(
         name = "hazelcast",
@@ -31,7 +29,7 @@ public class HazelcastCommandLine implements Runnable {
     public final static String SEPARATOR = FileSystems.getDefault().getSeparator();
 
     @Mixin(name = "verbosity")
-    public Verbosity verbosity;
+    protected Verbosity verbosity;
 
     public void run() {
     }
@@ -59,23 +57,6 @@ public class HazelcastCommandLine implements Runnable {
             if (parsed != null && parsed.size() == 1) {
                 cmd.usage(out);
             }
-        }
-    }
-
-    public static class Verbosity {
-
-        @Option(names = {"-v", "--verbosity"},
-                description = {"Show logs from Hazelcast and full stack trace of errors"},
-                order = 1
-        )
-        private boolean isVerbose;
-
-        public boolean isVerbose() {
-            return isVerbose;
-        }
-
-        public void merge(Verbosity other) {
-            isVerbose |= other.isVerbose;
         }
     }
 }
