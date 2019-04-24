@@ -29,9 +29,11 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
     private MemberCommandLine memberCommandLine;
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         resetOut();
         memberCommandLine = new MemberCommandLine(out, err);
+        killAllRunningHazelcastInstances();
+        removeFiles();
     }
 
     @After
@@ -49,21 +51,14 @@ public class MemberCommandLineTest extends CommandLineTestSupport {
                 .forEach(File::delete);
     }
 
-    private void killAllRunningHazelcastInstances() throws IOException {
-        String out = getRunningJavaProcesses();
-        List<String> pids = getHazelcastInstancePids(out);
-        runCommand("/bin/kill -9 " + String.join(" ", pids));
-
-    }
-
-    private List<String> getHazelcastInstancePids(String out) {
-        List<String> pids = new ArrayList<>();
-        for (String line : out.split("\n")) {
-            if (line.contains(HazelcastMember.class.getSimpleName())) {
-                pids.add(line.split(" ")[0]);
+    private void killAllRunningHazelcastInstances() {
+        try {
+            for (HazelcastProcess hazelcastProcess : ProcessUtil.getProcesses().values()) {
+                runCommand("kill -9 " + hazelcastProcess.getPid());
             }
+        } catch (Exception e) {
+            //ignored, test instances file might not exist.
         }
-        return pids;
     }
 
     @Test(timeout = 10000)
