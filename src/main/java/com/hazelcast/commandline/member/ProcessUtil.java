@@ -25,16 +25,8 @@ public class ProcessUtil {
     private static final String LOGS_DIR_STRING = "logs";
     private static final String LOGS_FILE_NAME_STRING = "hazelcast.log";
 
-    static {
-        try {
-            new File(HAZELCAST_HOME).mkdirs();
-        } catch (Exception e) {
-            throw new HazelcastException("Process directories couldn't created. This might be related to user " +
-                    "permissions, please check your write permissions at: " + HAZELCAST_HOME, e);
-        }
-    }
-
-    protected static void saveProcess(HazelcastProcess process) throws IOException {
+    protected static void saveProcess(HazelcastProcess process)
+            throws IOException {
         Map<String, HazelcastProcess> processMap = getProcesses();
         processMap.put(process.getName(), process);
         updateFile(processMap);
@@ -56,13 +48,14 @@ public class ProcessUtil {
             input.close();
         } catch (IOException e) {
             throw new HazelcastException("Error when reading from file.", e);
-        } catch (ClassNotFoundException cnfe){
+        } catch (ClassNotFoundException cnfe) {
             throw new HazelcastException(cnfe.getMessage(), cnfe);
         }
         return processes;
     }
 
-    private static void updateFile(Map<String, HazelcastProcess> processMap) throws IOException {
+    private static void updateFile(Map<String, HazelcastProcess> processMap)
+            throws IOException {
         FileOutputStream fileOut = new FileOutputStream(INSTANCES_FILE_PATH);
         ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
         objectOut.writeObject(processMap);
@@ -73,7 +66,8 @@ public class ProcessUtil {
         return getProcesses().get(name);
     }
 
-    protected static void removeProcess(String name) throws IOException {
+    protected static void removeProcess(String name)
+            throws IOException {
         Map<String, HazelcastProcess> processMap = getProcesses();
         if (processMap == null || !processMap.containsKey(name)) {
             throw new HazelcastException("No process found with pid: " + name);
@@ -86,7 +80,8 @@ public class ProcessUtil {
         return getProcesses().containsKey(name);
     }
 
-    protected static HazelcastProcess createProcess() throws FileNotFoundException {
+    protected static HazelcastProcess createProcess()
+            throws FileNotFoundException {
         String name = MobyNames.getRandomName(0);
         String processDir = createProcessDirs(name);
         String logFilePath = processDir + SEPARATOR + LOGS_DIR_STRING + SEPARATOR + LOGS_FILE_NAME_STRING;
@@ -109,17 +104,24 @@ public class ProcessUtil {
             throws FileNotFoundException {
         String loggingPropertiesPath = processDir + SEPARATOR + "logging.properties";
         PrintWriter printWriter = new PrintWriter(loggingPropertiesPath);
-        String fileContent = "handlers= java.util.logging.FileHandler, java.util.logging.ConsoleHandler\n" +
-                ".level= INFO\n" +
-                "java.util.logging.FileHandler.pattern = " + logFilePath + "\n" +
-                "java.util.logging.FileHandler.limit = 50000\n" +
-                "java.util.logging.FileHandler.count = 1\n" +
-                "java.util.logging.FileHandler.maxLocks = 100\n" +
-                "java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter\n" +
-                "java.util.logging.FileHandler.append=true\n" +
-                "java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter";
+        String fileContent = "handlers= java.util.logging.FileHandler, java.util.logging.ConsoleHandler\n" + ".level= INFO\n"
+                + "java.util.logging.FileHandler.pattern = " + logFilePath + "\n"
+                + "java.util.logging.FileHandler.limit = 50000\n" + "java.util.logging.FileHandler.count = 1\n"
+                + "java.util.logging.FileHandler.maxLocks = 100\n"
+                + "java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter\n"
+                + "java.util.logging.FileHandler.append=true\n"
+                + "java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter";
         printWriter.println(fileContent);
         printWriter.close();
         return loggingPropertiesPath;
+    }
+
+    static {
+        try {
+            new File(HAZELCAST_HOME).mkdirs();
+        } catch (Exception e) {
+            throw new HazelcastException("Process directories couldn't created. This might be related to user "
+                    + "permissions, please check your write permissions at: " + HAZELCAST_HOME, e);
+        }
     }
 }

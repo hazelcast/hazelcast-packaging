@@ -2,7 +2,8 @@ package com.hazelcast.commandline.member;
 
 import java.io.Serializable;
 
-public class HazelcastProcess implements Serializable {
+public class HazelcastProcess
+        implements Serializable {
     private final String name;
     private final String loggingPropertiesPath;
     private final String logFilePath;

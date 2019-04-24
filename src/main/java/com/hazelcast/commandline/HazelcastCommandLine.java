@@ -14,41 +14,30 @@ import static picocli.CommandLine.DefaultExceptionHandler;
 import static picocli.CommandLine.Help;
 import static picocli.CommandLine.RunAll;
 
-@Command(
-        name = "hazelcast",
-        description = "Utility for the Hazelcast IMDG operations." +
-                "%n%n" +
-                "Global options are:%n",
-        versionProvider = HazelcastVersionProvider.class,
-        mixinStandardHelpOptions = true,
-        sortOptions = false
-)
-public class HazelcastCommandLine implements Runnable {
+@Command(name = "hazelcast", description = "Utility for the Hazelcast IMDG operations." + "%n%n"
+        + "Global options are:%n", versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
+public class HazelcastCommandLine
+        implements Runnable {
 
-    public static String HAZELCAST_HOME = System.getProperty("user.home") + "/.hazelcast";
     public final static String SEPARATOR = FileSystems.getDefault().getSeparator();
-
+    public static String HAZELCAST_HOME = System.getProperty("user.home") + "/.hazelcast";
     @Mixin(name = "verbosity")
     protected Verbosity verbosity;
-
-    public void run() {
-    }
 
     public static void main(String[] args) {
         runCommandLine(System.out, System.err, true, args);
     }
 
     private static void runCommandLine(PrintStream out, PrintStream err, boolean shouldExit, String[] args) {
-        CommandLine cmd = new CommandLine(new HazelcastCommandLine())
-                .addSubcommand("member", new MemberCommandLine(out, err));
+        CommandLine cmd = new CommandLine(new HazelcastCommandLine()).addSubcommand("member", new MemberCommandLine(out, err));
 
         String version = getBuildInfo().getVersion();
         cmd.getCommandSpec().usageMessage().header("Hazelcast IMDG " + version);
         if (args.length == 0) {
             cmd.usage(out);
         } else {
-            DefaultExceptionHandler<List<Object>> excHandler =
-                    new ExceptionHandler<List<Object>>().useErr(err).useAnsi(Help.Ansi.AUTO);
+            DefaultExceptionHandler<List<Object>> excHandler = new ExceptionHandler<List<Object>>().useErr(err)
+                                                                                                   .useAnsi(Help.Ansi.AUTO);
             if (shouldExit) {
                 excHandler.andExit(1);
             }
@@ -58,5 +47,8 @@ public class HazelcastCommandLine implements Runnable {
                 cmd.usage(out);
             }
         }
+    }
+
+    public void run() {
     }
 }
