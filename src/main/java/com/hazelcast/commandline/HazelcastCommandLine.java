@@ -21,6 +21,7 @@ public class HazelcastCommandLine
 
     public final static String SEPARATOR = FileSystems.getDefault().getSeparator();
     public static String HAZELCAST_HOME = System.getProperty("user.home") + "/.hazelcast";
+
     @Mixin(name = "verbosity")
     protected Verbosity verbosity;
 
@@ -49,6 +50,7 @@ public class HazelcastCommandLine
         }
     }
 
+    @Override
     public void run() {
     }
 }

@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.hazelcast.commandline.HazelcastCommandLine.HAZELCAST_HOME;
 import static com.hazelcast.commandline.HazelcastCommandLine.SEPARATOR;
 import static picocli.CommandLine.Command;
 import static picocli.CommandLine.Spec;
@@ -24,20 +25,20 @@ import static picocli.CommandLine.Parameters;
 @Command(name = "member", description = "Utility for the Hazelcast IMDG member operations.", versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
 public class MemberCommandLine
         implements Runnable {
+    private static final String CLASSPATH_SEPARATOR = ":";
+
     protected Model.CommandSpec spec;
+
     private final PrintStream out;
     private final PrintStream err;
     @Spec
     private Stream<String> processOutput;
-    private String CLASSPATH_SEPARATOR = ":";
+    private ProcessStore processStore;
 
     public MemberCommandLine(PrintStream out, PrintStream err) {
         this.out = out;
         this.err = err;
-    }
-
-    private static boolean isNullOrEmpty(String string) {
-        return string == null || string.isEmpty();
+        processStore = new ProcessStore(HAZELCAST_HOME + SEPARATOR + "instances.dat");
     }
 
     public void run() {
@@ -49,13 +50,13 @@ public class MemberCommandLine
 
     @Command(description = "Starts a new Hazelcast IMDG member", mixinStandardHelpOptions = true)
     public void start(
-            @Option(names = {"-c", "--config"}, paramLabel = "<file>", description = "Use <file> for Hazelcast configuration") String configFilePath,
-            @Option(names = {"-cn", "--cluster-name"}, paramLabel = "<name>", description = "Use the specified cluster <name> (default: 'dev')", defaultValue = "dev") String clusterName,
-            @Option(names = {"-p", "--port"}, paramLabel = "<port>", description = "Bind to the specified <port> (default: 5701)", defaultValue = "5701") String port,
-            @Option(names = {"-i", "--interface"}, paramLabel = "<interface>", description = "Bind to the specified <interface> (default: bind to all interfaces)") String hzInterface,
-            @Option(names = {"-fg", "--foreground"}, description = "Run in the foreground") boolean foreground,
-            @Option(names = {"-j", "--jar"}, paramLabel = "<path>", description = "Add <path> to Hazelcast class path") String additionalClassPath,
-            @Option(names = {"-J", "--JAVA_OPTS"}, paramLabel = "<option>", split = ",", description = "Specify additional Java <option> (Use ',' char to split multiple options)") List<String> javaOptions)
+            @Option(names = {"-c", "--config"}, paramLabel = "<file>", description = "Use <file> for Hazelcast configuration.") String configFilePath,
+            @Option(names = {"-cn", "--cluster-name"}, paramLabel = "<name>", description = "Use the specified cluster <name> (default: 'dev').", defaultValue = "dev") String clusterName,
+            @Option(names = {"-p", "--port"}, paramLabel = "<port>", description = "Bind to the specified <port>. Please note that if the specified port is in use, it will auto-increment to the first free port. (default: 5701)", defaultValue = "5701") String port,
+            @Option(names = {"-i", "--interface"}, paramLabel = "<interface>", description = "Bind to the specified <interface> (default: bind to all interfaces).") String hzInterface,
+            @Option(names = {"-fg", "--foreground"}, description = "Run in the foreground.") boolean foreground,
+            @Option(names = {"-j", "--jar"}, paramLabel = "<path>", description = "Add <path> to Hazelcast class path.") String additionalClassPath,
+            @Option(names = {"-J", "--JAVA_OPTS"}, paramLabel = "<option>", split = ",", description = "Specify additional Java <option> (Use ',' char to split multiple options).") List<String> javaOptions)
             throws IOException, InterruptedException {
         List<String> args = new ArrayList<>();
         if (!isNullOrEmpty(configFilePath)) {
@@ -75,13 +76,13 @@ public class MemberCommandLine
             args.addAll(javaOptions);
         }
 
-        HazelcastProcess process = ProcessUtil.createProcess();
+        HazelcastProcess process = processStore.create();
 
         args.add("-Djava.util.logging.config.file=" + process.getLoggingPropertiesPath());
 
         Integer pid = buildJavaProcess(HazelcastMember.class, args, foreground, additionalClassPath);
         process.setPid(pid);
-        ProcessUtil.saveProcess(process);
+        processStore.save(process);
 
         println(process.getName());
     }
@@ -113,7 +114,7 @@ public class MemberCommandLine
         return getPid(process);
     }
 
-    private int getPid(Process process) {
+    private static int getPid(Process process) {
         int pid;
         String className = process.getClass().getName();
         if (className.equals("java.lang.UNIXProcess") || className
@@ -134,22 +135,22 @@ public class MemberCommandLine
 
     @Command(description = "Stops a Hazelcast IMDG member", mixinStandardHelpOptions = true)
     public void stop(
-            @Parameters(index = "0", paramLabel = "<name>", description = "Unique name of the process to stop, for ex.: brave_frog") String name)
+            @Parameters(index = "0", paramLabel = "<name>", description = "Unique name of the process to stop, for ex.: brave_frog.") String name)
             throws IOException {
-        HazelcastProcess process = ProcessUtil.getProcess(name);
+        HazelcastProcess process = processStore.find(name);
         if (process == null) {
             printlnErr("No process found with process id: " + name);
             return;
         }
         int pid = process.getPid();
         Runtime.getRuntime().exec("kill -15 " + pid);
-        ProcessUtil.removeProcess(name);
+        processStore.remove(name);
         println(name + " stopped.");
     }
 
     @Command(description = "Lists running Hazelcast IMDG members", mixinStandardHelpOptions = true)
     public void list() {
-        Map<String, HazelcastProcess> processes = ProcessUtil.getProcesses();
+        Map<String, HazelcastProcess> processes = processStore.findAll();
         if (processes.isEmpty()) {
             println("No running process exists.");
             return;
@@ -161,10 +162,10 @@ public class MemberCommandLine
 
     @Command(description = "Display the logs for Hazelcast member with the given ID.", mixinStandardHelpOptions = true)
     public void logs(
-            @Parameters(index = "0", paramLabel = "<name>", description = "Unique name of the process to show the logs, for ex.: brave_frog") String name,
-            @Option(names = {"-n", "--numberOfLines"}, paramLabel = "<lineCount>", description = "Display the specified number of lines (default: 10)", defaultValue = "10") int numberOfLines)
+            @Parameters(index = "0", paramLabel = "<name>", description = "Unique name of the process to show the logs, for ex.: brave_frog.") String name,
+            @Option(names = {"-n", "--numberOfLines"}, paramLabel = "<lineCount>", description = "Display the specified number of lines (default: 10).", defaultValue = "10") int numberOfLines)
             throws IOException {
-        if (!ProcessUtil.processExists(name)) {
+        if (!processStore.exists(name)) {
             printlnErr("No process found with process id: " + name);
         }
         getLogs(out, name, numberOfLines);
@@ -172,7 +173,7 @@ public class MemberCommandLine
 
     private void getLogs(PrintStream out, String name, int numberOfLines)
             throws IOException {
-        String logsPath = ProcessUtil.getProcess(name).getLogFilePath();
+        String logsPath = processStore.find(name).getLogFilePath();
         long totalLineCount = Files.lines(Paths.get(logsPath)).count();
         long skipLineCount = 0;
         if (totalLineCount > numberOfLines) {
@@ -196,5 +197,13 @@ public class MemberCommandLine
 
     public Stream<String> getProcessOutput() {
         return processOutput;
+    }
+
+    private static boolean isNullOrEmpty(String string) {
+        return string == null || string.isEmpty();
+    }
+
+    public ProcessStore getProcessStore() {
+        return processStore;
     }
 }

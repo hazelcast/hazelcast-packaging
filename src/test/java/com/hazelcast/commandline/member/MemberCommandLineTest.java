@@ -54,7 +54,7 @@ public class MemberCommandLineTest
 
     private void killAllRunningHazelcastInstances() {
         try {
-            for (HazelcastProcess hazelcastProcess : ProcessUtil.getProcesses().values()) {
+            for (HazelcastProcess hazelcastProcess : memberCommandLine.getProcessStore().findAll().values()) {
                 runCommand("kill -9 " + hazelcastProcess.getPid());
             }
         } catch (Exception e) {
@@ -119,7 +119,7 @@ public class MemberCommandLineTest
             throws IOException, InterruptedException {
         memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
         String processUniqueID = captureOut().replace("\n", "");
-        int pid = ProcessUtil.getProcess(processUniqueID).getPid();
+        int pid = memberCommandLine.getProcessStore().find(processUniqueID).getPid();
         memberCommandLine.stop(processUniqueID);
         assertTrue(!getRunningJavaProcesses().contains(String.valueOf(pid)));
     }

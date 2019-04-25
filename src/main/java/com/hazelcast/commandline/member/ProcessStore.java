@@ -20,26 +20,39 @@ import java.util.Map;
 import static com.hazelcast.commandline.HazelcastCommandLine.HAZELCAST_HOME;
 import static com.hazelcast.commandline.HazelcastCommandLine.SEPARATOR;
 
-public class ProcessUtil {
-    private static final String INSTANCES_FILE_PATH = HAZELCAST_HOME + SEPARATOR + "instances.dat";
+class ProcessStore {
     private static final String LOGS_DIR_STRING = "logs";
     private static final String LOGS_FILE_NAME_STRING = "hazelcast.log";
+    private final String instancesFilePath;
 
-    protected static void saveProcess(HazelcastProcess process)
+    static {
+        try {
+            new File(HAZELCAST_HOME).mkdirs();
+        } catch (Exception e) {
+            throw new HazelcastException("Process directories couldn't created. This might be related to user "
+                    + "permissions, please check your write permissions at: " + HAZELCAST_HOME, e);
+        }
+    }
+
+    public ProcessStore(String instancesFilePath) {
+        this.instancesFilePath = instancesFilePath;
+    }
+
+    void save(HazelcastProcess process)
             throws IOException {
-        Map<String, HazelcastProcess> processMap = getProcesses();
+        Map<String, HazelcastProcess> processMap = findAll();
         processMap.put(process.getName(), process);
         updateFile(processMap);
     }
 
-    protected static Map<String, HazelcastProcess> getProcesses() {
+    Map<String, HazelcastProcess> findAll() {
         Map<String, HazelcastProcess> processes = new HashMap<>();
         try {
-            Path path = FileSystems.getDefault().getPath(INSTANCES_FILE_PATH);
+            Path path = FileSystems.getDefault().getPath(instancesFilePath);
             if (!Files.exists(path)) {
                 Files.createFile(path);
             }
-            FileInputStream fileInputStream = new FileInputStream(INSTANCES_FILE_PATH);
+            FileInputStream fileInputStream = new FileInputStream(instancesFilePath);
             if (Files.size(path) == 0) {
                 return processes;
             }
@@ -54,21 +67,21 @@ public class ProcessUtil {
         return processes;
     }
 
-    private static void updateFile(Map<String, HazelcastProcess> processMap)
+    void updateFile(Map<String, HazelcastProcess> processMap)
             throws IOException {
-        FileOutputStream fileOut = new FileOutputStream(INSTANCES_FILE_PATH);
+        FileOutputStream fileOut = new FileOutputStream(instancesFilePath);
         ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
         objectOut.writeObject(processMap);
         objectOut.close();
     }
 
-    protected static HazelcastProcess getProcess(String name) {
-        return getProcesses().get(name);
+    HazelcastProcess find(String name) {
+        return findAll().get(name);
     }
 
-    protected static void removeProcess(String name)
+    void remove(String name)
             throws IOException {
-        Map<String, HazelcastProcess> processMap = getProcesses();
+        Map<String, HazelcastProcess> processMap = findAll();
         if (processMap == null || !processMap.containsKey(name)) {
             throw new HazelcastException("No process found with pid: " + name);
         }
@@ -76,11 +89,11 @@ public class ProcessUtil {
         updateFile(processMap);
     }
 
-    protected static boolean processExists(String name) {
-        return getProcesses().containsKey(name);
+    boolean exists(String name) {
+        return findAll().containsKey(name);
     }
 
-    protected static HazelcastProcess createProcess()
+    HazelcastProcess create()
             throws FileNotFoundException {
         String name = MobyNames.getRandomName(0);
         String processDir = createProcessDirs(name);
@@ -89,7 +102,7 @@ public class ProcessUtil {
         return new HazelcastProcess(name, loggingPropertiesPath, logFilePath);
     }
 
-    private static String createProcessDirs(String name) {
+    private String createProcessDirs(String name) {
         String processPath = HAZELCAST_HOME + SEPARATOR + name;
         String logPath = processPath + SEPARATOR + LOGS_DIR_STRING;
         try {
@@ -100,7 +113,7 @@ public class ProcessUtil {
         return processPath;
     }
 
-    private static String createLoggingPropertiesFile(String processDir, String logFilePath)
+    private String createLoggingPropertiesFile(String processDir, String logFilePath)
             throws FileNotFoundException {
         String loggingPropertiesPath = processDir + SEPARATOR + "logging.properties";
         PrintWriter printWriter = new PrintWriter(loggingPropertiesPath);
@@ -114,14 +127,5 @@ public class ProcessUtil {
         printWriter.println(fileContent);
         printWriter.close();
         return loggingPropertiesPath;
-    }
-
-    static {
-        try {
-            new File(HAZELCAST_HOME).mkdirs();
-        } catch (Exception e) {
-            throw new HazelcastException("Process directories couldn't created. This might be related to user "
-                    + "permissions, please check your write permissions at: " + HAZELCAST_HOME, e);
-        }
     }
 }
