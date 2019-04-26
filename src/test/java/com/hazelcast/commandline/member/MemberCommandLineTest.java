@@ -14,9 +14,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertEquals;
@@ -95,23 +93,6 @@ public class MemberCommandLineTest
         memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, port, null, false, null, null);
         assertTrue(memberCommandLine.getProcessOutput().anyMatch(
                 out -> out.contains(port + " is " + LifecycleEvent.LifecycleState.STARTED.toString())));
-    }
-
-    @Test
-    public void test_start_withJVMOptions()
-            throws IOException, InterruptedException {
-        List<String> javaOptions = new ArrayList<>();
-        String option = "-Xmx128m";
-        javaOptions.add(option);
-        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, javaOptions);
-        String output = runCommand("jps -v");
-        String memberOutput = "";
-        for (String line : output.split("\n")) {
-            if (line.contains(HazelcastMember.class.getSimpleName())) {
-                memberOutput = line;
-            }
-        }
-        assertTrue(memberOutput.contains(option));
     }
 
     @Test
