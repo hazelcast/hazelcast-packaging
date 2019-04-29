@@ -27,12 +27,12 @@ public class MemberCommandLine
         implements Runnable {
     private static final String CLASSPATH_SEPARATOR = ":";
 
+    @Spec
     protected Model.CommandSpec spec;
 
     private final PrintStream out;
-    private final PrintStream err;
-    @Spec
     private Stream<String> processOutput;
+    private final PrintStream err;
     private ProcessStore processStore;
 
     public MemberCommandLine(PrintStream out, PrintStream err) {
@@ -75,6 +75,7 @@ public class MemberCommandLine
         if (javaOptions != null && javaOptions.size() > 0) {
             args.addAll(javaOptions);
         }
+        args.add("-Djava.net.preferIPv4Stack=true");
 
         HazelcastProcess process = processStore.create();
 
@@ -167,6 +168,7 @@ public class MemberCommandLine
             throws IOException {
         if (!processStore.exists(name)) {
             printlnErr("No process found with process id: " + name);
+            return;
         }
         getLogs(out, name, numberOfLines);
     }
