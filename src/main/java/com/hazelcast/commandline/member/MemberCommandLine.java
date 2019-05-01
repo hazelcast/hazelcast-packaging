@@ -18,7 +18,7 @@ import static com.hazelcast.commandline.HazelcastCommandLine.HAZELCAST_HOME;
 import static com.hazelcast.commandline.HazelcastCommandLine.SEPARATOR;
 import static picocli.CommandLine.Command;
 import static picocli.CommandLine.Spec;
-import static picocli.CommandLine.Model;
+import static picocli.CommandLine.Model.CommandSpec;
 import static picocli.CommandLine.Option;
 import static picocli.CommandLine.Parameters;
 
@@ -28,7 +28,7 @@ public class MemberCommandLine
     private static final String CLASSPATH_SEPARATOR = ":";
 
     @Spec
-    protected Model.CommandSpec spec;
+    private CommandSpec spec;
 
     private final PrintStream out;
     private Stream<String> processOutput;
