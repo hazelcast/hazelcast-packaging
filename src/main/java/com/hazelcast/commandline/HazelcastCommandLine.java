@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2008-2019, Hazelcast, Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.hazelcast.commandline;
 
 import com.hazelcast.commandline.member.MemberCommandLine;
@@ -14,23 +30,36 @@ import static picocli.CommandLine.DefaultExceptionHandler;
 import static picocli.CommandLine.Help;
 import static picocli.CommandLine.RunAll;
 
-@Command(name = "hazelcast", description = "Utility for the Hazelcast IMDG operations." + "%n%n"
-        + "Global options are:%n", versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
+/**
+ * Main command class for Hazelcast IMDG operations
+ */
+@Command(name = "hazelcast", description = "Utility for the Hazelcast IMDG operations." + "%n%n" + "Global options are:%n",
+         versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
 public class HazelcastCommandLine
         implements Runnable {
 
-    public final static String SEPARATOR = FileSystems.getDefault().getSeparator();
-    public static String HAZELCAST_HOME = System.getProperty("user.home") + "/.hazelcast";
+    /**
+     * File system separator of the runtime environment
+     */
+    public static final String SEPARATOR = FileSystems.getDefault().getSeparator();
 
     @Mixin(name = "verbosity")
     protected Verbosity verbosity;
+
+    private String hazelcastHome;
+
+    public HazelcastCommandLine(String hazelcastHome) {
+        this.hazelcastHome = hazelcastHome;
+    }
 
     public static void main(String[] args) {
         runCommandLine(System.out, System.err, true, args);
     }
 
     private static void runCommandLine(PrintStream out, PrintStream err, boolean shouldExit, String[] args) {
-        CommandLine cmd = new CommandLine(new HazelcastCommandLine()).addSubcommand("member", new MemberCommandLine(out, err));
+        String hazelcastHome = System.getProperty("user.home") + "/.hazelcast";
+        CommandLine cmd = new CommandLine(new HazelcastCommandLine(hazelcastHome))
+                .addSubcommand("member", new MemberCommandLine(out, err, hazelcastHome));
 
         String version = getBuildInfo().getVersion();
         cmd.getCommandSpec().usageMessage().header("Hazelcast IMDG " + version);
