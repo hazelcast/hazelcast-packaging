@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-package com.hazelcast.commandline;
-
-import picocli.CommandLine;
-
-import static com.hazelcast.instance.BuildInfoProvider.getBuildInfo;
-
 /**
- * Implementation of {@link picocli.CommandLine.IVersionProvider} for providing Hazelcast version.
+ * This package contains the class that generates Moby names.
+ * Please see the details here: https://github.com/moby/moby/tree/master/pkg/namesgenerator
  */
-public class HazelcastVersionProvider
-        implements CommandLine.IVersionProvider {
-    public String[] getVersion() {
-        return new String[]{getBuildInfo().getVersion()};
-    }
-}
+package com.hazelcast.commandline.member.names;

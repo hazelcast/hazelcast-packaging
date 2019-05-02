@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<!--
+  ~ Copyright (c) 2008-2019, Hazelcast, Inc. All Rights Reserved.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+        "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+
+    <!-- Suppress strict duplicate code checking -->
+    <suppress checks="StrictDuplicateCode" files="\.java" lines="1-15"/>
+
+    <!--Suppress line length checking in commands-->
+    <suppress
+            checks="LineLengthCheck"
+            files="com[\\/]hazelcast[\\/]commandline[\\/]member[\\/]MemberCommandLine"/>
+    <suppress
+            checks="LineLengthCheck"
+            files="com[\\/]hazelcast[\\/]commandline[\\/]HazelcastCommandLine"/>
+
+    <!--Suppress checks in tests-->
+    <suppress
+            checks="FileLength|MethodLength|LineLength|AnonInnerLength|MethodCount|ReturnCount|ExecutableStatementCount"
+            files="[\\/]src[\\/]test[\\/]"/>
+    <suppress
+            checks="Javadoc|MagicNumber|ClassDataAbstractionCoupling|ClassFanOutComplexityCheck|IllegalImport|IllegalType"
+            files="[\\/]src[\\/]test[\\/]"/>
+    <suppress
+            checks="NPathComplexity|CyclomaticComplexity|BooleanExpressionComplexity|RegexpSinglelineJava"
+            files="[\\/]src[\\/]test[\\/]"/>
+    <suppress
+            checks="TypeName|MemberName|ConstantName|LocalVariableName|LocalFinalVariableName|MethodName"
+            files="[\\/]src[\\/]test[\\/]"/>
+    <suppress
+            checks="FinalClass|HideUtilityClassConstructor|InnerAssignment|EmptyBlock|DeclarationOrder|VisibilityModifier"
+            files="[\\/]src[\\/]test[\\/]"/>
+    <suppress
+            checks="ExplicitInitialization|EqualsHashCode|MissingSwitchDefault|TrailingComment"
+            files="[\\/]src[\\/]test[\\/]"/>
+
+</suppressions>

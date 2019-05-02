@@ -1,15 +1,30 @@
+/*
+ * Copyright (c) 2008-2019, Hazelcast, Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.hazelcast.commandline.member;
 
 import com.hazelcast.commandline.CommandLineTestSupport;
-import com.hazelcast.commandline.HazelcastCommandLine;
 import com.hazelcast.core.LifecycleEvent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.File;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,15 +38,16 @@ import static junit.framework.TestCase.assertTrue;
 public class MemberCommandLineTest
         extends CommandLineTestSupport {
 
-    private final String DEFAULT_CLUSTER_NAME = "dev";
+    private final String DEFAULT_CLUSTER_NAME = "hazelcast-commandline-test-cluster";
     private final String DEFAULT_PORT = "5701";
+    private final String hazelcastHome = System.getProperty("user.home") + "/.hazelcastTest";
     private MemberCommandLine memberCommandLine;
 
     @Before
     public void setup()
             throws IOException {
         resetOut();
-        memberCommandLine = new MemberCommandLine(out, err);
+        memberCommandLine = new MemberCommandLine(out, err, hazelcastHome);
         killAllRunningHazelcastInstances();
         removeFiles();
     }
@@ -45,7 +61,7 @@ public class MemberCommandLineTest
 
     private void removeFiles()
             throws IOException {
-        Path pathToBeDeleted = Files.createDirectories(Paths.get(HazelcastCommandLine.HAZELCAST_HOME));
+        Path pathToBeDeleted = Files.createDirectories(Paths.get(hazelcastHome));
 
         Files.walk(pathToBeDeleted).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
     }
@@ -129,7 +145,7 @@ public class MemberCommandLineTest
         resetOut();
         //await for the logs to be created
         TimeUnit.SECONDS.sleep(5);
-        assertTrue(Files.exists(Paths.get(HazelcastCommandLine.HAZELCAST_HOME + "/" + processUniqueId + "/logs/hazelcast.log")));
+        assertTrue(Files.exists(Paths.get(hazelcastHome + "/" + processUniqueId + "/logs/hazelcast.log")));
         memberCommandLine.logs(processUniqueId, 1000);
         assertTrue(captureOut().contains(groupName));
     }
@@ -142,7 +158,7 @@ public class MemberCommandLineTest
         resetOut();
         //await for the logs to be created
         TimeUnit.SECONDS.sleep(5);
-        assertTrue(Files.exists(Paths.get(HazelcastCommandLine.HAZELCAST_HOME + "/" + processUniqueId + "/logs/hazelcast.log")));
+        assertTrue(Files.exists(Paths.get(hazelcastHome + "/" + processUniqueId + "/logs/hazelcast.log")));
         int numberOfLines = 10;
         memberCommandLine.logs(processUniqueId, numberOfLines);
         int outputLength = captureOut().split("\\n").length;

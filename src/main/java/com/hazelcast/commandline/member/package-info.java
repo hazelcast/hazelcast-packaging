@@ -14,18 +14,7 @@
  * limitations under the License.
  */
 
-package com.hazelcast.commandline;
-
-import picocli.CommandLine;
-
-import static com.hazelcast.instance.BuildInfoProvider.getBuildInfo;
-
 /**
- * Implementation of {@link picocli.CommandLine.IVersionProvider} for providing Hazelcast version.
+ * This package contains the classes related to member command
  */
-public class HazelcastVersionProvider
-        implements CommandLine.IVersionProvider {
-    public String[] getVersion() {
-        return new String[]{getBuildInfo().getVersion()};
-    }
-}
+package com.hazelcast.commandline.member;

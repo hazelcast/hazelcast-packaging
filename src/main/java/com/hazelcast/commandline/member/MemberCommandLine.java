@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2008-2019, Hazelcast, Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.hazelcast.commandline.member;
 
 import com.hazelcast.commandline.HazelcastVersionProvider;
@@ -11,10 +27,11 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.hazelcast.commandline.HazelcastCommandLine.HAZELCAST_HOME;
 import static com.hazelcast.commandline.HazelcastCommandLine.SEPARATOR;
 import static picocli.CommandLine.Command;
 import static picocli.CommandLine.Spec;
@@ -22,23 +39,48 @@ import static picocli.CommandLine.Model.CommandSpec;
 import static picocli.CommandLine.Option;
 import static picocli.CommandLine.Parameters;
 
+/**
+ * Command line class responsible for Hazelcast member operations.
+ */
 @Command(name = "member", description = "Utility for the Hazelcast IMDG member operations.", versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
 public class MemberCommandLine
         implements Runnable {
     private static final String CLASSPATH_SEPARATOR = ":";
-
     @Spec
     private CommandSpec spec;
 
     private final PrintStream out;
-    private Stream<String> processOutput;
     private final PrintStream err;
+    private Stream<String> processOutput;
     private ProcessStore processStore;
 
-    public MemberCommandLine(PrintStream out, PrintStream err) {
+    public MemberCommandLine(PrintStream out, PrintStream err, String hazelcastHome) {
         this.out = out;
         this.err = err;
-        processStore = new ProcessStore(HAZELCAST_HOME + SEPARATOR + "instances.dat");
+        processStore = new ProcessStore(hazelcastHome);
+    }
+
+    private static int getPid(Process process) {
+        int pid;
+        String className = process.getClass().getName();
+        if (className.equals("java.lang.UNIXProcess") || className
+                .equals("java.lang.ProcessImpl") /* to get the PID on Java9+ */) {
+            try {
+                Field f = process.getClass().getDeclaredField("pid");
+                f.setAccessible(true);
+                pid = f.getInt(process);
+            } catch (Throwable e) {
+                throw new HazelcastException("Exception when accessing the pid of a process.", e);
+            }
+        } else {
+            throw new UnsupportedOperationException("Platforms other than UNIX are not supported right now.");
+        }
+
+        return pid;
+    }
+
+    private static boolean isNullOrEmpty(String string) {
+        return string == null || string.isEmpty();
     }
 
     public void run() {
@@ -51,12 +93,12 @@ public class MemberCommandLine
     @Command(description = "Starts a new Hazelcast IMDG member", mixinStandardHelpOptions = true)
     public void start(
             @Option(names = {"-c", "--config"}, paramLabel = "<file>", description = "Use <file> for Hazelcast configuration.") String configFilePath,
-            @Option(names = {"-cn", "--cluster-name"}, paramLabel = "<name>", description = "Use the specified cluster <name> (default: 'dev').", defaultValue = "dev") String clusterName,
-            @Option(names = {"-p", "--port"}, paramLabel = "<port>", description = "Bind to the specified <port>. Please note that if the specified port is in use, it will auto-increment to the first free port. (default: 5701)", defaultValue = "5701") String port,
-            @Option(names = {"-i", "--interface"}, paramLabel = "<interface>", description = "Bind to the specified <interface> (default: bind to all interfaces).") String hzInterface,
+            @Option(names = {"-cn", "--cluster-name"}, paramLabel = "<name>", description = "Use the specified cluster <name> " + "(default: 'dev').", defaultValue = "dev") String clusterName,
+            @Option(names = {"-p", "--port"}, paramLabel = "<port>", description = "Bind to the specified <port>. Please note that if the specified port is in use, " + "it will auto-increment to the first free port. (default: 5701)", defaultValue = "5701") String port,
+            @Option(names = {"-i", "--interface"}, paramLabel = "<interface>", description = "Bind to the specified <interface>" + " (default: bind to all interfaces).") String hzInterface,
             @Option(names = {"-fg", "--foreground"}, description = "Run in the foreground.") boolean foreground,
             @Option(names = {"-j", "--jar"}, paramLabel = "<path>", description = "Add <path> to Hazelcast class path.") String additionalClassPath,
-            @Option(names = {"-J", "--JAVA_OPTS"}, paramLabel = "<option>", split = ",", description = "Specify additional Java <option> (Use ',' char to split multiple options).") List<String> javaOptions)
+            @Option(names = {"-J", "--JAVA_OPTS"}, paramLabel = "<option>", split = ",", description = "Specify additional Java" + " <option> (Use ',' char to split multiple options).") List<String> javaOptions)
             throws IOException, InterruptedException {
         List<String> args = new ArrayList<>();
         if (!isNullOrEmpty(configFilePath)) {
@@ -115,28 +157,9 @@ public class MemberCommandLine
         return getPid(process);
     }
 
-    private static int getPid(Process process) {
-        int pid;
-        String className = process.getClass().getName();
-        if (className.equals("java.lang.UNIXProcess") || className
-                .equals("java.lang.ProcessImpl") /* to get the PID on Java9+ */) {
-            try {
-                Field f = process.getClass().getDeclaredField("pid");
-                f.setAccessible(true);
-                pid = f.getInt(process);
-            } catch (Throwable e) {
-                throw new HazelcastException("Exception when accessing the pid of a process.", e);
-            }
-        } else {
-            throw new UnsupportedOperationException("Platforms other than UNIX are not supported right now.");
-        }
-
-        return pid;
-    }
-
     @Command(description = "Stops a Hazelcast IMDG member", mixinStandardHelpOptions = true)
     public void stop(
-            @Parameters(index = "0", paramLabel = "<name>", description = "Unique name of the process to stop, for ex.: brave_frog.") String name)
+            @Parameters(index = "0", paramLabel = "<name>", description = "Unique name of the process to stop, for ex.: " + "brave_frog.") String name)
             throws IOException {
         HazelcastProcess process = processStore.find(name);
         if (process == null) {
@@ -163,8 +186,8 @@ public class MemberCommandLine
 
     @Command(description = "Display the logs for Hazelcast member with the given ID.", mixinStandardHelpOptions = true)
     public void logs(
-            @Parameters(index = "0", paramLabel = "<name>", description = "Unique name of the process to show the logs, for ex.: brave_frog.") String name,
-            @Option(names = {"-n", "--numberOfLines"}, paramLabel = "<lineCount>", description = "Display the specified number of lines (default: 10).", defaultValue = "10") int numberOfLines)
+            @Parameters(index = "0", paramLabel = "<name>", description = "Unique name of the process to show the logs, for ex" + ".: brave_frog.") String name,
+            @Option(names = {"-n", "--numberOfLines"}, paramLabel = "<lineCount>", description = "Display the specified number " + "of lines (default: 10).", defaultValue = "10") int numberOfLines)
             throws IOException {
         if (!processStore.exists(name)) {
             printlnErr("No process found with process id: " + name);
@@ -199,10 +222,6 @@ public class MemberCommandLine
 
     public Stream<String> getProcessOutput() {
         return processOutput;
-    }
-
-    private static boolean isNullOrEmpty(String string) {
-        return string == null || string.isEmpty();
     }
 
     public ProcessStore getProcessStore() {

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2008-2019, Hazelcast, Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.hazelcast.commandline.member;
 
 import com.hazelcast.commandline.member.names.MobyNames;
@@ -17,25 +33,27 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.hazelcast.commandline.HazelcastCommandLine.HAZELCAST_HOME;
 import static com.hazelcast.commandline.HazelcastCommandLine.SEPARATOR;
 
 class ProcessStore {
     private static final String LOGS_DIR_STRING = "logs";
     private static final String LOGS_FILE_NAME_STRING = "hazelcast.log";
+    private final String hazelcastHome;
     private final String instancesFilePath;
 
-    static {
-        try {
-            new File(HAZELCAST_HOME).mkdirs();
-        } catch (Exception e) {
-            throw new HazelcastException("Process directories couldn't created. This might be related to user "
-                    + "permissions, please check your write permissions at: " + HAZELCAST_HOME, e);
-        }
+    ProcessStore(String hazelcastHome) {
+        this.hazelcastHome = hazelcastHome;
+        this.instancesFilePath = hazelcastHome + SEPARATOR + "instances.dat";
+        createHazelcastHomeDirectory();
     }
 
-    public ProcessStore(String instancesFilePath) {
-        this.instancesFilePath = instancesFilePath;
+    private void createHazelcastHomeDirectory() {
+        try {
+            new File(hazelcastHome).mkdirs();
+        } catch (Exception e) {
+            throw new HazelcastException("Process directories couldn't created. This might be related to user "
+                    + "permissions, please check your write permissions at: " + hazelcastHome, e);
+        }
     }
 
     void save(HazelcastProcess process)
@@ -103,7 +121,7 @@ class ProcessStore {
     }
 
     private String createProcessDirs(String name) {
-        String processPath = HAZELCAST_HOME + SEPARATOR + name;
+        String processPath = hazelcastHome + SEPARATOR + name;
         String logPath = processPath + SEPARATOR + LOGS_DIR_STRING;
         try {
             new File(logPath).mkdirs();
