@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 import static com.hazelcast.commandline.HazelcastCommandLine.SEPARATOR;
 import static picocli.CommandLine.Command;
 import static picocli.CommandLine.Spec;
-import static picocli.CommandLine.Model;
+import static picocli.CommandLine.Model.CommandSpec;
 import static picocli.CommandLine.Option;
 import static picocli.CommandLine.Parameters;
 
@@ -47,7 +47,8 @@ public class MemberCommandLine
         implements Runnable {
     private static final String CLASSPATH_SEPARATOR = ":";
     @Spec
-    protected Model.CommandSpec spec;
+    private CommandSpec spec;
+
     private final PrintStream out;
     private final PrintStream err;
     private Stream<String> processOutput;

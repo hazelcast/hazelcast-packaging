@@ -25,7 +25,7 @@ import java.util.List;
 
 import static com.hazelcast.instance.BuildInfoProvider.getBuildInfo;
 import static picocli.CommandLine.Command;
-import static picocli.CommandLine.Mixin;
+import static picocli.CommandLine.Option;
 import static picocli.CommandLine.DefaultExceptionHandler;
 import static picocli.CommandLine.Help;
 import static picocli.CommandLine.RunAll;
@@ -43,8 +43,8 @@ public class HazelcastCommandLine
      */
     public static final String SEPARATOR = FileSystems.getDefault().getSeparator();
 
-    @Mixin(name = "verbosity")
-    protected Verbosity verbosity;
+    @Option(names = {"-v", "--verbosity"}, description = {"Show logs from Hazelcast and full stack trace of errors"}, order = 1)
+    protected boolean isVerbose;
 
     private String hazelcastHome;
 
