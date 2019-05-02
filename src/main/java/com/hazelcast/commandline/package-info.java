@@ -15,6 +15,6 @@
  */
 
 /**
- * This package contains the classes related to main command
+ * This package contains the classes related to base `hazelcast` command
  */
 package com.hazelcast.commandline;

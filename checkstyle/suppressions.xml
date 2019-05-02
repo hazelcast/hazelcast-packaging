@@ -24,6 +24,16 @@
 
     <!-- Suppress strict duplicate code checking -->
     <suppress checks="StrictDuplicateCode" files="\.java" lines="1-15"/>
+
+    <!--Suppress line length checking in commands-->
+    <suppress
+            checks="LineLengthCheck"
+            files="com[\\/]hazelcast[\\/]commandline[\\/]member[\\/]MemberCommandLine"/>
+    <suppress
+            checks="LineLengthCheck"
+            files="com[\\/]hazelcast[\\/]commandline[\\/]HazelcastCommandLine"/>
+
+    <!--Suppress checks in tests-->
     <suppress
             checks="FileLength|MethodLength|LineLength|AnonInnerLength|MethodCount|ReturnCount|ExecutableStatementCount"
             files="[\\/]src[\\/]test[\\/]"/>

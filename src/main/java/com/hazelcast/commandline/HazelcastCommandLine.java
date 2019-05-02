@@ -33,8 +33,8 @@ import static picocli.CommandLine.RunAll;
 /**
  * Main command class for Hazelcast IMDG operations
  */
-@Command(name = "hazelcast", description = "Utility for the Hazelcast IMDG operations." + "%n%n" + "Global options are:%n",
-         versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
+@Command(name = "hazelcast", description = "Utility for the Hazelcast IMDG operations." + "%n%n"
+        + "Global options are:%n", versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
 public class HazelcastCommandLine
         implements Runnable {
 

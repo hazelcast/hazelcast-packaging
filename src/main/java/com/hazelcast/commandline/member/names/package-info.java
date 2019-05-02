@@ -15,6 +15,7 @@
  */
 
 /**
- * This package contains the class that generates Moby names
+ * This package contains the class that generates Moby names.
+ * Please see the details here: https://github.com/moby/moby/tree/master/pkg/namesgenerator
  */
 package com.hazelcast.commandline.member.names;
