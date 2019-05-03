@@ -185,9 +185,9 @@ public final class MobyNames {
             // - https://en.wikipedia.org/wiki/Subrahmanyan_Chandrasekhar
             "chandrasekhar",
 
-            // Sergey Alexeyevich Chaplygin (Russian: Серге́й Алексе́евич Чаплы́гин; April 5, 1869 – October 8, 1942) was
-            // a Russian and Soviet physicist, mathematician, and mechanical engineer. He is known for mathematical formulas
-            // such as Chaplygin's equation and for a hypothetical substance in cosmology called Chaplygin gas, named after him.
+            // Sergey Alexeyevich Chaplygin was a Russian and Soviet physicist, mathematician, and mechanical engineer.
+            // He is known for mathematical formulas such as Chaplygin's equation and for a hypothetical substance
+            // in cosmology called Chaplygin gas, named after him.
             // https://en.wikipedia.org/wiki/Sergey_Chaplygin
             "chaplygin",
 
@@ -291,9 +291,9 @@ public final class MobyNames {
             // Albert Einstein invented the general theory of relativity. https://en.wikipedia.org/wiki/Albert_Einstein
             "einstein",
 
-            // Alexandra Asanovna Elbakyan (Russian: Алекса́ндра Аса́новна Элбакя́н) is a Kazakhstani graduate student,
-            // computer programmer, internet pirate in hiding, and the creator of the site Sci-Hub. Nature has listed her
-            // in 2016 in the top ten people that mattered in science, and Ars Technica has compared her to Aaron Swartz. -
+            // Alexandra Asanovna Elbakyan is a Kazakhstani graduate student, computer programmer, internet pirate in
+            // hiding, and the creator of the site Sci-Hub. Nature has listed her in 2016 in the top ten people
+            // that mattered in science, and Ars Technica has compared her to Aaron Swartz. -
             // https://en.wikipedia.org/wiki/Alexandra_Elbakyan
             "elbakyan",
 
@@ -505,10 +505,10 @@ public final class MobyNames {
             // ballistic missile and launch vehicle technology - https://en.wikipedia.org/wiki/A._P._J._Abdul_Kalam
             "kalam",
 
-            // Sergey Petrovich Kapitsa (Russian: Серге́й Петро́вич Капи́ца; 14 February 1928 – 14 August 2012) was a Russian
-            // physicist and demographer. He was best known as host of the popular and long-running Russian scientific TV show,
-            // Evident, but Incredible. His father was the Nobel laureate Soviet-era physicist Pyotr Kapitsa, and his brother
-            // was the geographer and Antarctic explorer Andrey Kapitsa. - https://en.wikipedia.org/wiki/Sergey_Kapitsa
+            // Sergey Petrovich Kapitsa (14 February 1928 – 14 August 2012) was a Russian physicist and demographer.
+            // He was best known as host of the popular and long-running Russian scientific TV show, Evident, but Incredible.
+            // His father was the Nobel laureate Soviet-era physicist Pyotr Kapitsa, and his brother was the geographer
+            // and Antarctic explorer Andrey Kapitsa. - https://en.wikipedia.org/wiki/Sergey_Kapitsa
             "kapitsa",
 
             // Susan Kare, created the icons and many of the interface elements for the original Apple Macintosh in the 1980s,
@@ -760,9 +760,9 @@ public final class MobyNames {
             // https://en.wikipedia.org/wiki/Laura_Poitras
             "poitras",
 
-            // Tat’yana Avenirovna Proskuriakova (Russian: Татья́на Авени́ровна Проскуряко́ва) (January 23 [O.S. January 10]
-            // 1909 – August 30, 1985) was a Russian-American Mayanist scholar and archaeologist who contributed significantly
-            // to the deciphering of Maya hieroglyphs, the writing system of the pre-Columbian Maya civilization of Mesoamerica
+            // Tat’yana Avenirovna Proskuriakova (January 23 [O.S. January 10] 1909 – August 30, 1985) was a
+            // Russian-American Mayanist scholar and archaeologist who contributed significantly to the deciphering
+            // of Maya hieroglyphs, the writing system of the pre-Columbian Maya civilization of Mesoamerica
             // . https://en.wikipedia.org/wiki/Tatiana_Proskouriakoff
             "proskuriakova",
 
@@ -837,8 +837,8 @@ public final class MobyNames {
             // William Shockley co-invented the transistor - https://en.wikipedia.org/wiki/William_Shockley
             "shockley",
 
-            // Lina Solomonovna Stern (or Shtern; Russian: Лина Соломоновна Штерн; 26 August 1878 – 7 March 1968) was a Soviet
-            // biochemist, physiologist and humanist whose medical discoveries saved thousands of lives at the fronts of World
+            // Lina Solomonovna Stern (or Shtern; 26 August 1878 – 7 March 1968) was a Soviet biochemist, physiologist and
+            // humanist whose medical discoveries saved thousands of lives at the fronts of World
             // War II. She is best known for her pioneering work on blood–brain barrier, which she described as
             // hemato-encephalic barrier in 1921. https://en.wikipedia.org/wiki/Lina_Stern
             "shtern",
@@ -984,9 +984,9 @@ public final class MobyNames {
             // sciences. https://en.wikipedia.org/wiki/Ada_Yonath
             "yonath",
 
-            // Nikolay Yegorovich Zhukovsky (Russian: Никола́й Его́рович Жуко́вский, January 17 1847 – March 17, 1921) was a
-            // Russian scientist, mathematician and engineer, and a founding father of modern aero- and hydrodynamics. Whereas
-            // contemporary scientists scoffed at the idea of human flight, Zhukovsky was the first to undertake the study of
+            // Nikolay Yegorovich Zhukovsky (January 17 1847 – March 17, 1921) was a Russian scientist, mathematician
+            // and engineer, and a founding father of modern aero- and hydrodynamics. Whereas contemporary scientists
+            // scoffed at the idea of human flight, Zhukovsky was the first to undertake the study of
             // airflow. He is often called the Father of Russian Aviation. https://en.wikipedia
             // .org/wiki/Nikolay_Yegorovich_Zhukovsky
             "zhukovsky"};
