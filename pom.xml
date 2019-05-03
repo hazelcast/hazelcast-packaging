@@ -42,7 +42,6 @@
     </build>
 
     <properties>
-        <main.basedir>${project.basedir}</main.basedir>
         <hazelcast.version>3.12</hazelcast.version>
         <picocli.version>3.9.6</picocli.version>
         <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
