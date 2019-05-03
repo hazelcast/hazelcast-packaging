@@ -20,13 +20,15 @@ import com.hazelcast.commandline.member.names.MobyNames;
 import com.hazelcast.core.HazelcastException;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -63,22 +65,19 @@ class ProcessStore {
         updateFile(processMap);
     }
 
-    Map<String, HazelcastProcess> findAll() {
+    Map<String, HazelcastProcess> findAll()
+            throws IOException {
         Map<String, HazelcastProcess> processes = new HashMap<>();
-        try {
-            Path path = FileSystems.getDefault().getPath(instancesFilePath);
-            if (!Files.exists(path)) {
-                Files.createFile(path);
-            }
-            FileInputStream fileInputStream = new FileInputStream(instancesFilePath);
-            if (Files.size(path) == 0) {
-                return processes;
-            }
-            ObjectInputStream input = new ObjectInputStream(fileInputStream);
+        Path path = FileSystems.getDefault().getPath(instancesFilePath);
+        if (!Files.exists(path)) {
+            Files.createFile(path);
+        }
+        if (Files.size(path) == 0) {
+            return processes;
+        }
+        try (FileInputStream fileInputStream = new FileInputStream(instancesFilePath);
+             ObjectInputStream input = new ObjectInputStream(fileInputStream)) {
             processes = (Map<String, HazelcastProcess>) input.readObject();
-            input.close();
-        } catch (IOException e) {
-            throw new HazelcastException("Error when reading from file.", e);
         } catch (ClassNotFoundException cnfe) {
             throw new HazelcastException(cnfe.getMessage(), cnfe);
         }
@@ -93,7 +92,8 @@ class ProcessStore {
         objectOut.close();
     }
 
-    HazelcastProcess find(String name) {
+    HazelcastProcess find(String name)
+            throws IOException {
         return findAll().get(name);
     }
 
@@ -107,12 +107,13 @@ class ProcessStore {
         updateFile(processMap);
     }
 
-    boolean exists(String name) {
+    boolean exists(String name)
+            throws IOException {
         return findAll().containsKey(name);
     }
 
     HazelcastProcess create()
-            throws FileNotFoundException {
+            throws FileNotFoundException, UnsupportedEncodingException {
         String name = MobyNames.getRandomName(0);
         String processDir = createProcessDirs(name);
         String logFilePath = processDir + SEPARATOR + LOGS_DIR_STRING + SEPARATOR + LOGS_FILE_NAME_STRING;
@@ -132,9 +133,9 @@ class ProcessStore {
     }
 
     private String createLoggingPropertiesFile(String processDir, String logFilePath)
-            throws FileNotFoundException {
+            throws FileNotFoundException, UnsupportedEncodingException {
         String loggingPropertiesPath = processDir + SEPARATOR + "logging.properties";
-        PrintWriter printWriter = new PrintWriter(loggingPropertiesPath);
+        PrintWriter printWriter = new PrintWriter(loggingPropertiesPath, StandardCharsets.UTF_8.name());
         String fileContent = "handlers= java.util.logging.FileHandler, java.util.logging.ConsoleHandler\n" + ".level= INFO\n"
                 + "java.util.logging.FileHandler.pattern = " + logFilePath + "\n"
                 + "java.util.logging.FileHandler.limit = 50000\n" + "java.util.logging.FileHandler.count = 1\n"

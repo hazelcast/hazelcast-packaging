@@ -45,6 +45,7 @@
         <hazelcast.version>3.12</hazelcast.version>
         <picocli.version>3.9.6</picocli.version>
         <maven.checkstyle.plugin.version>2.15</maven.checkstyle.plugin.version>
+        <spotbugs-maven-plugin.version>3.1.11</spotbugs-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -108,7 +109,31 @@
                 </plugins>
             </build>
         </profile>
-
+        <profile>
+            <id>spotbugs</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
+                        <version>${spotbugs-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <failOnError>true</failOnError>
+                            <spotbugsXmlOutput>true</spotbugsXmlOutput>
+                            <xmlOutput>true</xmlOutput>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
 </project>
