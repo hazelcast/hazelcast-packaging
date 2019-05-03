@@ -47,7 +47,6 @@
         <picocli.version>3.9.6</picocli.version>
         <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
         <maven.checkstyle.plugin.version>2.15</maven.checkstyle.plugin.version>
-        <maven.findbugs.plugin.version>3.0.1</maven.findbugs.plugin.version>
         <maven.sonar.plugin.version>3.3.0.603</maven.sonar.plugin.version>
         <maven.jacoco.plugin.version>0.7.9</maven.jacoco.plugin.version>
     </properties>
@@ -108,31 +107,6 @@
                             <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             <enableRulesSummary>true</enableRulesSummary>
                             <propertyExpansion>project.basedir=${project.basedir}</propertyExpansion>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>findbugs</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
-                        <version>${maven.findbugs.plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <failOnError>true</failOnError>
-                            <excludeFilterFile>${main.basedir}/findbugs/findbugs-exclude.xml</excludeFilterFile>
                         </configuration>
                     </plugin>
                 </plugins>
