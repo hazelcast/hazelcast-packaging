@@ -45,6 +45,7 @@ public class MemberCommandLineTest
     private final String DEFAULT_PORT = "5701";
     private final String hazelcastHome = System.getProperty("user.home") + "/.hazelcastTest";
     private MemberCommandLine memberCommandLine;
+    private BufferedReader bufferedReader;
 
     @Before
     public void setup()
@@ -60,6 +61,9 @@ public class MemberCommandLineTest
             throws IOException {
         killAllRunningHazelcastInstances();
         removeFiles();
+        if (bufferedReader != null) {
+            bufferedReader.close();
+        }
     }
 
     private void removeFiles()
@@ -194,11 +198,8 @@ public class MemberCommandLineTest
         return stringBuilder.toString();
     }
 
-    private Stream<String> getProcessOutput(InputStream processInputStream)
-            throws IOException {
-        try (BufferedReader bufferedReader = new BufferedReader(
-                new InputStreamReader(processInputStream, StandardCharsets.UTF_8))) {
-            return bufferedReader.lines();
-        }
+    private Stream<String> getProcessOutput(InputStream processInputStream) {
+        bufferedReader = new BufferedReader(new InputStreamReader(processInputStream, StandardCharsets.UTF_8));
+        return bufferedReader.lines();
     }
 }
