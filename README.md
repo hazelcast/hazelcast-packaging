@@ -23,3 +23,11 @@ Please use the following command to run checkstyle validation:
 ```
 mvn -P checkstyle clean validate
 ```
+
+## SpotBugs analysis
+
+Please use the following command to run [SpotBugs](https://spotbugs.github.io/) analysis:
+
+```
+mvn -P spotbugs clean compile
+```
