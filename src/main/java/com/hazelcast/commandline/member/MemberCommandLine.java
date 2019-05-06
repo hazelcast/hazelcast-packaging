@@ -20,10 +20,9 @@ import com.hazelcast.commandline.HazelcastVersionProvider;
 import com.hazelcast.core.HazelcastException;
 import picocli.CommandLine;
 
-import java.io.PrintStream;
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -34,10 +33,10 @@ import java.util.stream.Stream;
 
 import static com.hazelcast.commandline.HazelcastCommandLine.SEPARATOR;
 import static picocli.CommandLine.Command;
-import static picocli.CommandLine.Spec;
 import static picocli.CommandLine.Model.CommandSpec;
 import static picocli.CommandLine.Option;
 import static picocli.CommandLine.Parameters;
+import static picocli.CommandLine.Spec;
 
 /**
  * Command line class responsible for Hazelcast member operations.
@@ -51,13 +50,16 @@ public class MemberCommandLine
 
     private final PrintStream out;
     private final PrintStream err;
-    private Stream<String> processOutput;
     private ProcessStore processStore;
+    //Process input stream is only needed for test purposes, this flag is used to enable it when needed.
+    private boolean processInputStreamEnabled;
+    private InputStream processInputStream;
 
-    public MemberCommandLine(PrintStream out, PrintStream err, String hazelcastHome) {
+    public MemberCommandLine(PrintStream out, PrintStream err, String hazelcastHome, boolean processInputStreamEnabled) {
         this.out = out;
         this.err = err;
         processStore = new ProcessStore(hazelcastHome);
+        this.processInputStreamEnabled = processInputStreamEnabled;
     }
 
     private static int getPid(Process process) {
@@ -152,8 +154,9 @@ public class MemberCommandLine
         if (foreground) {
             process.waitFor();
         }
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        processOutput = bufferedReader.lines();
+        if (processInputStreamEnabled) {
+            processInputStream = process.getInputStream();
+        }
         return getPid(process);
     }
 
@@ -173,7 +176,8 @@ public class MemberCommandLine
     }
 
     @Command(description = "Lists running Hazelcast IMDG members", mixinStandardHelpOptions = true)
-    public void list() {
+    public void list()
+            throws IOException {
         Map<String, HazelcastProcess> processes = processStore.findAll();
         if (processes.isEmpty()) {
             println("No running process exists.");
@@ -220,8 +224,8 @@ public class MemberCommandLine
         err.println(msg);
     }
 
-    public Stream<String> getProcessOutput() {
-        return processOutput;
+    public InputStream getProcessInputStream() {
+        return processInputStream;
     }
 
     public ProcessStore getProcessStore() {

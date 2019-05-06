@@ -25,9 +25,9 @@ import java.util.List;
 
 import static com.hazelcast.instance.BuildInfoProvider.getBuildInfo;
 import static picocli.CommandLine.Command;
-import static picocli.CommandLine.Option;
 import static picocli.CommandLine.DefaultExceptionHandler;
 import static picocli.CommandLine.Help;
+import static picocli.CommandLine.Option;
 import static picocli.CommandLine.RunAll;
 
 /**
@@ -46,20 +46,14 @@ public class HazelcastCommandLine
     @Option(names = {"-v", "--verbosity"}, description = {"Show logs from Hazelcast and full stack trace of errors"}, order = 1)
     protected boolean isVerbose;
 
-    private String hazelcastHome;
-
-    public HazelcastCommandLine(String hazelcastHome) {
-        this.hazelcastHome = hazelcastHome;
-    }
-
     public static void main(String[] args) {
         runCommandLine(System.out, System.err, true, args);
     }
 
     private static void runCommandLine(PrintStream out, PrintStream err, boolean shouldExit, String[] args) {
         String hazelcastHome = System.getProperty("user.home") + "/.hazelcast";
-        CommandLine cmd = new CommandLine(new HazelcastCommandLine(hazelcastHome))
-                .addSubcommand("member", new MemberCommandLine(out, err, hazelcastHome));
+        CommandLine cmd = new CommandLine(new HazelcastCommandLine())
+                .addSubcommand("member", new MemberCommandLine(out, err, hazelcastHome, false));
 
         String version = getBuildInfo().getVersion();
         cmd.getCommandSpec().usageMessage().header("Hazelcast IMDG " + version);

@@ -25,12 +25,15 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -42,12 +45,13 @@ public class MemberCommandLineTest
     private final String DEFAULT_PORT = "5701";
     private final String hazelcastHome = System.getProperty("user.home") + "/.hazelcastTest";
     private MemberCommandLine memberCommandLine;
+    private BufferedReader bufferedReader;
 
     @Before
     public void setup()
             throws IOException {
         resetOut();
-        memberCommandLine = new MemberCommandLine(out, err, hazelcastHome);
+        memberCommandLine = new MemberCommandLine(out, err, hazelcastHome, true);
         killAllRunningHazelcastInstances();
         removeFiles();
     }
@@ -57,6 +61,9 @@ public class MemberCommandLineTest
             throws IOException {
         killAllRunningHazelcastInstances();
         removeFiles();
+        if (bufferedReader != null) {
+            bufferedReader.close();
+        }
     }
 
     private void removeFiles()
@@ -80,8 +87,8 @@ public class MemberCommandLineTest
     public void test_start()
             throws IOException, InterruptedException {
         memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
-        assertTrue(memberCommandLine.getProcessOutput()
-                                    .anyMatch(out -> out.contains(LifecycleEvent.LifecycleState.STARTED.toString())));
+        Stream<String> processOutput = getProcessOutput(memberCommandLine.getProcessInputStream());
+        assertTrue(processOutput.anyMatch(out -> out.contains(LifecycleEvent.LifecycleState.STARTED.toString())));
     }
 
     @Test(timeout = 10000)
@@ -89,8 +96,9 @@ public class MemberCommandLineTest
             throws IOException, InterruptedException {
         String groupName = "member-command-line-test";
         startMemberWithConfigFile();
-        assertTrue(memberCommandLine.getProcessOutput().anyMatch(
-                out -> out.contains(groupName) && out.contains(LifecycleEvent.LifecycleState.STARTED.toString())));
+        Stream<String> processOutput = getProcessOutput(memberCommandLine.getProcessInputStream());
+        assertTrue(processOutput
+                .anyMatch(out -> out.contains(groupName) && out.contains(LifecycleEvent.LifecycleState.STARTED.toString())));
     }
 
     @Test(timeout = 10000)
@@ -98,8 +106,9 @@ public class MemberCommandLineTest
             throws IOException, InterruptedException {
         String groupName = "member-command-line-test";
         memberCommandLine.start(null, groupName, DEFAULT_PORT, null, false, null, null);
-        assertTrue(memberCommandLine.getProcessOutput().anyMatch(
-                out -> out.contains(groupName) && out.contains(LifecycleEvent.LifecycleState.STARTED.toString())));
+        Stream<String> processOutput = getProcessOutput(memberCommandLine.getProcessInputStream());
+        assertTrue(processOutput
+                .anyMatch(out -> out.contains(groupName) && out.contains(LifecycleEvent.LifecycleState.STARTED.toString())));
     }
 
     @Test(timeout = 10000)
@@ -107,8 +116,8 @@ public class MemberCommandLineTest
             throws IOException, InterruptedException {
         String port = "9898";
         memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, port, null, false, null, null);
-        assertTrue(memberCommandLine.getProcessOutput().anyMatch(
-                out -> out.contains(port + " is " + LifecycleEvent.LifecycleState.STARTED.toString())));
+        Stream<String> processOutput = getProcessOutput(memberCommandLine.getProcessInputStream());
+        assertTrue(processOutput.anyMatch(out -> out.contains(port + " is " + LifecycleEvent.LifecycleState.STARTED.toString())));
     }
 
     @Test
@@ -187,5 +196,10 @@ public class MemberCommandLineTest
         }
 
         return stringBuilder.toString();
+    }
+
+    private Stream<String> getProcessOutput(InputStream processInputStream) {
+        bufferedReader = new BufferedReader(new InputStreamReader(processInputStream, StandardCharsets.UTF_8));
+        return bufferedReader.lines();
     }
 }
