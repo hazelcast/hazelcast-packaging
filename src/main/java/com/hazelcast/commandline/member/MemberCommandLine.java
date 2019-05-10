@@ -17,13 +17,11 @@
 package com.hazelcast.commandline.member;
 
 import com.hazelcast.commandline.HazelcastVersionProvider;
-import com.hazelcast.core.HazelcastException;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -45,40 +43,23 @@ import static picocli.CommandLine.Spec;
 public class MemberCommandLine
         implements Runnable {
     private static final String CLASSPATH_SEPARATOR = ":";
-    @Spec
-    private CommandSpec spec;
-
     private final PrintStream out;
     private final PrintStream err;
-    private ProcessStore processStore;
+    @Spec
+    private CommandSpec spec;
+    private HazelcastProcessStore hazelcastProcessStore;
+    private ProcessExecutor processExecutor;
     //Process input stream is only needed for test purposes, this flag is used to enable it when needed.
     private boolean processInputStreamEnabled;
     private InputStream processInputStream;
 
-    public MemberCommandLine(PrintStream out, PrintStream err, String hazelcastHome, boolean processInputStreamEnabled) {
+    public MemberCommandLine(PrintStream out, PrintStream err, HazelcastProcessStore hazelcastProcessStore,
+                             ProcessExecutor processExecutor, boolean processInputStreamEnabled) {
         this.out = out;
         this.err = err;
-        processStore = new ProcessStore(hazelcastHome);
+        this.hazelcastProcessStore = hazelcastProcessStore;
+        this.processExecutor = processExecutor;
         this.processInputStreamEnabled = processInputStreamEnabled;
-    }
-
-    private static int getPid(Process process) {
-        int pid;
-        String className = process.getClass().getName();
-        if (className.equals("java.lang.UNIXProcess") || className
-                .equals("java.lang.ProcessImpl") /* to get the PID on Java9+ */) {
-            try {
-                Field f = process.getClass().getDeclaredField("pid");
-                f.setAccessible(true);
-                pid = f.getInt(process);
-            } catch (Throwable e) {
-                throw new HazelcastException("Exception when accessing the pid of a process.", e);
-            }
-        } else {
-            throw new UnsupportedOperationException("Platforms other than UNIX are not supported right now.");
-        }
-
-        return pid;
     }
 
     private static boolean isNullOrEmpty(String string) {
@@ -121,13 +102,13 @@ public class MemberCommandLine
         }
         args.add("-Djava.net.preferIPv4Stack=true");
 
-        HazelcastProcess process = processStore.create();
+        HazelcastProcess process = hazelcastProcessStore.create();
 
         args.add("-Djava.util.logging.config.file=" + process.getLoggingPropertiesPath());
 
         Integer pid = buildJavaProcess(HazelcastMember.class, args, foreground, additionalClassPath);
         process.setPid(pid);
-        processStore.save(process);
+        hazelcastProcessStore.save(process);
 
         println(process.getName());
     }
@@ -145,40 +126,32 @@ public class MemberCommandLine
         commandList.add(classpath);
         commandList.addAll(parameters);
         commandList.add(aClass.getName());
-        ProcessBuilder processBuilder = new ProcessBuilder(commandList);
-        processBuilder.redirectErrorStream(true);
-        if (foreground) {
-            processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-        }
-        Process process = processBuilder.start();
-        if (foreground) {
-            process.waitFor();
-        }
+        Process process = processExecutor.buildAndStart(commandList, foreground);
         if (processInputStreamEnabled) {
             processInputStream = process.getInputStream();
         }
-        return getPid(process);
+        return processExecutor.extractPid(process);
     }
 
     @Command(description = "Stops a Hazelcast IMDG member", mixinStandardHelpOptions = true)
     public void stop(
             @Parameters(index = "0", paramLabel = "<name>", description = "Unique name of the process to stop, for ex.: " + "brave_frog.") String name)
             throws IOException {
-        HazelcastProcess process = processStore.find(name);
+        HazelcastProcess process = hazelcastProcessStore.find(name);
         if (process == null) {
             printlnErr("No process found with process id: " + name);
             return;
         }
         int pid = process.getPid();
-        Runtime.getRuntime().exec("kill -15 " + pid);
-        processStore.remove(name);
+        processExecutor.run("kill -15 " + pid);
+        hazelcastProcessStore.remove(name);
         println(name + " stopped.");
     }
 
     @Command(description = "Lists running Hazelcast IMDG members", mixinStandardHelpOptions = true)
     public void list()
             throws IOException {
-        Map<String, HazelcastProcess> processes = processStore.findAll();
+        Map<String, HazelcastProcess> processes = hazelcastProcessStore.findAll();
         if (processes.isEmpty()) {
             println("No running process exists.");
             return;
@@ -193,7 +166,7 @@ public class MemberCommandLine
             @Parameters(index = "0", paramLabel = "<name>", description = "Unique name of the process to show the logs, for ex" + ".: brave_frog.") String name,
             @Option(names = {"-n", "--numberOfLines"}, paramLabel = "<lineCount>", description = "Display the specified number " + "of lines (default: 10).", defaultValue = "10") int numberOfLines)
             throws IOException {
-        if (!processStore.exists(name)) {
+        if (!hazelcastProcessStore.exists(name)) {
             printlnErr("No process found with process id: " + name);
             return;
         }
@@ -202,7 +175,7 @@ public class MemberCommandLine
 
     private void getLogs(PrintStream out, String name, int numberOfLines)
             throws IOException {
-        String logsPath = processStore.find(name).getLogFilePath();
+        String logsPath = hazelcastProcessStore.find(name).getLogFilePath();
         long totalLineCount = Files.lines(Paths.get(logsPath)).count();
         long skipLineCount = 0;
         if (totalLineCount > numberOfLines) {
@@ -228,7 +201,7 @@ public class MemberCommandLine
         return processInputStream;
     }
 
-    public ProcessStore getProcessStore() {
-        return processStore;
+    public HazelcastProcessStore getHazelcastProcessStore() {
+        return hazelcastProcessStore;
     }
 }

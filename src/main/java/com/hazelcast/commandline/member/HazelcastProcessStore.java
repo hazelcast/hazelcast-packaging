@@ -30,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -39,14 +40,17 @@ import java.util.Map;
 
 import static com.hazelcast.commandline.HazelcastCommandLine.SEPARATOR;
 
-class ProcessStore {
+/**
+ * Manages {@link HazelcastProcess} operations by keeping them in local filesystem.
+ */
+public class HazelcastProcessStore {
     private static final String LOGS_DIR_STRING = "logs";
     private static final String LOGS_FILE_NAME_STRING = "hazelcast.log";
     private final String hazelcastHome;
     private final String instancesFilePath;
     private final Kryo kryo;
 
-    ProcessStore(String hazelcastHome) {
+    public HazelcastProcessStore(String hazelcastHome) {
         this.hazelcastHome = hazelcastHome;
         this.instancesFilePath = hazelcastHome + SEPARATOR + "instances.dat";
         createHazelcastHomeDirectory();
