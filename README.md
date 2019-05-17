@@ -2,7 +2,7 @@
 
 ## Requirements
 
-This tool runs under UNIX environments only.
+This tool runs under Unix-like environments only.
 
 ## Usage
 
@@ -22,7 +22,7 @@ This will print the usage options. You can follow the instructions in the output
 
 ## Running acceptance tests
 
-Since this tool interacts with OS to run the commands, it has separate acceptance tests kept under `src/test-acceptance` folder. Note that you need a UNIX environment to run these tests. To run these tests, please run the following command:
+Since this tool interacts with OS to run the commands, it has separate acceptance tests kept under `src/test-acceptance` folder. Note that you need a Unix-like environment to run these tests. To run these tests, please run the following command:
 
 ```
 mvn clean verify

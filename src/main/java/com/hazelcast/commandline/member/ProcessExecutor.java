@@ -23,7 +23,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- * Wrapper for {@link ProcessBuilder} for test purposes
+ * Hanlder for OS level process operations.
  */
 public class ProcessExecutor {
     Process buildAndStart(List<String> commandList, boolean foreground)
@@ -58,7 +58,7 @@ public class ProcessExecutor {
                 throw new HazelcastException("Exception when accessing the pid of a process.", e);
             }
         } else {
-            throw new UnsupportedOperationException("Platforms other than UNIX are not supported right now.");
+            throw new UnsupportedOperationException("Platforms other than Unix-like are not supported right now.");
         }
 
         return pid;
