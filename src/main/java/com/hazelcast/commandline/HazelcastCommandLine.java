@@ -19,6 +19,7 @@ package com.hazelcast.commandline;
 import com.hazelcast.commandline.member.HazelcastProcessStore;
 import com.hazelcast.commandline.member.MemberCommandLine;
 import com.hazelcast.commandline.member.ProcessExecutor;
+import com.hazelcast.core.HazelcastException;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -53,6 +54,7 @@ public class HazelcastCommandLine
     }
 
     private static void runCommandLine(PrintStream out, PrintStream err, boolean shouldExit, String[] args) {
+        checkIfEnvSupported();
         String hazelcastHome = System.getProperty("user.home") + "/.hazelcast";
         CommandLine cmd = new CommandLine(new HazelcastCommandLine()).addSubcommand("member",
                 new MemberCommandLine(out, err, new HazelcastProcessStore(hazelcastHome), new ProcessExecutor(), false));
@@ -72,6 +74,13 @@ public class HazelcastCommandLine
             if (parsed != null && parsed.size() == 1) {
                 cmd.usage(out);
             }
+        }
+    }
+
+    private static void checkIfEnvSupported() {
+        String osName = System.getProperty("os.name");
+        if (!osName.equals("Linux") && !osName.contains("OS X") && !osName.equals("SunOS") && !osName.equals("AIX")) {
+            throw new HazelcastException("Platforms other than Unix-like are not supported right now.");
         }
     }
 

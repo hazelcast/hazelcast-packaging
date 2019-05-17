@@ -45,23 +45,20 @@ public class ProcessExecutor {
         Runtime.getRuntime().exec(command);
     }
 
+    /**
+     * Extracts the PID of a process using reflection. Note that this method only works in Unix-like environments.
+     *
+     * @param process that the PID to be extracted
+     * @return PID of the process
+     */
     int extractPid(Process process) {
-        int pid;
-        String className = process.getClass().getName();
-        if (className.equals("java.lang.UNIXProcess") || className
-                .equals("java.lang.ProcessImpl") /* to get the PID on Java9+ */) {
-            try {
-                Field f = process.getClass().getDeclaredField("pid");
-                f.setAccessible(true);
-                pid = f.getInt(process);
-            } catch (Throwable e) {
-                throw new HazelcastException("Exception when accessing the pid of a process.", e);
-            }
-        } else {
-            throw new UnsupportedOperationException("Platforms other than Unix-like are not supported right now.");
+        try {
+            Field f = process.getClass().getDeclaredField("pid");
+            f.setAccessible(true);
+            return f.getInt(process);
+        } catch (Throwable e) {
+            throw new HazelcastException("Exception when accessing the pid of a process.", e);
         }
-
-        return pid;
     }
 }
 
