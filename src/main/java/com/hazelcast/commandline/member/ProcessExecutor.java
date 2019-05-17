@@ -23,7 +23,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- * Hanlder for OS level process operations.
+ * Handler for OS level process operations.
  */
 public class ProcessExecutor {
     Process buildAndStart(List<String> commandList, boolean foreground)
