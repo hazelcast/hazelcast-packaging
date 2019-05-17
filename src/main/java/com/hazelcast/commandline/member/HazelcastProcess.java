@@ -16,17 +16,24 @@
 
 package com.hazelcast.commandline.member;
 
-import java.io.Serializable;
-
 /**
- * The details of Hazelcast process initiated by command line tool
- */
-public class HazelcastProcess
-        implements Serializable {
-    private final String name;
-    private final String loggingPropertiesPath;
-    private final String logFilePath;
+ * The details of Hazelcast process initiated by command line tool.
+ * <p/>
+ * NOTE: This class is used for persisting the process information. Backward-compatibility is provided for it, but
+ * remember that the changes to this class won't be available for the old versions. For instance; if you add a new
+ * field and read from an old version of this class, the new field will have a {@code null} value.
+ * */
+public class HazelcastProcess {
+    private String name;
+    private String loggingPropertiesPath;
+    private String logFilePath;
     private int pid;
+
+    /**
+     * This constructor is used by Kryo for deserialization purposes.
+     */
+    public HazelcastProcess() {
+    }
 
     public HazelcastProcess(String name, String loggingPropertiesPath, String logFilePath) {
         this.name = name;

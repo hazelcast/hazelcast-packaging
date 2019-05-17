@@ -16,6 +16,10 @@
 
 package com.hazelcast.commandline.member;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer;
 import com.hazelcast.commandline.member.names.MobyNames;
 import com.hazelcast.core.HazelcastException;
 
@@ -24,8 +28,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -42,11 +44,14 @@ class ProcessStore {
     private static final String LOGS_FILE_NAME_STRING = "hazelcast.log";
     private final String hazelcastHome;
     private final String instancesFilePath;
+    private final Kryo kryo;
 
     ProcessStore(String hazelcastHome) {
         this.hazelcastHome = hazelcastHome;
         this.instancesFilePath = hazelcastHome + SEPARATOR + "instances.dat";
         createHazelcastHomeDirectory();
+        kryo = new Kryo();
+        kryo.register(HazelcastProcess.class, new CompatibleFieldSerializer(kryo, HazelcastProcess.class));
     }
 
     private void createHazelcastHomeDirectory() {
@@ -75,21 +80,19 @@ class ProcessStore {
         if (Files.size(path) == 0) {
             return processes;
         }
-        try (FileInputStream fileInputStream = new FileInputStream(instancesFilePath);
-             ObjectInputStream input = new ObjectInputStream(fileInputStream)) {
-            processes = (Map<String, HazelcastProcess>) input.readObject();
-        } catch (ClassNotFoundException cnfe) {
-            throw new HazelcastException(cnfe.getMessage(), cnfe);
+        try (FileInputStream fileInputStream = new FileInputStream(instancesFilePath)) {
+            Input input = new Input(fileInputStream);
+            processes = kryo.readObject(input, HashMap.class);
         }
         return processes;
     }
 
     void updateFile(Map<String, HazelcastProcess> processMap)
             throws IOException {
-        FileOutputStream fileOut = new FileOutputStream(instancesFilePath);
-        ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
-        objectOut.writeObject(processMap);
-        objectOut.close();
+        try (FileOutputStream fileOut = new FileOutputStream(instancesFilePath);
+             Output output = new Output(fileOut)) {
+            kryo.writeObject(output, processMap);
+        }
     }
 
     HazelcastProcess find(String name)
