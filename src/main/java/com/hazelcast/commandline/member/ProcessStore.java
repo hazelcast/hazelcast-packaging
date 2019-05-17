@@ -83,17 +83,16 @@ class ProcessStore {
         try (FileInputStream fileInputStream = new FileInputStream(instancesFilePath)) {
             Input input = new Input(fileInputStream);
             processes = kryo.readObject(input, HashMap.class);
-            input.close();
         }
         return processes;
     }
 
     void updateFile(Map<String, HazelcastProcess> processMap)
             throws IOException {
-        FileOutputStream fileOut = new FileOutputStream(instancesFilePath);
-        Output output = new Output(fileOut);
-        kryo.writeObject(output, processMap);
-        output.close();
+        try (FileOutputStream fileOut = new FileOutputStream(instancesFilePath);
+             Output output = new Output(fileOut)) {
+            kryo.writeObject(output, processMap);
+        }
     }
 
     HazelcastProcess find(String name)
