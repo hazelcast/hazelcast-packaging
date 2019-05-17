@@ -16,7 +16,9 @@
 
 package com.hazelcast.commandline;
 
+import com.hazelcast.commandline.member.HazelcastProcessStore;
 import com.hazelcast.commandline.member.MemberCommandLine;
+import com.hazelcast.commandline.member.ProcessExecutor;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -52,8 +54,8 @@ public class HazelcastCommandLine
 
     private static void runCommandLine(PrintStream out, PrintStream err, boolean shouldExit, String[] args) {
         String hazelcastHome = System.getProperty("user.home") + "/.hazelcast";
-        CommandLine cmd = new CommandLine(new HazelcastCommandLine())
-                .addSubcommand("member", new MemberCommandLine(out, err, hazelcastHome, false));
+        CommandLine cmd = new CommandLine(new HazelcastCommandLine()).addSubcommand("member",
+                new MemberCommandLine(out, err, new HazelcastProcessStore(hazelcastHome), new ProcessExecutor(), false));
 
         String version = getBuildInfo().getVersion();
         cmd.getCommandSpec().usageMessage().header("Hazelcast IMDG " + version);

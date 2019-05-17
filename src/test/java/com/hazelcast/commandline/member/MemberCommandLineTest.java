@@ -16,190 +16,167 @@
 
 package com.hazelcast.commandline.member;
 
-import com.hazelcast.commandline.CommandLineTestSupport;
-import com.hazelcast.core.LifecycleEvent;
-import org.junit.After;
+import com.hazelcast.commandline.test.annotation.UnitTest;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.startsWith;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-public class MemberCommandLineTest
-        extends CommandLineTestSupport {
-
-    private final String DEFAULT_CLUSTER_NAME = "hazelcast-commandline-test-cluster";
-    private final String DEFAULT_PORT = "5701";
-    private final String hazelcastHome = System.getProperty("user.home") + "/.hazelcastTest";
+@Category(UnitTest.class)
+public class MemberCommandLineTest {
+    private ProcessExecutor processExecutor;
     private MemberCommandLine memberCommandLine;
-    private BufferedReader bufferedReader;
+    private PrintStream out;
+    private HazelcastProcessStore hazelcastProcessStore;
+    private HazelcastProcess hazelcastProcess;
 
     @Before
-    public void setup()
+    public void setUp()
             throws IOException {
-        resetOut();
-        memberCommandLine = new MemberCommandLine(out, err, hazelcastHome, true);
-        killAllRunningHazelcastInstances();
-        removeFiles();
+        hazelcastProcessStore = mock(HazelcastProcessStore.class);
+        processExecutor = mock(ProcessExecutor.class);
+        Process process = mock(Process.class);
+        out = mock(PrintStream.class);
+        hazelcastProcess = mock(HazelcastProcess.class);
+
+        when(process.getInputStream()).thenReturn(mock(InputStream.class));
+        when(processExecutor.extractPid(process)).thenReturn(99999);
+        when(hazelcastProcessStore.create()).thenReturn(hazelcastProcess);
+
+        memberCommandLine = new MemberCommandLine(out, mock(PrintStream.class), hazelcastProcessStore, processExecutor, false);
     }
 
-    @After
-    public void close()
-            throws IOException {
-        killAllRunningHazelcastInstances();
-        removeFiles();
-        if (bufferedReader != null) {
-            bufferedReader.close();
-        }
-    }
-
-    private void removeFiles()
-            throws IOException {
-        Path pathToBeDeleted = Files.createDirectories(Paths.get(hazelcastHome));
-
-        Files.walk(pathToBeDeleted).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-    }
-
-    private void killAllRunningHazelcastInstances() {
-        try {
-            for (HazelcastProcess hazelcastProcess : memberCommandLine.getProcessStore().findAll().values()) {
-                runCommand("kill -9 " + hazelcastProcess.getPid());
-            }
-        } catch (Exception e) {
-            //ignored, test instances file might not exist.
-        }
-    }
-
-    @Test(timeout = 10000)
+    @Test
     public void test_start()
             throws IOException, InterruptedException {
-        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
-        Stream<String> processOutput = getProcessOutput(memberCommandLine.getProcessInputStream());
-        assertTrue(processOutput.anyMatch(out -> out.contains(LifecycleEvent.LifecycleState.STARTED.toString())));
+        //when
+        memberCommandLine.start(null, null, null, null, false, null, null);
+        //then
+        verify(hazelcastProcessStore, times(1)).create();
+        verify(processExecutor, times(1)).buildAndStart(anyList(), eq(false));
+        verify(hazelcastProcessStore, times(1)).save(any());
     }
 
-    @Test(timeout = 10000)
+    @Test
     public void test_start_withConfigFile()
-            throws IOException, InterruptedException {
-        String groupName = "member-command-line-test";
-        startMemberWithConfigFile();
-        Stream<String> processOutput = getProcessOutput(memberCommandLine.getProcessInputStream());
-        assertTrue(processOutput
-                .anyMatch(out -> out.contains(groupName) && out.contains(LifecycleEvent.LifecycleState.STARTED.toString())));
+            throws Exception {
+        // given
+        String configFile = "path/to/test-hazelcast.xml";
+        // when
+        memberCommandLine.start(configFile, null, null, null, false, null, null);
+        // then
+        verify(processExecutor)
+                .buildAndStart((List<String>) argThat(Matchers.hasItem("-Dhazelcast.config=" + configFile)), eq(false));
     }
 
-    @Test(timeout = 10000)
+    @Test
     public void test_start_withClusterName()
-            throws IOException, InterruptedException {
-        String groupName = "member-command-line-test";
-        memberCommandLine.start(null, groupName, DEFAULT_PORT, null, false, null, null);
-        Stream<String> processOutput = getProcessOutput(memberCommandLine.getProcessInputStream());
-        assertTrue(processOutput
-                .anyMatch(out -> out.contains(groupName) && out.contains(LifecycleEvent.LifecycleState.STARTED.toString())));
+            throws Exception {
+        // given
+        String clusterName = "member-command-line-test";
+        // when
+        memberCommandLine.start(null, clusterName, null, null, false, null, null);
+        // then
+        verify(processExecutor).buildAndStart((List<String>) argThat(Matchers.hasItem("-Dgroup.name=" + clusterName)), eq(false));
     }
 
-    @Test(timeout = 10000)
+    @Test
     public void test_start_withPort()
-            throws IOException, InterruptedException {
-        String port = "9898";
-        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, port, null, false, null, null);
-        Stream<String> processOutput = getProcessOutput(memberCommandLine.getProcessInputStream());
-        assertTrue(processOutput.anyMatch(out -> out.contains(port + " is " + LifecycleEvent.LifecycleState.STARTED.toString())));
+            throws Exception {
+        // given
+        String port = "9999";
+        // when
+        memberCommandLine.start(null, null, port, null, false, null, null);
+        // then
+        verify(processExecutor).buildAndStart((List<String>) argThat(Matchers.hasItem("-Dnetwork.port=" + port)), eq(false));
+    }
+
+    @Test
+    public void test_start_withInterface()
+            throws Exception {
+        // given
+        String hzInterface = "1.1.1.1";
+        // when
+        memberCommandLine.start(null, null, null, hzInterface, false, null, null);
+        // then
+        verify(processExecutor).buildAndStart((List<String>) argThat(
+                Matchers.hasItems("-Dnetwork.interface=" + hzInterface, "-Dbind.any=false", "-Dinterfaces.enabled=true")),
+                eq(false));
+    }
+
+    @Test
+    public void test_start_withForeground()
+            throws Exception {
+        // given
+        boolean foreground = true;
+        // when
+        memberCommandLine.start(null, null, null, null, foreground, null, null);
+        // then
+        verify(processExecutor).buildAndStart(anyList(), eq(foreground));
     }
 
     @Test
     public void test_stop()
-            throws IOException, InterruptedException {
-        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
-        String processUniqueID = captureOut().replace("\n", "");
-        int pid = memberCommandLine.getProcessStore().find(processUniqueID).getPid();
-        memberCommandLine.stop(processUniqueID);
-        assertTrue(!getRunningJavaProcesses().contains(String.valueOf(pid)));
+            throws IOException {
+        //given
+        String processName = "aProcess";
+        when(hazelcastProcessStore.find(processName)).thenReturn(hazelcastProcess);
+        //when
+        memberCommandLine.stop(processName);
+        //then
+        verify(processExecutor).run(startsWith("kill -15"));
+        verify(hazelcastProcessStore, times(1)).remove(processName);
+    }
+
+    @Test
+    public void test_stop_withNoProcess()
+            throws IOException {
+        //given
+        String processName = "aProcess";
+        when(hazelcastProcessStore.find(processName)).thenReturn(null);
+        //when
+        memberCommandLine.stop(processName);
+        //then
+        verifyZeroInteractions(processExecutor);
+        verify(hazelcastProcessStore, times(0)).remove(any());
     }
 
     @Test
     public void test_list()
-            throws IOException, InterruptedException {
-        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
-        String processUniqueId1 = captureOut().replace("\n", "");
-        resetOut();
-        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
-        String processUniqueId2 = captureOut().replace("\n", "");
-        resetOut();
+            throws IOException {
+        //given
+        String process1Name = "process1";
+        String process2Name = "process2";
+        HazelcastProcess process1 = mock(HazelcastProcess.class);
+        when(process1.getName()).thenReturn(process1Name);
+        HazelcastProcess process2 = mock(HazelcastProcess.class);
+        when(process2.getName()).thenReturn(process2Name);
+        Map<String, HazelcastProcess> processMap = new HashMap<>();
+        processMap.put(process1Name, process1);
+        processMap.put(process2Name, process2);
+        when(hazelcastProcessStore.findAll()).thenReturn(processMap);
+        //when
         memberCommandLine.list();
-        String out = captureOut();
-        assertTrue(out.contains(processUniqueId1));
-        assertTrue(out.contains(processUniqueId2));
-    }
-
-    @Test
-    public void test_logs()
-            throws IOException, InterruptedException {
-        String groupName = "member-command-line-test";
-        startMemberWithConfigFile();
-        String processUniqueId = captureOut().replace("\n", "");
-        resetOut();
-        //await for the logs to be created
-        TimeUnit.SECONDS.sleep(5);
-        assertTrue(Files.exists(Paths.get(hazelcastHome + "/" + processUniqueId + "/logs/hazelcast.log")));
-        memberCommandLine.logs(processUniqueId, 1000);
-        assertTrue(captureOut().contains(groupName));
-    }
-
-    @Test
-    public void test_logs_withLineCount()
-            throws IOException, InterruptedException {
-        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
-        String processUniqueId = captureOut().replace("\n", "");
-        resetOut();
-        //await for the logs to be created
-        TimeUnit.SECONDS.sleep(5);
-        assertTrue(Files.exists(Paths.get(hazelcastHome + "/" + processUniqueId + "/logs/hazelcast.log")));
-        int numberOfLines = 10;
-        memberCommandLine.logs(processUniqueId, numberOfLines);
-        int outputLength = captureOut().split("\\n").length;
-        assertEquals("Not expected number of lines in logs.", numberOfLines, outputLength);
-    }
-
-    private void startMemberWithConfigFile()
-            throws IOException, InterruptedException {
-        memberCommandLine.start("src/test/resources/test-hazelcast.xml", null, null, null, false, null, null);
-    }
-
-    private String getRunningJavaProcesses()
-            throws IOException {
-        return runCommand("jps");
-    }
-
-    private String runCommand(String command)
-            throws IOException {
-        Process exec = Runtime.getRuntime().exec(command);
-        BufferedReader stdInput = new BufferedReader(new InputStreamReader(exec.getInputStream()));
-
-        StringBuilder stringBuilder = new StringBuilder();
-        String s;
-        while ((s = stdInput.readLine()) != null) {
-            stringBuilder.append(s).append("\n");
-        }
-
-        return stringBuilder.toString();
-    }
-
-    private Stream<String> getProcessOutput(InputStream processInputStream) {
-        bufferedReader = new BufferedReader(new InputStreamReader(processInputStream, StandardCharsets.UTF_8));
-        return bufferedReader.lines();
+        //then
+        verify(out, times(processMap.size())).println(anyString());
     }
 }
