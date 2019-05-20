@@ -57,7 +57,7 @@ public class HazelcastCommandLine
         checkIfEnvSupported();
         String hazelcastHome = System.getProperty("user.home") + "/.hazelcast";
         CommandLine cmd = new CommandLine(new HazelcastCommandLine()).addSubcommand("member",
-                new MemberCommandLine(out, err, new HazelcastProcessStore(hazelcastHome), new ProcessExecutor(), false));
+                new MemberCommandLine(out, err, new HazelcastProcessStore(hazelcastHome), new ProcessExecutor()));
 
         String version = getBuildInfo().getVersion();
         cmd.getCommandSpec().usageMessage().header("Hazelcast IMDG " + version);

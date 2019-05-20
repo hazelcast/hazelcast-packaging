@@ -121,7 +121,20 @@ public class MemberCommandLineAcceptanceTest
         String port = "9898";
         memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, port, null, false, null, null);
         Stream<String> processOutput = getProcessOutput(memberCommandLine.getProcessInputStream());
-        assertTrue(processOutput.anyMatch(out -> out.contains(port + " is " + LifecycleEvent.LifecycleState.STARTED.toString())));
+        assertTrue(processOutput.anyMatch(out -> out.contains(":" + port + " is " + LifecycleEvent.LifecycleState.STARTED.toString())));
+    }
+
+    @Test
+    public void test_start_withClasspath()
+            throws IOException, InterruptedException {
+        String[] classpath = { "Test1st.jar", "Test2nd.jar" };
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, classpath, null);
+        String processUniqueId = captureOut().replace("\n", "");
+        int pid = memberCommandLine.getHazelcastProcessStore().find(processUniqueId).getPid();
+        String javaProcess = getRunningJavaProcess(pid);
+        for (String s : classpath) {
+            assertTrue(javaProcess.contains(s));
+        }
     }
 
     @Test
@@ -186,6 +199,11 @@ public class MemberCommandLineAcceptanceTest
     private String getRunningJavaProcesses()
             throws IOException {
         return runCommand("jps");
+    }
+
+    private String getRunningJavaProcess(int pid)
+            throws IOException {
+        return runCommand("ps auxww " + pid);
     }
 
     private String runCommand(String command)
