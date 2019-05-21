@@ -182,7 +182,7 @@ public class MemberCommandLine
         }
     }
 
-    @Command(description = "Display the logs for Hazelcast member with the given ID.", mixinStandardHelpOptions = true)
+    @Command(description = "Display the logs for Hazelcast IMDG member with the given ID.", mixinStandardHelpOptions = true)
     public void logs(
             @Parameters(index = "0", paramLabel = "<name>", description = "Unique name of the process to show the logs, for ex" + ".: brave_frog.") String name,
             @Option(names = {"-n", "--numberOfLines"}, paramLabel = "<lineCount>", description = "Display the specified number " + "of lines (default: 10).", defaultValue = "10") int numberOfLines)
@@ -205,6 +205,12 @@ public class MemberCommandLine
             println("No running process exists.");
             return;
         }
+        if (!isNullOrEmpty(name)) {
+            if (!hazelcastProcessStore.exists(name)) {
+                printlnErr("No process found with process id: " + name);
+                return;
+            }
+        }
         printf("%-24s%-8s%-8s\n", "ID", "PID", "STATUS");
         for (HazelcastProcess process : processes.values()) {
             int pid = process.getPid();
@@ -219,7 +225,6 @@ public class MemberCommandLine
             }
         }
     }
-
 
     private boolean isRunning(int pid) throws IOException, InterruptedException {
         return 0 == processExecutor.exec(Arrays.asList("ps", "-p", String.valueOf(pid)));

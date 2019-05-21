@@ -191,6 +191,53 @@ public class MemberCommandLineAcceptanceTest
         assertEquals("Not expected number of lines in logs.", numberOfLines, outputLength);
     }
 
+    @Test
+    public void test_status()
+            throws IOException, InterruptedException {
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId1 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId2 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.status("");
+        String out = captureOut();
+        assertTrue(out.contains(processUniqueId1));
+        assertTrue(out.contains(processUniqueId2));
+    }
+
+    @Test
+    public void test_status_withName()
+            throws IOException, InterruptedException {
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId1 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId2 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.status(processUniqueId1);
+        String out = captureOut();
+        assertTrue(out.contains(processUniqueId1));
+        assertTrue(!out.contains(processUniqueId2));
+    }
+
+    @Test
+    public void test_status_withUnknownName()
+            throws IOException, InterruptedException {
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId1 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId2 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.status("0123456789");
+        String out = captureOut();
+        String err = captureErr();
+        assertTrue(!out.contains(processUniqueId1));
+        assertTrue(!out.contains(processUniqueId2));
+        assertTrue(err.contains("No process found"));
+    }
+
     private void startMemberWithConfigFile()
             throws IOException, InterruptedException {
         memberCommandLine.start("src/test-acceptance/resources/test-hazelcast.xml", null, null, null, false, null, null);
