@@ -54,7 +54,12 @@ public class MemberCommandLine
     private InputStream processInputStream;
 
     public MemberCommandLine(PrintStream out, PrintStream err, HazelcastProcessStore hazelcastProcessStore,
-                             ProcessExecutor processExecutor, boolean processInputStreamEnabled) {
+                             ProcessExecutor processExecutor) {
+        this(out, err, hazelcastProcessStore, processExecutor, false);
+    }
+
+    protected MemberCommandLine(PrintStream out, PrintStream err, HazelcastProcessStore hazelcastProcessStore,
+                                ProcessExecutor processExecutor, boolean processInputStreamEnabled) {
         this.out = out;
         this.err = err;
         this.hazelcastProcessStore = hazelcastProcessStore;
@@ -75,13 +80,26 @@ public class MemberCommandLine
 
     @Command(description = "Starts a new Hazelcast IMDG member", mixinStandardHelpOptions = true)
     public void start(
-            @Option(names = {"-c", "--config"}, paramLabel = "<file>", description = "Use <file> for Hazelcast configuration.") String configFilePath,
-            @Option(names = {"-cn", "--cluster-name"}, paramLabel = "<name>", description = "Use the specified cluster <name> " + "(default: 'dev').", defaultValue = "dev") String clusterName,
-            @Option(names = {"-p", "--port"}, paramLabel = "<port>", description = "Bind to the specified <port>. Please note that if the specified port is in use, " + "it will auto-increment to the first free port. (default: 5701)", defaultValue = "5701") String port,
-            @Option(names = {"-i", "--interface"}, paramLabel = "<interface>", description = "Bind to the specified <interface>" + " (default: bind to all interfaces).") String hzInterface,
-            @Option(names = {"-fg", "--foreground"}, description = "Run in the foreground.") boolean foreground,
-            @Option(names = {"-j", "--jar"}, paramLabel = "<path>", description = "Add <path> to Hazelcast class path.") String additionalClassPath,
-            @Option(names = {"-J", "--JAVA_OPTS"}, paramLabel = "<option>", split = ",", description = "Specify additional Java" + " <option> (Use ',' char to split multiple options).") List<String> javaOptions)
+            @Option(names = {"-c", "--config"}, paramLabel = "<file>", description = "Use <file> for Hazelcast configuration.")
+                    String configFilePath,
+            @Option(names = {"-cn", "--cluster-name"}, paramLabel = "<name>",
+                    description = "Use the specified cluster <name> " + "(default: 'dev').", defaultValue = "dev")
+                    String clusterName,
+            @Option(names = {"-p", "--port"}, paramLabel = "<port>",
+                    description = "Bind to the specified <port>. Please note that if the specified port is in use, "
+                            + "it will auto-increment to the first free port. (default: 5701)", defaultValue = "5701")
+                    String port,
+            @Option(names = {"-i", "--interface"}, paramLabel = "<interface>",
+                    description = "Bind to the specified <interface> (default: bind to all interfaces).")
+                    String hzInterface,
+            @Option(names = {"-fg", "--foreground"}, description = "Run in the foreground.")
+                    boolean foreground,
+            @Option(names = {"-j", "--jar"}, paramLabel = "<path>", split = ",", description = "Add <path> to Hazelcast "
+                    + "classpath (Use ',' to separate multiple paths).")
+                    String[] additionalClassPath,
+            @Option(names = {"-J", "--JAVA_OPTS"}, paramLabel = "<option>", split = ",",
+                    description = "Specify additional Java <option> (Use ',' to separate multiple options).")
+                    List<String> javaOptions)
             throws IOException, InterruptedException {
         List<String> args = new ArrayList<>();
         if (!isNullOrEmpty(configFilePath)) {
@@ -113,17 +131,19 @@ public class MemberCommandLine
         println(process.getName());
     }
 
-    private Integer buildJavaProcess(Class aClass, List<String> parameters, boolean foreground, String additionalClassPath)
+    private Integer buildJavaProcess(Class aClass, List<String> parameters, boolean foreground, String[] additionalClassPath)
             throws IOException, InterruptedException {
         List<String> commandList = new ArrayList<>();
-        String classpath = System.getProperty("java.class.path");
-        if (!isNullOrEmpty(additionalClassPath)) {
-            classpath += CLASSPATH_SEPARATOR + additionalClassPath;
+        StringBuilder classpath = new StringBuilder(System.getProperty("java.class.path"));
+        if (additionalClassPath != null) {
+            for (String path : additionalClassPath) {
+                classpath.append(CLASSPATH_SEPARATOR).append(path);
+            }
         }
         String path = System.getProperty("java.home") + SEPARATOR + "bin" + SEPARATOR + "java";
         commandList.add(path);
         commandList.add("-cp");
-        commandList.add(classpath);
+        commandList.add(classpath.toString());
         commandList.addAll(parameters);
         commandList.add(aClass.getName());
         Process process = processExecutor.buildAndStart(commandList, foreground);
