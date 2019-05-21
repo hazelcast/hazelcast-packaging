@@ -196,8 +196,8 @@ public class MemberCommandLine
 
     @Command(description = "Displays process status for started Hazelcast IMDG members", mixinStandardHelpOptions = true)
     public void status(
-            @Parameters(defaultValue = "", index = "0", paramLabel = "<name>", description = "Unique name of the process to " +
-                    "show the status of, for ex.: brave_frog.") String name
+            @Parameters(defaultValue = "", index = "0", paramLabel = "<name>", description = "Unique name of the process to "
+                    + "show the status of, for ex.: brave_frog.") String name
     )
             throws IOException, InterruptedException {
         Map<String, HazelcastProcess> processes = hazelcastProcessStore.findAll();
