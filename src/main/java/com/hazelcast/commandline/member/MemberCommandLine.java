@@ -25,6 +25,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -191,6 +192,37 @@ public class MemberCommandLine
             return;
         }
         getLogs(out, name, numberOfLines);
+    }
+
+    @Command(description = "Displays process status for started Hazelcast IMDG members", mixinStandardHelpOptions = true)
+    public void status(
+            @Parameters(defaultValue = "", index = "0", paramLabel = "<name>", description = "Unique name of the process to " +
+                    "show the status of, for ex.: brave_frog.") String name
+    )
+            throws IOException, InterruptedException {
+        Map<String, HazelcastProcess> processes = hazelcastProcessStore.findAll();
+        if (processes.isEmpty()) {
+            println("No running process exists.");
+            return;
+        }
+        printf("%-24s%-8s%-8s\n", "ID", "PID", "STATUS");
+        for (HazelcastProcess process : processes.values()) {
+            int pid = process.getPid();
+            String processName = process.getName();
+            if (isNullOrEmpty(name) || name.equals(processName)) {
+                if (isRunning(pid)) {
+                    printf("%-24s%-8s%s\n", processName, pid, "Running");
+                } else {
+                    printf("%-24s%-8s%s\n", processName, pid,
+                            String.format("Not running. Execute 'member stop %s' to remove process information.", processName));
+                }
+            }
+        }
+    }
+
+
+    private boolean isRunning(int pid) throws IOException, InterruptedException {
+        return 0 == processExecutor.exec(Arrays.asList("ps", "-p", String.valueOf(pid)));
     }
 
     private void getLogs(PrintStream out, String name, int numberOfLines)
