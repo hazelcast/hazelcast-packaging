@@ -26,6 +26,7 @@ import java.util.List;
  * Handler for OS level process operations.
  */
 public class ProcessExecutor {
+
     Process buildAndStart(List<String> commandList, boolean foreground)
             throws IOException, InterruptedException {
         ProcessBuilder processBuilder = new ProcessBuilder(commandList);
@@ -43,6 +44,13 @@ public class ProcessExecutor {
     void run(String command)
             throws IOException {
         Runtime.getRuntime().exec(command);
+    }
+
+    int exec(List<String> commandList) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder(commandList);
+        processBuilder.redirectErrorStream(true);
+        Process process = processBuilder.start();
+        return process.waitFor();
     }
 
     /**

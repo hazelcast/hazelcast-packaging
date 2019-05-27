@@ -162,7 +162,7 @@ public class MemberCommandLineTest {
 
     @Test
     public void test_list()
-            throws IOException {
+            throws IOException, InterruptedException {
         //given
         String process1Name = "process1";
         String process2Name = "process2";
@@ -175,7 +175,7 @@ public class MemberCommandLineTest {
         processMap.put(process2Name, process2);
         when(hazelcastProcessStore.findAll()).thenReturn(processMap);
         //when
-        memberCommandLine.list();
+        memberCommandLine.list("", true, false);
         //then
         verify(out, times(processMap.size())).println(anyString());
     }

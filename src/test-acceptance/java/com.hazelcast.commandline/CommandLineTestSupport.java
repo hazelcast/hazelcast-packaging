@@ -42,4 +42,9 @@ public class CommandLineTestSupport {
         out.flush();
         return new String(baosOut.toByteArray());
     }
+
+    protected String captureErr() {
+        err.flush();
+        return new String(baosErr.toByteArray());
+    }
 }

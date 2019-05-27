@@ -25,6 +25,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -169,19 +170,32 @@ public class MemberCommandLine
     }
 
     @Command(description = "Lists running Hazelcast IMDG members", mixinStandardHelpOptions = true)
-    public void list()
-            throws IOException {
+    public void list(
+            @Parameters(defaultValue = "", index = "0", paramLabel = "<name>", description = "Unique name of the process to "
+                    + "show the status of, for ex.: brave_frog.") String name,
+            @Option(names = {"-n", "--names"}, description = "Shows names only") boolean namesOnly,
+            @Option(names = {"-r", "--running"}, description = "Shows running members only") boolean runningOnly)
+            throws IOException, InterruptedException {
         Map<String, HazelcastProcess> processes = hazelcastProcessStore.findAll();
-        if (processes.isEmpty()) {
-            println("No running process exists.");
-            return;
+        if (!isNullOrEmpty(name)) {
+            if (!hazelcastProcessStore.exists(name)) {
+                printlnErr("No process found with process id: " + name);
+                return;
+            }
+        }
+        if (!namesOnly) {
+            printProcessHeader(processes);
         }
         for (HazelcastProcess process : processes.values()) {
-            println(process.getName());
+            int pid = process.getPid();
+            String processName = process.getName();
+            if (isNullOrEmpty(name) || name.equals(processName)) {
+                printProcessEntry(namesOnly, runningOnly, pid, processName);
+            }
         }
     }
 
-    @Command(description = "Display the logs for Hazelcast member with the given ID.", mixinStandardHelpOptions = true)
+    @Command(description = "Display the logs for Hazelcast IMDG member with the given ID.", mixinStandardHelpOptions = true)
     public void logs(
             @Parameters(index = "0", paramLabel = "<name>", description = "Unique name of the process to show the logs, for ex" + ".: brave_frog.") String name,
             @Option(names = {"-n", "--numberOfLines"}, paramLabel = "<lineCount>", description = "Display the specified number " + "of lines (default: 10).", defaultValue = "10") int numberOfLines)
@@ -191,6 +205,31 @@ public class MemberCommandLine
             return;
         }
         getLogs(out, name, numberOfLines);
+    }
+
+    private void printProcessHeader(Map<String, HazelcastProcess> processes) {
+        if (processes.isEmpty()) {
+            println("No running process exists.");
+        } else {
+            printf("%-24s%-8s%-8s\n", "ID", "PID", "STATUS");
+        }
+    }
+
+    private void printProcessEntry(@Option(names = {"-n", "--names"}, description = "Shows names only") boolean namesOnly, @Option(names = {"-r", "--running"}, description = "Shows running members only") boolean runningOnly, int pid, String processName) throws IOException, InterruptedException {
+        if (namesOnly) {
+            if (!runningOnly || isRunning(pid)) {
+                println(processName);
+            }
+        } else if (isRunning(pid)) {
+            printf("%-24s%-8s%s\n", processName, pid, "Running");
+        } else if (!runningOnly) {
+            printf("%-24s%-8sNot running. Execute 'member stop %s' to remove process information.\n",
+                    processName, pid, processName);
+        }
+    }
+
+    private boolean isRunning(int pid) throws IOException, InterruptedException {
+        return 0 == processExecutor.exec(Arrays.asList("ps", "-p", String.valueOf(pid)));
     }
 
     private void getLogs(PrintStream out, String name, int numberOfLines)
