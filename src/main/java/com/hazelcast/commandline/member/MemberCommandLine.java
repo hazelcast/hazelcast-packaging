@@ -174,7 +174,7 @@ public class MemberCommandLine
     @Command(description = "Removes information for a stopped Hazelcast IMDG member", mixinStandardHelpOptions = true)
     public void remove(
             @Parameters(index = "0", paramLabel = "<name>",
-                    description = "Unique name of the process to stop, for ex.: rave_frog.") String name)
+                    description = "Unique name of the process to remove, for ex.: rave_frog.") String name)
             throws IOException, InterruptedException {
         HazelcastProcess process = hazelcastProcessStore.find(name);
         if (process == null) {
@@ -185,6 +185,8 @@ public class MemberCommandLine
         if (process.getStatus() == STOPPED) {
             hazelcastProcessStore.remove(name);
             println(format("%s removed.", name));
+        } else {
+            printlnErr(format("Not STOPPED! Cannot remove process id: %s", name));
         }
     }
 
@@ -251,7 +253,7 @@ public class MemberCommandLine
         } else if (process.getStatus() != STOPPED) {
             printf("%-24s%-8s%s\n", processName, pid, process.getStatus().toString());
         } else if (!runningOnly) {
-            printf("%-24s%-8s%s ('member remove %s' will remove process information)\n",
+            printf("%-24s%-8s%s ('member remove %s' will remove all process information)\n",
                     processName, pid, process.getStatus(), processName);
         }
     }
