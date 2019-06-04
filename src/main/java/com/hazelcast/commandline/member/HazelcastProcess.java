@@ -16,8 +16,6 @@
 
 package com.hazelcast.commandline.member;
 
-import com.sun.org.apache.xerces.internal.util.Status;
-
 /**
  * The details of Hazelcast process initiated by command line tool.
  * <p/>

@@ -29,12 +29,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.hazelcast.commandline.member.HazelcastProcess.Status.RUNNING;
+import static com.hazelcast.commandline.member.HazelcastProcess.Status.STOPPED;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -58,9 +61,10 @@ public class MemberCommandLineTest {
         Process process = mock(Process.class);
         out = mock(PrintStream.class);
         hazelcastProcess = mock(HazelcastProcess.class);
+        when(hazelcastProcess.getStatus()).thenReturn(RUNNING);
 
         hazelcastStoppedProcess = mock(HazelcastProcess.class);
-        when(hazelcastStoppedProcess.getStatus()).thenReturn(HazelcastProcess.Status.STOPPED);
+        when(hazelcastStoppedProcess.getStatus()).thenReturn(STOPPED);
 
         when(process.getInputStream()).thenReturn(mock(InputStream.class));
         when(processExecutor.extractPid(process)).thenReturn(99999);
@@ -173,6 +177,18 @@ public class MemberCommandLineTest {
         memberCommandLine.remove(processName);
         //then
         verify(hazelcastProcessStore, times(1)).remove(processName);
+    }
+
+    @Test
+    public void test_remove_runningProcess()
+            throws IOException, InterruptedException {
+        //given
+        String processName = "aProcess";
+        when(hazelcastProcessStore.find(processName)).thenReturn(hazelcastProcess);
+        //when
+        memberCommandLine.remove(processName);
+        //then
+        verify(hazelcastProcessStore, never()).remove(processName);
     }
 
     @Test
