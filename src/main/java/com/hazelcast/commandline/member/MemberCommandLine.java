@@ -42,10 +42,14 @@ import static picocli.CommandLine.Spec;
 /**
  * Command line class responsible for Hazelcast member operations.
  */
-@Command(name = "member", description = "Utility for the Hazelcast IMDG member operations.", versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
+@Command(name = "member", description = "Utility for the Hazelcast IMDG member operations.",
+        versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
 public class MemberCommandLine
         implements Runnable {
     private static final String CLASSPATH_SEPARATOR = ":";
+    public static final String LIST_FORMAT = "%-24s %-6s %-7s %-25s %-24s%n";
+    public static final String LIST_FORMAT_STOPPED =
+            "%-24s %-6s %-7s %-25s %-24s (use 'member remove %1$s' to remove all process data)%n";
     private final PrintStream out;
     private final PrintStream err;
     @Spec
@@ -129,6 +133,7 @@ public class MemberCommandLine
 
         Integer pid = buildJavaProcess(HazelcastMember.class, args, foreground, additionalClassPath);
         process.setPid(pid);
+        process.setClusterName(clusterName);
         hazelcastProcessStore.save(process);
 
         println(process.getName());
@@ -159,22 +164,27 @@ public class MemberCommandLine
     @Command(description = "Stops a Hazelcast IMDG member", mixinStandardHelpOptions = true)
     public void stop(
             @Parameters(index = "0", paramLabel = "<name>",
-                    description = "Unique name of the process to stop, for ex.: brave_frog.") String name)
-            throws IOException {
+                    description = "Unique name of the process to stop, e.g., elegant_euclid.") String name)
+            throws IOException, InterruptedException {
         HazelcastProcess process = hazelcastProcessStore.find(name);
         if (process == null) {
             printlnErr(format("No process found with process id: %s", name));
             return;
         }
-        int pid = process.getPid();
-        processExecutor.run("kill -15 " + pid);
-        println(format("%s stopped.", name));
+        processExecutor.refreshStatus(process);
+        if (process.getStatus() == RUNNING) {
+            int pid = process.getPid();
+            processExecutor.run(format("kill -15 %d", pid));
+            println(format("%s stopped.", name));
+        } else {
+            printlnErr(format("%s is not running.", name));
+        }
     }
 
     @Command(description = "Removes information for a stopped Hazelcast IMDG member", mixinStandardHelpOptions = true)
     public void remove(
             @Parameters(index = "0", paramLabel = "<name>",
-                    description = "Unique name of the process to remove, for ex.: rave_frog.") String name)
+                    description = "Unique name of the process to remove, e.g., elegant_euclid.") String name)
             throws IOException, InterruptedException {
         HazelcastProcess process = hazelcastProcessStore.find(name);
         if (process == null) {
@@ -186,14 +196,14 @@ public class MemberCommandLine
             hazelcastProcessStore.remove(name);
             println(format("%s removed.", name));
         } else {
-            printlnErr(format("Not STOPPED! Cannot remove process id: %s", name));
+            printlnErr(format("%s is not stopped. Cannot remove.", name));
         }
     }
 
     @Command(description = "Lists running Hazelcast IMDG members", mixinStandardHelpOptions = true)
     public void list(
             @Parameters(defaultValue = "", index = "0", paramLabel = "<name>", description = "Unique name of the process to "
-                    + "show the status of, for ex.: brave_frog.") String name,
+                    + "show the status of, e.g., elegant_euclid.") String name,
             @Option(names = {"-n", "--names"}, description = "Shows names only") boolean namesOnly,
             @Option(names = {"-r", "--running"}, description = "Shows running members only") boolean runningOnly)
             throws IOException, InterruptedException {
@@ -220,7 +230,7 @@ public class MemberCommandLine
     @Command(description = "Display the logs for Hazelcast IMDG member with the given ID.", mixinStandardHelpOptions = true)
     public void logs(
             @Parameters(index = "0", paramLabel = "<name>",
-                    description = "Unique name of the process to show the logs, for ex" + ".: brave_frog.") String name,
+                    description = "Unique name of the process to show the logs, e.g., elegant_euclid.") String name,
             @Option(names = {"-n", "--numberOfLines"}, paramLabel = "<lineCount>",
                     description = "Display the specified number " + "of lines (default: 10).",
                     defaultValue = "10") int numberOfLines)
@@ -236,7 +246,7 @@ public class MemberCommandLine
         if (processes.isEmpty()) {
             println("No running process exists.");
         } else {
-            printf("%-24s%-8s%-8s\n", "ID", "PID", "STATUS");
+            printf(LIST_FORMAT, "ID", "PID", "STATUS", "CREATED", "CLUSTER NAME");
         }
     }
 
@@ -251,10 +261,11 @@ public class MemberCommandLine
                 println(processName);
             }
         } else if (process.getStatus() != STOPPED) {
-            printf("%-24s%-8s%s\n", processName, pid, process.getStatus().toString());
+            printf(LIST_FORMAT,
+                    processName, pid, process.getStatus(), process.getCreationInstant(), process.getClusterName());
         } else if (!runningOnly) {
-            printf("%-24s%-8s%s ('member remove %s' will remove all process information)\n",
-                    processName, pid, process.getStatus(), processName);
+            printf(LIST_FORMAT_STOPPED,
+                    processName, pid, process.getStatus(), process.getCreationInstant(), process.getClusterName() );
         }
     }
 

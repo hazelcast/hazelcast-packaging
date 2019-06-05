@@ -16,6 +16,8 @@
 
 package com.hazelcast.commandline.member;
 
+import java.time.Instant;
+
 /**
  * The details of Hazelcast process initiated by command line tool.
  * <p/>
@@ -43,13 +45,16 @@ public class HazelcastProcess {
     private String loggingPropertiesPath;
     private String logFilePath;
     private int pid;
+    private String clusterName;
+    private final Instant creationInstant;
     private transient Status status;
 
     /**
-     * This constructor is used by Kryo for deserialization purposes.
+     * This constructor is only used by Kryo for deserialization purposes.
      */
     public HazelcastProcess() {
         status = Status.UNKNOWN;
+        creationInstant = null;
     }
 
     public HazelcastProcess(String name, String loggingPropertiesPath, String logFilePath) {
@@ -57,6 +62,7 @@ public class HazelcastProcess {
         this.loggingPropertiesPath = loggingPropertiesPath;
         this.logFilePath = logFilePath;
         this.status = Status.CREATED;
+        this.creationInstant = Instant.now();
     }
 
     public String getName() {
@@ -85,5 +91,17 @@ public class HazelcastProcess {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public String getClusterName() {
+        return clusterName;
+    }
+
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
+    }
+
+    public Instant getCreationInstant() {
+        return creationInstant;
     }
 }

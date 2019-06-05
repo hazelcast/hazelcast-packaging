@@ -144,7 +144,7 @@ public class MemberCommandLineTest {
 
     @Test
     public void test_stop()
-            throws IOException {
+            throws IOException, InterruptedException {
         //given
         String processName = "aProcess";
         when(hazelcastProcessStore.find(processName)).thenReturn(hazelcastProcess);
@@ -156,7 +156,7 @@ public class MemberCommandLineTest {
 
     @Test
     public void test_stop_withNoProcess()
-            throws IOException {
+            throws IOException, InterruptedException {
         //given
         String processName = "aProcess";
         when(hazelcastProcessStore.find(processName)).thenReturn(null);
