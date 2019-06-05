@@ -47,8 +47,8 @@ import static picocli.CommandLine.Spec;
 public class MemberCommandLine
         implements Runnable {
     private static final String CLASSPATH_SEPARATOR = ":";
-    public static final String LIST_FORMAT = "%-24s %-6s %-7s %-25s %-24s%n";
-    public static final String LIST_FORMAT_STOPPED =
+    private static final String LIST_FORMAT = "%-24s %-6s %-7s %-25s %-24s%n";
+    private static final String LIST_FORMAT_STOPPED =
             "%-24s %-6s %-7s %-25s %-24s (use 'member remove %1$s' to remove all process data)%n";
     private final PrintStream out;
     private final PrintStream err;
@@ -265,7 +265,7 @@ public class MemberCommandLine
                     processName, pid, process.getStatus(), process.getCreationInstant(), process.getClusterName());
         } else if (!runningOnly) {
             printf(LIST_FORMAT_STOPPED,
-                    processName, pid, process.getStatus(), process.getCreationInstant(), process.getClusterName() );
+                    processName, pid, process.getStatus(), process.getCreationInstant(), process.getClusterName());
         }
     }
 
