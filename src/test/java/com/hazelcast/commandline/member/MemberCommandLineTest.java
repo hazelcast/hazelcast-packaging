@@ -203,6 +203,7 @@ public class MemberCommandLineTest {
         verifyZeroInteractions(processExecutor);
         verify(hazelcastProcessStore, times(0)).remove(any());
     }
+
     @Test
     public void test_list()
             throws IOException, InterruptedException {

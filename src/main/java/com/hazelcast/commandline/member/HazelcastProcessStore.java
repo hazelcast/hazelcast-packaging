@@ -130,9 +130,13 @@ public class HazelcastProcessStore {
     private String createProcessDirs(String name) {
         String processPath = hazelcastHome + SEPARATOR + name;
         String logPath = processPath + SEPARATOR + LOGS_DIR_STRING;
+        boolean dirsCreated;
         try {
-            new File(logPath).mkdirs();
+            dirsCreated = new File(logPath).mkdirs();
         } catch (Exception e) {
+            throw new HazelcastException("Process directories couldn't be created.", e);
+        }
+        if (!dirsCreated) {
             throw new HazelcastException("Process directories couldn't be created.");
         }
         return processPath;
@@ -142,7 +146,8 @@ public class HazelcastProcessStore {
             throws FileNotFoundException, UnsupportedEncodingException {
         String loggingPropertiesPath = processDir + SEPARATOR + "logging.properties";
         PrintWriter printWriter = new PrintWriter(loggingPropertiesPath, StandardCharsets.UTF_8.name());
-        String fileContent = "handlers= java.util.logging.FileHandler, java.util.logging.ConsoleHandler\n" + ".level= INFO\n"
+        String fileContent = "handlers= java.util.logging.FileHandler, java.util.logging.ConsoleHandler\n"
+                + ".level= INFO\n"
                 + "java.util.logging.FileHandler.pattern = " + logFilePath + "\n"
                 + "java.util.logging.FileHandler.limit = 50000\n" + "java.util.logging.FileHandler.count = 1\n"
                 + "java.util.logging.FileHandler.maxLocks = 100\n"
