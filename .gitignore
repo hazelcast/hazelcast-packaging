@@ -16,3 +16,6 @@ target/
 atlassian-ide-plugin.xml
 *dependency-reduced-pom.xml
 diagnostics-*.log
+distro/build/
+distro/lib/
+
