@@ -30,6 +30,9 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.hazelcast.commandline.HazelcastCommandLine.SEPARATOR;
+import static com.hazelcast.commandline.member.HazelcastProcess.Status.RUNNING;
+import static com.hazelcast.commandline.member.HazelcastProcess.Status.STOPPED;
+import static java.lang.String.format;
 import static picocli.CommandLine.Command;
 import static picocli.CommandLine.Model.CommandSpec;
 import static picocli.CommandLine.Option;
@@ -39,10 +42,14 @@ import static picocli.CommandLine.Spec;
 /**
  * Command line class responsible for Hazelcast member operations.
  */
-@Command(name = "member", description = "Utility for the Hazelcast IMDG member operations.", versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
+@Command(name = "member", description = "Utility for the Hazelcast IMDG member operations.",
+        versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
 public class MemberCommandLine
         implements Runnable {
     private static final String CLASSPATH_SEPARATOR = ":";
+    private static final String LIST_FORMAT = "%-24s %-6s %-7s %-25s %-24s%n";
+    private static final String LIST_FORMAT_STOPPED =
+            "%-24s %-6s %-7s %-25s %-24s (use 'member remove %1$s' to remove all process data)%n";
     private final PrintStream out;
     private final PrintStream err;
     @Spec
@@ -83,7 +90,7 @@ public class MemberCommandLine
             @Option(names = {"-c", "--config"}, paramLabel = "<file>", description = "Use <file> for Hazelcast configuration.")
                     String configFilePath,
             @Option(names = {"-cn", "--cluster-name"}, paramLabel = "<name>",
-                    description = "Use the specified cluster <name> " + "(default: 'dev').", defaultValue = "dev")
+                    description = "Use the specified cluster <name> (default: 'dev').", defaultValue = "dev")
                     String clusterName,
             @Option(names = {"-p", "--port"}, paramLabel = "<port>",
                     description = "Bind to the specified <port>. Please note that if the specified port is in use, "
@@ -126,6 +133,7 @@ public class MemberCommandLine
 
         Integer pid = buildJavaProcess(HazelcastMember.class, args, foreground, additionalClassPath);
         process.setPid(pid);
+        process.setClusterName(clusterName);
         hazelcastProcessStore.save(process);
 
         println(process.getName());
@@ -155,42 +163,110 @@ public class MemberCommandLine
 
     @Command(description = "Stops a Hazelcast IMDG member", mixinStandardHelpOptions = true)
     public void stop(
-            @Parameters(index = "0", paramLabel = "<name>", description = "Unique name of the process to stop, for ex.: " + "brave_frog.") String name)
-            throws IOException {
+            @Parameters(index = "0", paramLabel = "<name>",
+                    description = "Unique name of the process to stop, e.g., elegant_euclid.") String name)
+            throws IOException, InterruptedException {
         HazelcastProcess process = hazelcastProcessStore.find(name);
         if (process == null) {
-            printlnErr("No process found with process id: " + name);
+            printlnErr(format("No process found with process id: %s", name));
             return;
         }
-        int pid = process.getPid();
-        processExecutor.run("kill -15 " + pid);
-        hazelcastProcessStore.remove(name);
-        println(name + " stopped.");
+        processExecutor.refreshStatus(process);
+        if (process.getStatus() == RUNNING) {
+            int pid = process.getPid();
+            processExecutor.run(format("kill -15 %d", pid));
+            println(format("%s stopped.", name));
+        } else {
+            printlnErr(format("%s is not running.", name));
+        }
+    }
+
+    @Command(description = "Removes information for a stopped Hazelcast IMDG member", mixinStandardHelpOptions = true)
+    public void remove(
+            @Parameters(index = "0", paramLabel = "<name>",
+                    description = "Unique name of the process to remove, e.g., elegant_euclid.") String name)
+            throws IOException, InterruptedException {
+        HazelcastProcess process = hazelcastProcessStore.find(name);
+        if (process == null) {
+            printlnErr(format("No process found with process id: %s", name));
+            return;
+        }
+        processExecutor.refreshStatus(process);
+        if (process.getStatus() == STOPPED) {
+            hazelcastProcessStore.remove(name);
+            println(format("%s removed.", name));
+        } else {
+            printlnErr(format("%s is not stopped. Cannot remove.", name));
+        }
     }
 
     @Command(description = "Lists running Hazelcast IMDG members", mixinStandardHelpOptions = true)
-    public void list()
-            throws IOException {
+    public void list(
+            @Parameters(defaultValue = "", index = "0", paramLabel = "<name>", description = "Unique name of the process to "
+                    + "show the status of, e.g., elegant_euclid.") String name,
+            @Option(names = {"-n", "--names"}, description = "Shows names only") boolean namesOnly,
+            @Option(names = {"-r", "--running"}, description = "Shows running members only") boolean runningOnly)
+            throws IOException, InterruptedException {
         Map<String, HazelcastProcess> processes = hazelcastProcessStore.findAll();
-        if (processes.isEmpty()) {
-            println("No running process exists.");
-            return;
+        if (!isNullOrEmpty(name)) {
+            if (!hazelcastProcessStore.exists(name)) {
+                printlnErr(format("No process found with process id: %s", name));
+                return;
+            }
+        }
+        if (!namesOnly) {
+            printProcessHeader(processes);
         }
         for (HazelcastProcess process : processes.values()) {
-            println(process.getName());
+            String processName = process.getName();
+            if (isNullOrEmpty(name) || name.equals(processName)) {
+                processExecutor.refreshStatus(process);
+                printProcessEntry(namesOnly, runningOnly, process);
+            }
         }
+        hazelcastProcessStore.updateFile(processes);
     }
 
-    @Command(description = "Display the logs for Hazelcast member with the given ID.", mixinStandardHelpOptions = true)
+    @Command(description = "Display the logs for Hazelcast IMDG member with the given ID.", mixinStandardHelpOptions = true)
     public void logs(
-            @Parameters(index = "0", paramLabel = "<name>", description = "Unique name of the process to show the logs, for ex" + ".: brave_frog.") String name,
-            @Option(names = {"-n", "--numberOfLines"}, paramLabel = "<lineCount>", description = "Display the specified number " + "of lines (default: 10).", defaultValue = "10") int numberOfLines)
+            @Parameters(index = "0", paramLabel = "<name>",
+                    description = "Unique name of the process to show the logs, e.g., elegant_euclid.") String name,
+            @Option(names = {"-n", "--numberOfLines"}, paramLabel = "<lineCount>",
+                    description = "Display the specified number " + "of lines (default: 10).",
+                    defaultValue = "10") int numberOfLines)
             throws IOException {
         if (!hazelcastProcessStore.exists(name)) {
-            printlnErr("No process found with process id: " + name);
+            printlnErr(format("No process found with process id: %s", name));
             return;
         }
         getLogs(out, name, numberOfLines);
+    }
+
+    private void printProcessHeader(Map<String, HazelcastProcess> processes) {
+        if (processes.isEmpty()) {
+            println("No running process exists.");
+        } else {
+            printf(LIST_FORMAT, "ID", "PID", "STATUS", "CREATED", "CLUSTER NAME");
+        }
+    }
+
+    private void printProcessEntry(
+            @Option(names = {"-n", "--names"}, description = "Shows names only") boolean namesOnly,
+            @Option(names = {"-r", "--running"}, description = "Shows running members only") boolean runningOnly,
+            HazelcastProcess process) {
+        int pid = process.getPid();
+        String processName = process.getName();
+        if (namesOnly) {
+            if (!runningOnly || process.getStatus() == RUNNING) {
+                println(processName);
+            }
+        } else if (process.getStatus() != STOPPED) {
+            printf(LIST_FORMAT,
+                    processName, pid, process.getStatus(), process.getCreationInstant(), process.getClusterName());
+        } else if (!runningOnly) {
+            printf(LIST_FORMAT_STOPPED,
+                    processName, pid, process.getStatus(), process.getCreationInstant(), process.getClusterName());
+        }
     }
 
     private void getLogs(PrintStream out, String name, int numberOfLines)

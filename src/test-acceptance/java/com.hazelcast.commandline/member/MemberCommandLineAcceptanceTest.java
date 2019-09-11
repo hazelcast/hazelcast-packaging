@@ -156,10 +156,58 @@ public class MemberCommandLineAcceptanceTest
         memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
         String processUniqueId2 = captureOut().replace("\n", "");
         resetOut();
-        memberCommandLine.list();
+        memberCommandLine.list("", false, false);
         String out = captureOut();
         assertTrue(out.contains(processUniqueId1));
         assertTrue(out.contains(processUniqueId2));
+    }
+
+    @Test
+    public void test_list_namesOnly()
+            throws IOException, InterruptedException {
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId1 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId2 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.list("", true, false);
+        String out = captureOut();
+        assertTrue(out.contains(processUniqueId1));
+        assertTrue(out.contains(processUniqueId2));
+    }
+
+    @Test
+    public void test_list_withName()
+            throws IOException, InterruptedException {
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId1 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId2 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.list(processUniqueId1, false, false);
+        String out = captureOut();
+        System.out.println(out);
+        assertTrue(out.contains(processUniqueId1));
+        assertTrue(!out.contains(processUniqueId2));
+    }
+
+    @Test
+    public void test_list_withUnknownName()
+            throws IOException, InterruptedException {
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId1 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId2 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.list("0123456789", false, false);
+        String out = captureOut();
+        String err = captureErr();
+        assertTrue(!out.contains(processUniqueId1));
+        assertTrue(!out.contains(processUniqueId2));
+        assertTrue(err.contains("No process found"));
     }
 
     @Test

@@ -20,12 +20,17 @@ import com.hazelcast.core.HazelcastException;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
+
+import static com.hazelcast.commandline.member.HazelcastProcess.Status.RUNNING;
+import static com.hazelcast.commandline.member.HazelcastProcess.Status.STOPPED;
 
 /**
  * Handler for OS level process operations.
  */
 public class ProcessExecutor {
+
     Process buildAndStart(List<String> commandList, boolean foreground)
             throws IOException, InterruptedException {
         ProcessBuilder processBuilder = new ProcessBuilder(commandList);
@@ -45,6 +50,13 @@ public class ProcessExecutor {
         Runtime.getRuntime().exec(command);
     }
 
+    int exec(List<String> commandList) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder(commandList);
+        processBuilder.redirectErrorStream(true);
+        Process process = processBuilder.start();
+        return process.waitFor();
+    }
+
     /**
      * Extracts the PID of a process using reflection. Note that this method only works in Unix-like environments.
      *
@@ -60,5 +72,24 @@ public class ProcessExecutor {
             throw new HazelcastException("Exception when accessing the pid of a process.", e);
         }
     }
+
+    /**
+     *
+     * @param process
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    void refreshStatus(HazelcastProcess process) throws IOException, InterruptedException {
+        if (isRunning(process.getPid())) {
+            process.setStatus(RUNNING);
+        } else {
+            process.setStatus(STOPPED);
+        }
+    }
+
+    private boolean isRunning(int pid) throws IOException, InterruptedException {
+        return 0 == exec(Arrays.asList("ps", "-p", String.valueOf(pid)));
+    }
+
 }
 

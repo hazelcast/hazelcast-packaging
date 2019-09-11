@@ -16,6 +16,8 @@
 
 package com.hazelcast.commandline.member;
 
+import java.time.Instant;
+
 /**
  * The details of Hazelcast process initiated by command line tool.
  * <p/>
@@ -24,21 +26,43 @@ package com.hazelcast.commandline.member;
  * field and read from an old version of this class, the new field will have a {@code null} value.
  * */
 public class HazelcastProcess {
+
+    /**
+     * Process status
+     */
+    public enum Status {
+        /** after deserialization */
+        UNKNOWN,
+        /** after creation */
+        CREATED,
+        /** running on OS */
+        RUNNING,
+        /** not running on OS */
+        STOPPED,
+    }
+
     private String name;
     private String loggingPropertiesPath;
     private String logFilePath;
     private int pid;
+    private String clusterName;
+    private final Instant creationInstant;
+    private transient Status status;
 
     /**
-     * This constructor is used by Kryo for deserialization purposes.
+     * This constructor is only used by Kryo for deserialization purposes.
      */
     public HazelcastProcess() {
+        status = Status.UNKNOWN;
+        creationInstant = null;
     }
 
     public HazelcastProcess(String name, String loggingPropertiesPath, String logFilePath) {
         this.name = name;
         this.loggingPropertiesPath = loggingPropertiesPath;
         this.logFilePath = logFilePath;
+        this.status = Status.CREATED;
+        this.creationInstant = Instant.now();
     }
 
     public String getName() {
@@ -59,5 +83,25 @@ public class HazelcastProcess {
 
     public void setPid(int pid) {
         this.pid = pid;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public String getClusterName() {
+        return clusterName;
+    }
+
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
+    }
+
+    public Instant getCreationInstant() {
+        return creationInstant;
     }
 }

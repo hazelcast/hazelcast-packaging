@@ -226,7 +226,7 @@
                     </plugin>
 
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
                         <artifactId>sonar-maven-plugin</artifactId>
                         <version>${maven.sonar.plugin.version}</version>
                     </plugin>
