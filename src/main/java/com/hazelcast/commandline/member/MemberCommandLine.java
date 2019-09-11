@@ -48,8 +48,6 @@ public class MemberCommandLine
         implements Runnable {
     private static final String CLASSPATH_SEPARATOR = ":";
     private static final String LIST_FORMAT = "%-24s %-6s %-7s %-25s %-24s%n";
-    private static final String LIST_FORMAT_STOPPED =
-            "%-24s %-6s %-7s %-25s %-24s (use 'member remove %1$s' to remove all process data)%n";
     private final PrintStream out;
     private final PrintStream err;
     @Spec
@@ -249,21 +247,18 @@ public class MemberCommandLine
         }
     }
 
-    private void printProcessEntry(
-            @Option(names = {"-n", "--names"}, description = "Shows names only") boolean namesOnly,
-            @Option(names = {"-r", "--running"}, description = "Shows running members only") boolean runningOnly,
-            HazelcastProcess process) {
+    private void printProcessEntry(boolean namesOnly, boolean runningOnly, HazelcastProcess process) {
         int pid = process.getPid();
         String processName = process.getName();
         if (namesOnly) {
             if (!runningOnly || process.getStatus() == RUNNING) {
                 println(processName);
             }
-        } else if (process.getStatus() != STOPPED) {
+        } else if (runningOnly && process.getStatus() == RUNNING) {
             printf(LIST_FORMAT,
                     processName, pid, process.getStatus(), process.getCreationInstant(), process.getClusterName());
         } else if (!runningOnly) {
-            printf(LIST_FORMAT_STOPPED,
+            printf(LIST_FORMAT,
                     processName, pid, process.getStatus(), process.getCreationInstant(), process.getClusterName());
         }
     }
