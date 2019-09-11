@@ -74,10 +74,11 @@ public class ProcessExecutor {
     }
 
     /**
-     *
-     * @param process
-     * @throws IOException
-     * @throws InterruptedException
+     * Refreshes and sets the latest correct status of the process
+     * @param process to refresh & set the status
+     * @throws IOException if an I/O error occurs
+     * @throws InterruptedException if the current thread is interrupted by another thread while it is waiting,
+     * then the wait is ended and an InterruptedException is thrown.
      */
     void refreshStatus(HazelcastProcess process) throws IOException, InterruptedException {
         if (isRunning(process.getPid())) {
