@@ -25,6 +25,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -169,10 +170,10 @@ public class MemberCommandLine
             printlnErr(format("No process found with process id: %s", name));
             return;
         }
-        processExecutor.refreshStatus(process);
+        refreshStatus(process);
         if (process.getStatus() == RUNNING) {
             int pid = process.getPid();
-            processExecutor.run(format("kill -15 %d", pid));
+            processExecutor.exec(Arrays.asList("kill", "-15", String.valueOf(pid)));
             println(format("%s stopped.", name));
         } else {
             printlnErr(format("%s is not running.", name));
@@ -189,7 +190,7 @@ public class MemberCommandLine
             printlnErr(format("No process found with process id: %s", name));
             return;
         }
-        processExecutor.refreshStatus(process);
+        refreshStatus(process);
         if (process.getStatus() == STOPPED) {
             hazelcastProcessStore.remove(name);
             println(format("%s removed.", name));
@@ -218,7 +219,7 @@ public class MemberCommandLine
         for (HazelcastProcess process : processes.values()) {
             String processName = process.getName();
             if (isNullOrEmpty(name) || name.equals(processName)) {
-                processExecutor.refreshStatus(process);
+                refreshStatus(process);
                 printProcessEntry(namesOnly, runningOnly, process);
             }
         }
@@ -237,6 +238,15 @@ public class MemberCommandLine
             return;
         }
         getLogs(out, name, numberOfLines);
+    }
+
+    private void refreshStatus(HazelcastProcess process)
+            throws IOException, InterruptedException {
+        if (processExecutor.isRunning(process.getPid())) {
+            process.setStatus(RUNNING);
+        } else {
+            process.setStatus(STOPPED);
+        }
     }
 
     private void printProcessHeader(Map<String, HazelcastProcess> processes) {

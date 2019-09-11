@@ -23,9 +23,6 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.hazelcast.commandline.member.HazelcastProcess.Status.RUNNING;
-import static com.hazelcast.commandline.member.HazelcastProcess.Status.STOPPED;
-
 /**
  * Handler for OS level process operations.
  */
@@ -43,11 +40,6 @@ public class ProcessExecutor {
             process.waitFor();
         }
         return process;
-    }
-
-    void run(String command)
-            throws IOException {
-        Runtime.getRuntime().exec(command);
     }
 
     int exec(List<String> commandList) throws IOException, InterruptedException {
@@ -73,22 +65,7 @@ public class ProcessExecutor {
         }
     }
 
-    /**
-     * Refreshes and sets the latest correct status of the process
-     * @param process to refresh & set the status
-     * @throws IOException if an I/O error occurs
-     * @throws InterruptedException if the current thread is interrupted by another thread while it is waiting,
-     * then the wait is ended and an InterruptedException is thrown.
-     */
-    void refreshStatus(HazelcastProcess process) throws IOException, InterruptedException {
-        if (isRunning(process.getPid())) {
-            process.setStatus(RUNNING);
-        } else {
-            process.setStatus(STOPPED);
-        }
-    }
-
-    private boolean isRunning(int pid) throws IOException, InterruptedException {
+    boolean isRunning(int pid) throws IOException, InterruptedException {
         return 0 == exec(Arrays.asList("ps", "-p", String.valueOf(pid)));
     }
 
