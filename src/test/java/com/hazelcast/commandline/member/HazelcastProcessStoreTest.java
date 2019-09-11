@@ -131,6 +131,7 @@ public class HazelcastProcessStoreTest {
 
         // then
         assertNull(hazelcastProcessStore.find(firstProcessName));
+        Assert.assertFalse("Process directory should be deleted.", Files.exists(hazelcastHome.resolve(firstProcessName)));
     }
 
 

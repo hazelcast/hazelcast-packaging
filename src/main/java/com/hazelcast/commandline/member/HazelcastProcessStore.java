@@ -101,8 +101,28 @@ public class HazelcastProcessStore {
         if (processMap == null || !processMap.containsKey(name)) {
             throw new HazelcastException("No process found with pid: " + name);
         }
+        if (!deleteProcessDirs(name)) {
+            throw new HazelcastException("Process directories couldn't be deleted: " + name);
+        }
         processMap.remove(name);
         updateFile(processMap);
+    }
+
+    private boolean deleteProcessDirs(String name) {
+        String processPath = hazelcastHome + SEPARATOR + name;
+        return deleteDirectory(new File(processPath));
+    }
+
+    private boolean deleteDirectory(File directoryToBeDeleted) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                if (!deleteDirectory(file)) {
+                    return false;
+                }
+            }
+        }
+        return directoryToBeDeleted.delete();
     }
 
     boolean exists(String name)
