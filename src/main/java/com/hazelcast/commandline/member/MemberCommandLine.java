@@ -224,7 +224,6 @@ public class MemberCommandLine
                 printProcessEntry(namesOnly, runningOnly, process);
             }
         }
-        hazelcastProcessStore.updateFile(processes);
     }
 
     @Command(description = "Display the logs for Hazelcast IMDG member with the given ID.", mixinStandardHelpOptions = true)

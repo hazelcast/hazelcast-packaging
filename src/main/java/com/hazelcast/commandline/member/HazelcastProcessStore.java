@@ -90,14 +90,6 @@ public class HazelcastProcessStore {
         return processes;
     }
 
-    void updateFile(Map<String, HazelcastProcess> processMap)
-            throws IOException {
-        try (FileOutputStream fileOut = new FileOutputStream(instancesFilePath);
-             Output output = new Output(fileOut)) {
-            kryo.writeObject(output, processMap);
-        }
-    }
-
     HazelcastProcess find(String name)
             throws IOException {
         return findAll().get(name);
@@ -125,6 +117,14 @@ public class HazelcastProcessStore {
         String logFilePath = processDir + SEPARATOR + LOGS_DIR_STRING + SEPARATOR + LOGS_FILE_NAME_STRING;
         String loggingPropertiesPath = createLoggingPropertiesFile(processDir, logFilePath);
         return new HazelcastProcess(name, loggingPropertiesPath, logFilePath);
+    }
+
+    private void updateFile(Map<String, HazelcastProcess> processMap)
+            throws IOException {
+        try (FileOutputStream fileOut = new FileOutputStream(instancesFilePath);
+             Output output = new Output(fileOut)) {
+            kryo.writeObject(output, processMap);
+        }
     }
 
     private String createProcessDirs(String name) {
