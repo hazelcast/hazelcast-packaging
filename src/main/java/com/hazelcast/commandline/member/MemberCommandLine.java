@@ -24,7 +24,10 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -48,8 +51,6 @@ public class MemberCommandLine
         implements Runnable {
     private static final String CLASSPATH_SEPARATOR = ":";
     private static final String LIST_FORMAT = "%-24s %-6s %-7s %-25s %-24s%n";
-    private static final String LIST_FORMAT_STOPPED =
-            "%-24s %-6s %-7s %-25s %-24s (use 'member remove %1$s' to remove all process data)%n";
     private final PrintStream out;
     private final PrintStream err;
     @Spec
@@ -171,10 +172,10 @@ public class MemberCommandLine
             printlnErr(format("No process found with process id: %s", name));
             return;
         }
-        processExecutor.refreshStatus(process);
+        refreshStatus(process);
         if (process.getStatus() == RUNNING) {
             int pid = process.getPid();
-            processExecutor.run(format("kill -15 %d", pid));
+            processExecutor.exec(Arrays.asList("kill", "-15", String.valueOf(pid)));
             println(format("%s stopped.", name));
         } else {
             printlnErr(format("%s is not running.", name));
@@ -191,7 +192,7 @@ public class MemberCommandLine
             printlnErr(format("No process found with process id: %s", name));
             return;
         }
-        processExecutor.refreshStatus(process);
+        refreshStatus(process);
         if (process.getStatus() == STOPPED) {
             hazelcastProcessStore.remove(name);
             println(format("%s removed.", name));
@@ -220,11 +221,10 @@ public class MemberCommandLine
         for (HazelcastProcess process : processes.values()) {
             String processName = process.getName();
             if (isNullOrEmpty(name) || name.equals(processName)) {
-                processExecutor.refreshStatus(process);
+                refreshStatus(process);
                 printProcessEntry(namesOnly, runningOnly, process);
             }
         }
-        hazelcastProcessStore.updateFile(processes);
     }
 
     @Command(description = "Display the logs for Hazelcast IMDG member with the given ID.", mixinStandardHelpOptions = true)
@@ -242,30 +242,36 @@ public class MemberCommandLine
         getLogs(out, name, numberOfLines);
     }
 
+    private void refreshStatus(HazelcastProcess process)
+            throws IOException, InterruptedException {
+        if (processExecutor.isRunning(process.getPid())) {
+            process.setStatus(RUNNING);
+        } else {
+            process.setStatus(STOPPED);
+        }
+    }
+
     private void printProcessHeader(Map<String, HazelcastProcess> processes) {
         if (processes.isEmpty()) {
-            println("No running process exists.");
+            println("No running p®Rrocess exists.");
         } else {
             printf(LIST_FORMAT, "ID", "PID", "STATUS", "CREATED", "CLUSTER NAME");
         }
     }
 
-    private void printProcessEntry(
-            @Option(names = {"-n", "--names"}, description = "Shows names only") boolean namesOnly,
-            @Option(names = {"-r", "--running"}, description = "Shows running members only") boolean runningOnly,
-            HazelcastProcess process) {
+    private void printProcessEntry(boolean namesOnly, boolean runningOnly, HazelcastProcess process) {
         int pid = process.getPid();
         String processName = process.getName();
-        if (namesOnly) {
-            if (!runningOnly || process.getStatus() == RUNNING) {
+        if (!runningOnly || process.getStatus() == RUNNING) {
+            if (namesOnly) {
                 println(processName);
+            } else {
+                String formattedCreationInstant = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+                                                                   .withZone(ZoneId.systemDefault())
+                                                                   .format(process.getCreationInstant());
+                printf(LIST_FORMAT, processName, pid, process.getStatus(), formattedCreationInstant,
+                        process.getClusterName());
             }
-        } else if (process.getStatus() != STOPPED) {
-            printf(LIST_FORMAT,
-                    processName, pid, process.getStatus(), process.getCreationInstant(), process.getClusterName());
-        } else if (!runningOnly) {
-            printf(LIST_FORMAT_STOPPED,
-                    processName, pid, process.getStatus(), process.getCreationInstant(), process.getClusterName());
         }
     }
 

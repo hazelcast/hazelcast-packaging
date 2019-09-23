@@ -90,14 +90,6 @@ public class HazelcastProcessStore {
         return processes;
     }
 
-    void updateFile(Map<String, HazelcastProcess> processMap)
-            throws IOException {
-        try (FileOutputStream fileOut = new FileOutputStream(instancesFilePath);
-             Output output = new Output(fileOut)) {
-            kryo.writeObject(output, processMap);
-        }
-    }
-
     HazelcastProcess find(String name)
             throws IOException {
         return findAll().get(name);
@@ -109,8 +101,28 @@ public class HazelcastProcessStore {
         if (processMap == null || !processMap.containsKey(name)) {
             throw new HazelcastException("No process found with pid: " + name);
         }
+        if (!deleteProcessDirs(name)) {
+            throw new HazelcastException("Process directories couldn't be deleted: " + name);
+        }
         processMap.remove(name);
         updateFile(processMap);
+    }
+
+    private boolean deleteProcessDirs(String name) {
+        String processPath = hazelcastHome + SEPARATOR + name;
+        return deleteDirectory(new File(processPath));
+    }
+
+    private boolean deleteDirectory(File directoryToBeDeleted) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                if (!deleteDirectory(file)) {
+                    return false;
+                }
+            }
+        }
+        return directoryToBeDeleted.delete();
     }
 
     boolean exists(String name)
@@ -125,6 +137,14 @@ public class HazelcastProcessStore {
         String logFilePath = processDir + SEPARATOR + LOGS_DIR_STRING + SEPARATOR + LOGS_FILE_NAME_STRING;
         String loggingPropertiesPath = createLoggingPropertiesFile(processDir, logFilePath);
         return new HazelcastProcess(name, loggingPropertiesPath, logFilePath);
+    }
+
+    private void updateFile(Map<String, HazelcastProcess> processMap)
+            throws IOException {
+        try (FileOutputStream fileOut = new FileOutputStream(instancesFilePath);
+             Output output = new Output(fileOut)) {
+            kryo.writeObject(output, processMap);
+        }
     }
 
     private String createProcessDirs(String name) {

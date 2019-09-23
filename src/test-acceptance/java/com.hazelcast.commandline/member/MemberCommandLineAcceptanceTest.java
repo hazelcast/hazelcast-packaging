@@ -156,6 +156,8 @@ public class MemberCommandLineAcceptanceTest
         memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
         String processUniqueId2 = captureOut().replace("\n", "");
         resetOut();
+        memberCommandLine.stop(processUniqueId2);
+        resetOut();
         memberCommandLine.list("", false, false);
         String out = captureOut();
         assertTrue(out.contains(processUniqueId1));
@@ -173,8 +175,40 @@ public class MemberCommandLineAcceptanceTest
         resetOut();
         memberCommandLine.list("", true, false);
         String out = captureOut();
+        assertTrue(out.equals(processUniqueId1 + "\n" + processUniqueId2 + "\n") || out.equals(processUniqueId2 + "\n" + processUniqueId1 + "\n"));
+    }
+
+    @Test
+    public void test_list_runningOnly()
+            throws IOException, InterruptedException {
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId1 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId2 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.stop(processUniqueId2);
+        resetOut();
+        memberCommandLine.list("", false, true);
+        String out = captureOut();
         assertTrue(out.contains(processUniqueId1));
-        assertTrue(out.contains(processUniqueId2));
+        assertTrue(!out.contains(processUniqueId2));
+    }
+
+    @Test
+    public void test_list_namesAndRunningOnly()
+            throws IOException, InterruptedException {
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId1 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.start(null, DEFAULT_CLUSTER_NAME, DEFAULT_PORT, null, false, null, null);
+        String processUniqueId2 = captureOut().replace("\n", "");
+        resetOut();
+        memberCommandLine.stop(processUniqueId2);
+        resetOut();
+        memberCommandLine.list("", true, true);
+        String out = captureOut();
+        assertEquals(out, processUniqueId1 + "\n");
     }
 
     @Test
@@ -188,7 +222,6 @@ public class MemberCommandLineAcceptanceTest
         resetOut();
         memberCommandLine.list(processUniqueId1, false, false);
         String out = captureOut();
-        System.out.println(out);
         assertTrue(out.contains(processUniqueId1));
         assertTrue(!out.contains(processUniqueId2));
     }

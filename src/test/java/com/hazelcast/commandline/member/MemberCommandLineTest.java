@@ -35,7 +35,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -151,7 +150,7 @@ public class MemberCommandLineTest {
         //when
         memberCommandLine.stop(processName);
         //then
-        verify(processExecutor).run(startsWith("kill -15"));
+        verify(processExecutor).exec((List<String>) argThat(Matchers.hasItems("kill", "-15")));
     }
 
     @Test
