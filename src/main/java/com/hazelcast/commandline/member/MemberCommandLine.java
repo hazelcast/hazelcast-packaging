@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -251,7 +253,7 @@ public class MemberCommandLine
 
     private void printProcessHeader(Map<String, HazelcastProcess> processes) {
         if (processes.isEmpty()) {
-            println("No running process exists.");
+            println("No running p®Rrocess exists.");
         } else {
             printf(LIST_FORMAT, "ID", "PID", "STATUS", "CREATED", "CLUSTER NAME");
         }
@@ -260,16 +262,16 @@ public class MemberCommandLine
     private void printProcessEntry(boolean namesOnly, boolean runningOnly, HazelcastProcess process) {
         int pid = process.getPid();
         String processName = process.getName();
-        if (namesOnly) {
-            if (!runningOnly || process.getStatus() == RUNNING) {
+        if (!runningOnly || process.getStatus() == RUNNING) {
+            if (namesOnly) {
                 println(processName);
+            } else {
+                String formattedCreationInstant = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+                                                                   .withZone(ZoneId.systemDefault())
+                                                                   .format(process.getCreationInstant());
+                printf(LIST_FORMAT, processName, pid, process.getStatus(), formattedCreationInstant,
+                        process.getClusterName());
             }
-        } else if (runningOnly && process.getStatus() == RUNNING) {
-            printf(LIST_FORMAT,
-                    processName, pid, process.getStatus(), process.getCreationInstant(), process.getClusterName());
-        } else if (!runningOnly) {
-            printf(LIST_FORMAT,
-                    processName, pid, process.getStatus(), process.getCreationInstant(), process.getClusterName());
         }
     }
 
