@@ -5,19 +5,19 @@ DIST=build/dist
 HZ_BIN=${DIST}/bin
 HZ_LIB=${DIST}/lib
 
-.PHONY: all clean cleanall cleandist get-artifacts dist package
+.PHONY: all clean clean-all clean-dist get-artifacts dist package
 
-all: get-artifacts package
+all: clean-all get-artifacts package
 
-clean: cleandist
+clean: clean-dist
 	# cleaning up local artifacts
 	rm -fr lib/*
 
-cleanall:
+clean-all:
 	# cleaning up everything
 	rm -fr build
 
-cleandist:
+clean-dist:
 	# cleaning up dist
 	rm -fr ${DIST}
 
@@ -28,17 +28,16 @@ dist:
 	mkdir -p ${HZ_LIB}
 	cp src/README.txt ${DIST}
 	cp src/hazelcast ${HZ_BIN}
-	cp lib/*.jar ${HZ_LIB}
 	for f in ${HZ_BIN}/* ; do sed -i '.bak' 's/$${hazelcast_version}/${HAZELCAST_VERSION}/g' $$f ; done
 	rm -f ${HZ_BIN}/*.bak
 	chmod +x ${HZ_BIN}/*
 
-get-artifacts:
+get-artifacts: dist
 	# get cli artifacts
-	cd .. && mvn clean package -DskipTests && cd -
-	cp ../target/hazelcast-command-line-*-with-dependencies.jar lib/hazelcast-command-line.jar
+	cd .. && mvn clean package && cd -
+	cp ../target/hazelcast-command-line-*-jar-with-dependencies.jar ${HZ_LIB}/hazelcast-command-line.jar
 
-package: dist
+package:
 	# creating package
 	mkdir -p build/package
 	tar -zcf build/package/hazelcast-${HAZELCAST_VERSION}.${HAZELCAST_MEMBER_REV}.tar.gz -C ${DIST} README.txt bin lib
