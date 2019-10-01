@@ -1,5 +1,4 @@
-HAZELCAST_VERSION=3.12
-HAZELCAST_MEMBER_REV=0
+HAZELCAST_VERSION=0.2-SNAPSHOT
 
 DIST=build/dist
 HZ_BIN=${DIST}/bin
@@ -40,5 +39,5 @@ get-artifacts: dist
 package:
 	# creating package
 	mkdir -p build/package
-	tar -zcf build/package/hazelcast-${HAZELCAST_VERSION}.${HAZELCAST_MEMBER_REV}.tar.gz -C ${DIST} README.txt bin lib
-	@echo "Archive build/package/hazelcast-${HAZELCAST_VERSION}.${HAZELCAST_MEMBER_REV}.tar.gz created successfully"
+	tar -zcf build/package/hazelcast-command-line-${HAZELCAST_VERSION}.tar.gz -C ${DIST} README.txt bin lib
+	@echo "Archive build/package/hazelcast-command-line-${HAZELCAST_VERSION}.tar.gz created successfully"
