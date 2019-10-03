@@ -201,7 +201,7 @@ public class MemberCommandLine
         }
     }
 
-    @Command(description = "Lists running Hazelcast IMDG members", mixinStandardHelpOptions = true)
+    @Command(description = "Lists running or not removed Hazelcast IMDG members", mixinStandardHelpOptions = true)
     public void list(
             @Parameters(defaultValue = "", index = "0", paramLabel = "<name>", description = "Unique name of the process to "
                     + "show the status of, e.g., elegant_euclid.") String name,
@@ -232,7 +232,7 @@ public class MemberCommandLine
             @Parameters(index = "0", paramLabel = "<name>",
                     description = "Unique name of the process to show the logs, e.g., elegant_euclid.") String name,
             @Option(names = {"-n", "--numberOfLines"}, paramLabel = "<lineCount>",
-                    description = "Display the specified number " + "of lines (default: 10).",
+                    description = "Display the latest specified number of lines from the logs (default: 10).",
                     defaultValue = "10") int numberOfLines)
             throws IOException {
         if (!hazelcastProcessStore.exists(name)) {
@@ -253,7 +253,7 @@ public class MemberCommandLine
 
     private void printProcessHeader(Map<String, HazelcastProcess> processes) {
         if (processes.isEmpty()) {
-            println("No running p®Rrocess exists.");
+            println("No running process exists.");
         } else {
             printf(LIST_FORMAT, "ID", "PID", "STATUS", "CREATED", "CLUSTER NAME");
         }
