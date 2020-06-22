@@ -10,7 +10,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hazelcast.version>3.12</hazelcast.version>
+        <hazelcast.version>4.0.1</hazelcast.version>
         <picocli.version>3.9.6</picocli.version>
         <kryo.version>4.0.2</kryo.version>
         <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
@@ -135,12 +135,6 @@
         </dependency>
 
         <!--test dependencies-->
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-client</artifactId>
-            <version>${hazelcast.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

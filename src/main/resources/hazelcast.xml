@@ -15,11 +15,8 @@
   -->
 <!--suppress XmlDefaultAttributeValue -->
 <hazelcast xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.12.xsd"
+           xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-4.0.xsd"
            xmlns="http://www.hazelcast.com/schema/config">
-    <group>
-        <name>${group.name}</name>
-    </group>
 
     <network>
         <port auto-increment="true" port-count="100">${network.port}</port>

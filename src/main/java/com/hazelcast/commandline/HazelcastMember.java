@@ -13,7 +13,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.hazelcast.commandline.member;
+package com.hazelcast.commandline;
 
 import com.hazelcast.core.Hazelcast;
 
