@@ -14,6 +14,6 @@
  */
 
 /**
- * This package contains the classes related to base `hazelcast` command
+ * This package contains the classes related to base `hz` command
  */
 package com.hazelcast.commandline;

@@ -19,12 +19,18 @@ import picocli.CommandLine;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Abstract command line class.
  */
 public abstract class AbstractCommandLine implements Runnable {
+    protected static final String WORKING_DIRECTORY = System.getProperty("hazelcast.commandline.workingdirectory", "distro/src");
     static final String CLASSPATH_SEPARATOR = ":";
+
     protected final PrintStream out;
     protected final PrintStream err;
     @CommandLine.Spec
@@ -56,5 +62,31 @@ public abstract class AbstractCommandLine implements Runnable {
 
     public InputStream getProcessInputStream() {
         return processInputStream;
+    }
+
+    protected void addLogging(List<String> args, boolean verbose, boolean finestVerbose) {
+        if (verbose) {
+            args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + "/config/hazelcast-fine-level-logging.properties");
+        }
+        if (finestVerbose) {
+            args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + "/config/hazelcast-finest-level-logging.properties");
+        }
+    }
+
+    public static class JavaOptionsConsumer implements CommandLine.IParameterConsumer {
+        public void consumeParameters(Stack<String> args, CommandLine.Model.ArgSpec argSpec, CommandLine.Model.CommandSpec commandSpec) {
+            if (args.isEmpty()) {
+                throw new CommandLine.ParameterException(commandSpec.commandLine(),
+                        "Error: option '-J', '--JAVA_OPTS' requires a parameter");
+            }
+            List<String> list = argSpec.getValue();
+            if (list == null) {
+                list = new ArrayList<>();
+                argSpec.setValue(list);
+            }
+            String arg = args.pop();
+            String[] splitArgs = arg.split(argSpec.splitRegex());
+            Collections.addAll(list, splitArgs);
+        }
     }
 }

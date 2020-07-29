@@ -15,7 +15,13 @@
 
 package com.hazelcast.commandline;
 
+import com.hazelcast.config.Config;
+import com.hazelcast.config.FileSystemXmlConfig;
+import com.hazelcast.config.FileSystemYamlConfig;
+import com.hazelcast.config.InterfacesConfig;
 import com.hazelcast.core.Hazelcast;
+
+import java.io.FileNotFoundException;
 
 /**
  * Class for starting new Hazelcast members
@@ -24,7 +30,25 @@ public final class HazelcastMember {
     private HazelcastMember() {
     }
 
-    public static void main(String[] args) {
-        Hazelcast.newHazelcastInstance();
+    public static void main(String[] args)
+            throws FileNotFoundException {
+        String configPath = System.getProperty("hazelcast.config");
+        Config config;
+        if (configPath.endsWith(".yaml") || configPath.endsWith(".yml")) {
+            config = new FileSystemYamlConfig(configPath);
+        } else {
+            config = new FileSystemXmlConfig(configPath);
+        }
+        config.getNetworkConfig().setPort(Integer.parseInt(System.getProperty("network.port"))).setPortAutoIncrement(true);
+        String networkInterface = System.getProperty("network.interface");
+        config.setProperty("hazelcast.socket.bind.any", "false");
+        InterfacesConfig interfaces = config.getNetworkConfig().getInterfaces();
+        interfaces.setEnabled(true);
+        if (!networkInterface.equals("null")) {
+            interfaces.addInterface(networkInterface);
+        } else {
+            interfaces.addInterface("127.0.0.1");
+        }
+        Hazelcast.newHazelcastInstance(config);
     }
 }

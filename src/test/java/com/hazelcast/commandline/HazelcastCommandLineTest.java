@@ -19,6 +19,7 @@ import com.hazelcast.commandline.test.annotation.UnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +28,8 @@ import java.io.PrintStream;
 //import static com.hazelcast.commandline.member.HazelcastProcess.Status.RUNNING;
 //import static com.hazelcast.commandline.member.HazelcastProcess.Status.STOPPED;
 //import static org.mockito.ArgumentMatchers.any;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 //import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -68,7 +71,7 @@ public class HazelcastCommandLineTest {
     public void test_start()
             throws IOException, InterruptedException {
         //when
-        hazelcastCommandLine.start(null, null, null, null, null);
+        hazelcastCommandLine.start(null, null, null, null, null, false, false);
         //then
         verify(processExecutor, times(1)).buildAndStart(anyList());
     }
@@ -130,4 +133,20 @@ public class HazelcastCommandLineTest {
 //        // then
 //        verify(processExecutor).buildAndStart(anyList(), eq(foreground));
 //    }
+
+    @Test // https://github.com/remkop/picocli/issues/1125
+    public void testSubcommandAsOptionValue() {
+        @CommandLine.Command(name = "app")
+        class App {
+            @CommandLine.Option(names = "-x") String x;
+
+            @CommandLine.Command
+            public int search() {
+                return 123;
+            }
+        }
+        CommandLine.ParseResult parseResult = new CommandLine(new App()).setTrimQuotes(true).parseArgs("-x=\"search\"", "search");
+        assertEquals("search", parseResult.matchedOptionValue("-x", null));
+        assertTrue(parseResult.hasSubcommand());
+    }
 }
