@@ -87,12 +87,12 @@ public class HazelcastCommandLine
                             + "it will auto-increment to the first free port. (default: 5701)", defaultValue = "5701")
                     String port,
             @Option(names = {"-i", "--interface"}, paramLabel = "<interface>",
-                    description = "Bind to the specified <interface> (default: bind to all interfaces).")
+                    description = "Bind to the specified <interface> (default: bind to all interfaces).", defaultValue = "127.0.0.1")
                     String hzInterface,
             @Option(names = {"-j", "--jar"}, paramLabel = "<path>", split = ",", description = "Add <path> to Hazelcast "
                     + "classpath (Use ',' to separate multiple paths). You can add jars, classes, or the directories that contain classes/jars.")
                     String[] additionalClassPath,
-            @Option(names = {"-J", "--JAVA_OPTS"}, paramLabel = "<option>", split = ",", parameterConsumer = JavaOptionsConsumer.class,
+            @Option(names = {"-J", "--JAVA_OPTS"}, paramLabel = "<option>", parameterConsumer = JavaOptionsConsumer.class,
                     description = "Specify additional Java <option> (Use ',' to separate multiple options).")
                     List<String> javaOptions,
             @Option(names = {"-v", "--verbose"},

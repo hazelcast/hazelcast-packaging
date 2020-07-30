@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.hazelcast.commandline.HazelcastCommandLine.SEPARATOR;
+import static com.hazelcast.internal.util.StringUtil.isNullOrEmpty;
 
 /**
  * Commandline class for Hazelcast Management Center operations
@@ -52,10 +53,13 @@ public class ManagementCenterCommandLine extends AbstractCommandLine {
 
     @CommandLine.Command(description = "Starts a new Hazelcast Management Center instance", mixinStandardHelpOptions = true)
     public void start(
+            @CommandLine.Option(names = {"-c", "--context-path"}, paramLabel = "<context-path>",
+                    description = "Bind to the specified <context-path>.")
+                    String contextPath,
             @CommandLine.Option(names = {"-p", "--port"}, paramLabel = "<port>",
                     description = "Bind to the specified <port>.", defaultValue = "8080")
                     String port,
-            @CommandLine.Option(names = {"-J", "--JAVA_OPTS"}, paramLabel = "<option>", split = ",", parameterConsumer = JavaOptionsConsumer.class,
+            @CommandLine.Option(names = {"-J", "--JAVA_OPTS"}, paramLabel = "<option>", parameterConsumer = JavaOptionsConsumer.class,
                     description = "Specify additional Java <option> (Use ',' to separate multiple options).")
                     List<String> javaOptions,
             @CommandLine.Option(names = {"-v", "--verbose"},
@@ -66,6 +70,9 @@ public class ManagementCenterCommandLine extends AbstractCommandLine {
             boolean finestVerbose)
             throws IOException, InterruptedException {
         List<String> args = new ArrayList<>();
+        if (!isNullOrEmpty(contextPath)) {
+            args.add("-Dhazelcast.mc.contextPath=" + contextPath);
+        }
         args.add("-Dhazelcast.mc.http.port=" + port);
         if (javaOptions != null && javaOptions.size() > 0) {
             args.addAll(javaOptions);

@@ -53,7 +53,7 @@ public class ManagementCenterCommandLineTest {
     public void test_start()
             throws IOException, InterruptedException {
         //when
-        mcCommandLine.start(null, null, false, false);
+        mcCommandLine.start(null, null, null, false, false);
         //then
         verify(processExecutor, times(1)).buildAndStart(anyList());
     }

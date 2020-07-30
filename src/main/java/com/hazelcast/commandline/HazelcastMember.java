@@ -43,12 +43,7 @@ public final class HazelcastMember {
         String networkInterface = System.getProperty("network.interface");
         config.setProperty("hazelcast.socket.bind.any", "false");
         InterfacesConfig interfaces = config.getNetworkConfig().getInterfaces();
-        interfaces.setEnabled(true);
-        if (!networkInterface.equals("null")) {
-            interfaces.addInterface(networkInterface);
-        } else {
-            interfaces.addInterface("127.0.0.1");
-        }
+        interfaces.setEnabled(true).addInterface(networkInterface);
         Hazelcast.newHazelcastInstance(config);
     }
 }
