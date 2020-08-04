@@ -21,7 +21,6 @@ import picocli.CommandLine;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,11 +36,6 @@ import static picocli.CommandLine.Option;
         + "Global options are:%n", versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
 public class HazelcastCommandLine
         extends AbstractCommandLine {
-
-    /**
-     * File system separator of the runtime environment
-     */
-    public static final String SEPARATOR = FileSystems.getDefault().getSeparator();
 
     public HazelcastCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor) {
         super(out, err, processExecutor, false);
@@ -136,8 +130,31 @@ public class HazelcastCommandLine
         commandList.add("-cp");
         commandList.add(classpath.toString());
         commandList.addAll(parameters);
+        fixModularJavaOptions(commandList);
         commandList.add(aClass.getName());
         processExecutor.buildAndStart(commandList);
+    }
+
+    private void fixModularJavaOptions(List<String> commandList) {
+        double javaVersion = Double.parseDouble(System.getProperty("java.specification.version"));
+        if (javaVersion >= MIN_JAVA_VERSION_FOR_MODULAR_OPTIONS) {
+            commandList.add("--add-modules");
+            commandList.add("java.se");
+            commandList.add("--add-exports");
+            commandList.add("java.base/jdk.internal.ref=ALL-UNNAMED");
+            commandList.add("--add-opens");
+            commandList.add("java.base/java.lang=ALL-UNNAMED");
+            commandList.add("--add-opens");
+            commandList.add("java.base/java.nio=ALL-UNNAMED");
+            commandList.add("--add-opens");
+            commandList.add("java.base/sun.nio.ch=ALL-UNNAMED");
+            commandList.add("--add-opens");
+            commandList.add("java.management/sun.management=ALL-UNNAMED");
+            commandList.add("--add-opens");
+            commandList.add("jdk.management/com.ibm.lang.management.internal=ALL-UNNAMED");
+            commandList.add("--add-opens");
+            commandList.add("jdk.management/com.sun.management.internal=ALL-UNNAMED");
+        }
     }
 
 }

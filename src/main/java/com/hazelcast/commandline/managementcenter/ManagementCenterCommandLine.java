@@ -25,7 +25,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hazelcast.commandline.HazelcastCommandLine.SEPARATOR;
 import static com.hazelcast.internal.util.StringUtil.isNullOrEmpty;
 
 /**

@@ -19,6 +19,7 @@ import picocli.CommandLine;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,9 +30,11 @@ import java.util.Stack;
  */
 public abstract class AbstractCommandLine implements Runnable {
     protected static final String WORKING_DIRECTORY = System.getProperty("hazelcast.commandline.workingdirectory", "distro/src");
+    protected static final String SEPARATOR = FileSystems.getDefault().getSeparator();
     static final String HZ_FINE_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION = "/config/hazelcast-fine-level-logging.properties";
     static final String HZ_FINEST_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION = "/config/hazelcast-finest-level-logging.properties";
     static final String CLASSPATH_SEPARATOR = ":";
+    static final int MIN_JAVA_VERSION_FOR_MODULAR_OPTIONS = 9;
 
     protected final PrintStream out;
     protected final PrintStream err;
