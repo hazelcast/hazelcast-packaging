@@ -21,7 +21,7 @@ import com.hazelcast.config.FileSystemYamlConfig;
 import com.hazelcast.config.InterfacesConfig;
 import com.hazelcast.core.Hazelcast;
 
-import java.io.FileNotFoundException;
+import static com.hazelcast.internal.util.StringUtil.isNullOrEmpty;
 
 /**
  * Class for starting new Hazelcast members
@@ -31,19 +31,32 @@ public final class HazelcastMember {
     }
 
     public static void main(String[] args)
-            throws FileNotFoundException {
-        String configPath = System.getProperty("hazelcast.config");
-        Config config;
-        if (configPath.endsWith(".yaml") || configPath.endsWith(".yml")) {
-            config = new FileSystemYamlConfig(configPath);
-        } else {
-            config = new FileSystemXmlConfig(configPath);
+            throws Exception {
+        Hazelcast.newHazelcastInstance(getConfig());
+    }
+
+    private static Config getConfig()
+            throws Exception {
+        String hazelcastConfig = System.getProperty("hazelcast.config");
+        if (!isNullOrEmpty(hazelcastConfig)) {
+            return createConfig(hazelcastConfig);
         }
-        config.getNetworkConfig().setPort(Integer.parseInt(System.getProperty("network.port"))).setPortAutoIncrement(true);
+        String defaultHazelcastConfig = System.getProperty("hazelcast.default.config");
+        Config config = createConfig(defaultHazelcastConfig);
+        config.getNetworkConfig().setPort(Integer.parseInt(System.getProperty("network.port")));
         String networkInterface = System.getProperty("network.interface");
         config.setProperty("hazelcast.socket.bind.any", "false");
         InterfacesConfig interfaces = config.getNetworkConfig().getInterfaces();
         interfaces.setEnabled(true).addInterface(networkInterface);
-        Hazelcast.newHazelcastInstance(config);
+        return config;
+    }
+
+    private static Config createConfig(String configPath)
+            throws Exception {
+        try {
+            return new FileSystemYamlConfig(configPath);
+        } catch (Exception e) {
+            return new FileSystemXmlConfig(configPath);
+        }
     }
 }

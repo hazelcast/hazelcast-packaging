@@ -59,7 +59,8 @@ public class ManagementCenterCommandLine extends AbstractCommandLine {
             @CommandLine.Option(names = {"-p", "--port"}, paramLabel = "<port>",
                     description = "Bind to the specified <port>.", defaultValue = "8080")
                     String port,
-            @CommandLine.Option(names = {"-J", "--JAVA_OPTS"}, paramLabel = "<option>", parameterConsumer = JavaOptionsConsumer.class,
+            @CommandLine.Option(names = {"-J", "--JAVA_OPTS"}, paramLabel = "<option>",
+                    parameterConsumer = JavaOptionsConsumer.class,
                     description = "Specify additional Java <option> (Use ',' to separate multiple options).")
                     List<String> javaOptions,
             @CommandLine.Option(names = {"-v", "--verbose"},
