@@ -63,7 +63,9 @@ public class HazelcastCommandLine
         CommandLine cmd = new CommandLine(new HazelcastCommandLine(out, err, processExecutor))
                 .addSubcommand("mc", new ManagementCenterCommandLine(out, err, processExecutor))
                 .setOut(new PrintWriter(out))
-                .setErr(new PrintWriter(err)).setTrimQuotes(true);
+                .setErr(new PrintWriter(err))
+                .setTrimQuotes(true)
+                .setExecutionExceptionHandler(new HazelcastExceptionHandler());
         cmd.execute(args);
 
         String version = getBuildInfo().getVersion();
@@ -103,10 +105,11 @@ public class HazelcastCommandLine
                     boolean finestVerbose)
             throws IOException, InterruptedException {
         List<String> args = new ArrayList<>();
-        if (isNullOrEmpty(configFilePath)) {
-            configFilePath = AbstractCommandLine.WORKING_DIRECTORY + "/config/hazelcast.yaml";
+        if (!isNullOrEmpty(configFilePath)) {
+            args.add("-Dhazelcast.config=" + configFilePath);
+        } else {
+            args.add("-Dhazelcast.default.config=" + AbstractCommandLine.WORKING_DIRECTORY + "/config/hazelcast.yaml");
         }
-        args.add("-Dhazelcast.config=" + configFilePath);
         args.add("-Dnetwork.port=" + port);
         args.add("-Dnetwork.interface=" + hzInterface);
         if (javaOptions != null && javaOptions.size() > 0) {
