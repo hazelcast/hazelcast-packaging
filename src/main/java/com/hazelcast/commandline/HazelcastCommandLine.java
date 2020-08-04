@@ -110,7 +110,6 @@ public class HazelcastCommandLine
             args.addAll(javaOptions);
         }
         args.add("-Djava.net.preferIPv4Stack=true");
-
         addLogging(args, verbose, finestVerbose);
 
         buildAndStartJavaProcess(HazelcastMember.class, args, additionalClassPath);
@@ -150,8 +149,6 @@ public class HazelcastCommandLine
             commandList.add("java.base/sun.nio.ch=ALL-UNNAMED");
             commandList.add("--add-opens");
             commandList.add("java.management/sun.management=ALL-UNNAMED");
-            commandList.add("--add-opens");
-            commandList.add("jdk.management/com.ibm.lang.management.internal=ALL-UNNAMED");
             commandList.add("--add-opens");
             commandList.add("jdk.management/com.sun.management.internal=ALL-UNNAMED");
         }
