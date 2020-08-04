@@ -16,55 +16,41 @@
 package com.hazelcast.commandline;
 
 import com.hazelcast.commandline.test.annotation.UnitTest;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
-//import static com.hazelcast.commandline.member.HazelcastProcess.Status.RUNNING;
-//import static com.hazelcast.commandline.member.HazelcastProcess.Status.STOPPED;
-//import static org.mockito.ArgumentMatchers.any;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static com.hazelcast.commandline.AbstractCommandLine.CLASSPATH_SEPARATOR;
+import static com.hazelcast.commandline.AbstractCommandLine.HZ_FINEST_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION;
+import static com.hazelcast.commandline.AbstractCommandLine.HZ_FINE_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION;
+import static com.hazelcast.commandline.AbstractCommandLine.WORKING_DIRECTORY;
 import static org.mockito.ArgumentMatchers.anyList;
-//import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 @Category(UnitTest.class)
 public class HazelcastCommandLineTest {
     private ProcessExecutor processExecutor;
     private HazelcastCommandLine hazelcastCommandLine;
-    private PrintStream out;
-//    private HazelcastProcessStore hazelcastProcessStore;
-//    private HazelcastProcess hazelcastProcess;
-//    private HazelcastProcess hazelcastStoppedProcess;
 
     @Before
-    public void setUp()
-            throws IOException {
-//        hazelcastProcessStore = mock(HazelcastProcessStore.class);
+    public void setUp() {
         processExecutor = mock(ProcessExecutor.class);
         Process process = mock(Process.class);
-        out = mock(PrintStream.class);
-//        hazelcastProcess = mock(HazelcastProcess.class);
-//        when(hazelcastProcess.getStatus()).thenReturn(RUNNING);
-//
-//        hazelcastStoppedProcess = mock(HazelcastProcess.class);
-//        when(hazelcastStoppedProcess.getStatus()).thenReturn(STOPPED);
 
         when(process.getInputStream()).thenReturn(mock(InputStream.class));
-//        when(processExecutor.extractPid(process)).thenReturn(99999);
-//        when(hazelcastProcessStore.create()).thenReturn(hazelcastProcess);
 
-//        hazelcastCommandLine = new MemberCommandLine(out, mock(PrintStream.class), hazelcastProcessStore, processExecutor, false);
-        hazelcastCommandLine = new HazelcastCommandLine(out, mock(PrintStream.class), processExecutor, false);
+        hazelcastCommandLine = new HazelcastCommandLine(mock(PrintStream.class), mock(PrintStream.class), processExecutor, false);
     }
 
     @Test
@@ -76,77 +62,101 @@ public class HazelcastCommandLineTest {
         verify(processExecutor, times(1)).buildAndStart(anyList());
     }
 
-//    @Test
-//    public void test_start_withConfigFile()
-//            throws Exception {
-//        // given
-//        String configFile = "path/to/test-hazelcast.xml";
-//        // when
-//        hazelcastCommandLine.start(configFile, null, null, null, false, null, null);
-//        // then
+    @Test
+    public void test_start_withConfigFile()
+            throws Exception {
+        // given
+        String configFile = "path/to/test-hazelcast.xml";
+        // when
+        hazelcastCommandLine.start(configFile, null, null, null, null, false, false);
+        // then
+        verify(processExecutor)
+                .buildAndStart((List<String>) argThat(Matchers.hasItems("-Dhazelcast.config=" + configFile)));
+    }
+
+    @Test
+    public void test_start_withConfigFile_IncorrectFileFormat()
+            throws Exception {
+        // given
+        String configFile = "path/to/test-hazelcast.incorrect";
+        // when
+        hazelcastCommandLine.start(configFile, null, null, null, null, false, false);
+//         then
 //        verify(processExecutor)
-//                .buildAndStart((List<String>) argThat(Matchers.hasItem("-Dhazelcast.config=" + configFile)), eq(false));
-//    }
-//
-//    @Test
-//    public void test_start_withClusterName()
-//            throws Exception {
-//        // given
-//        String clusterName = "member-command-line-test";
-//        // when
-//        hazelcastCommandLine.start(null, clusterName, null, null, false, null, null);
-//        // then
-//        verify(processExecutor).buildAndStart((List<String>) argThat(Matchers.hasItem("-Dgroup.name=" + clusterName)), eq(false));
-//    }
-//
-//    @Test
-//    public void test_start_withPort()
-//            throws Exception {
-//        // given
-//        String port = "9999";
-//        // when
-//        hazelcastCommandLine.start(null, null, port, null, false, null, null);
-//        // then
-//        verify(processExecutor).buildAndStart((List<String>) argThat(Matchers.hasItem("-Dnetwork.port=" + port)), eq(false));
-//    }
-//
-//    @Test
-//    public void test_start_withInterface()
-//            throws Exception {
-//        // given
-//        String hzInterface = "1.1.1.1";
-//        // when
-//        hazelcastCommandLine.start(null, null, null, hzInterface, false, null, null);
-//        // then
-//        verify(processExecutor).buildAndStart((List<String>) argThat(
-//                Matchers.hasItems("-Dnetwork.interface=" + hzInterface, "-Dbind.any=false", "-Dinterfaces.enabled=true")),
-//                eq(false));
-//    }
-//
-//    @Test
-//    public void test_start_withForeground()
-//            throws Exception {
-//        // given
-//        boolean foreground = true;
-//        // when
-//        hazelcastCommandLine.start(null, null, null, null, foreground, null, null);
-//        // then
-//        verify(processExecutor).buildAndStart(anyList(), eq(foreground));
-//    }
+//                .buildAndStart((List<String>) argThat(Matchers.hasItems("-Dhazelcast.config=" + configFile)));
+    }
 
-    @Test // https://github.com/remkop/picocli/issues/1125
-    public void testSubcommandAsOptionValue() {
-        @CommandLine.Command(name = "app")
-        class App {
-            @CommandLine.Option(names = "-x") String x;
+    @Test
+    public void test_start_withPort()
+            throws Exception {
+        // given
+        String port = "9999";
+        // when
+        hazelcastCommandLine.start(null, port, null, null, null, false, false);
+        // then
+        verify(processExecutor).buildAndStart((List<String>) argThat(Matchers.hasItems("-Dnetwork.port=" + port)));
+    }
 
-            @CommandLine.Command
-            public int search() {
-                return 123;
-            }
+    @Test
+    public void test_start_withInterface()
+            throws Exception {
+        // given
+        String hzInterface = "1.1.1.1";
+        // when
+        hazelcastCommandLine.start(null, null, hzInterface, null, null, false, false);
+        // then
+        verify(processExecutor).buildAndStart((List<String>) argThat(Matchers.hasItems("-Dnetwork.interface=" + hzInterface)));
+    }
+
+    @Test
+    public void test_start_withAdditionalClasspath()
+            throws Exception {
+        // given
+        String[] additonalClasspath = {"class1", "class2"};
+        // when
+        hazelcastCommandLine.start(null, null, null, additonalClasspath, null, false, false);
+        // then
+        StringBuilder out = new StringBuilder();
+        for (String classpath : additonalClasspath) {
+            out.append(CLASSPATH_SEPARATOR).append(classpath);
         }
-        CommandLine.ParseResult parseResult = new CommandLine(new App()).setTrimQuotes(true).parseArgs("-x=\"search\"", "search");
-        assertEquals("search", parseResult.matchedOptionValue("-x", null));
-        assertTrue(parseResult.hasSubcommand());
+        verify(processExecutor).buildAndStart((List<String>) argThat(Matchers.hasItems(Matchers.containsString(out.toString()))));
+    }
+
+    @Test
+    public void test_start_withJavaOpts()
+            throws Exception {
+        // given
+        List<String> javaOpts = new ArrayList<>();
+        javaOpts.add("opt1");
+        javaOpts.add("opt2");
+        // when
+        hazelcastCommandLine.start(null, null, null, null, javaOpts, false, false);
+        // then
+        verify(processExecutor).buildAndStart((List<String>) argThat(Matchers.hasItems(javaOpts.toArray(new String[0]))));
+    }
+
+    @Test
+    public void test_start_withVerbose()
+            throws Exception {
+        // given
+        boolean verbose = true;
+        // when
+        hazelcastCommandLine.start(null, null, null, null, null, verbose, false);
+        // then
+        verify(processExecutor).buildAndStart((List<String>) argThat(Matchers.hasItems(
+                "-Djava.util.logging.config.file=" + WORKING_DIRECTORY + HZ_FINE_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION)));
+    }
+
+    @Test
+    public void test_start_withVVerbose()
+            throws Exception {
+        // given
+        boolean finestVerbose = true;
+        // when
+        hazelcastCommandLine.start(null, null, null, null, null, false, finestVerbose);
+        // then
+        verify(processExecutor).buildAndStart((List<String>) argThat(Matchers.hasItems(
+                "-Djava.util.logging.config.file=" + WORKING_DIRECTORY + HZ_FINEST_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION)));
     }
 }

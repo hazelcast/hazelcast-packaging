@@ -29,6 +29,8 @@ import java.util.Stack;
  */
 public abstract class AbstractCommandLine implements Runnable {
     protected static final String WORKING_DIRECTORY = System.getProperty("hazelcast.commandline.workingdirectory", "distro/src");
+    static final String HZ_FINE_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION = "/config/hazelcast-fine-level-logging.properties";
+    static final String HZ_FINEST_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION = "/config/hazelcast-finest-level-logging.properties";
     static final String CLASSPATH_SEPARATOR = ":";
 
     protected final PrintStream out;
@@ -66,15 +68,20 @@ public abstract class AbstractCommandLine implements Runnable {
 
     protected void addLogging(List<String> args, boolean verbose, boolean finestVerbose) {
         if (verbose) {
-            args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + "/config/hazelcast-fine-level-logging.properties");
+            args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + HZ_FINE_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION);
         }
         if (finestVerbose) {
-            args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + "/config/hazelcast-finest-level-logging.properties");
+            args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + HZ_FINEST_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION);
         }
     }
 
+    /**
+     * {@code picocli.CommandLine.IParameterConsumer} implementation to handle Java options.
+     * Please see the details <a href=https://github.com/remkop/picocli/issues/1125>here</a>.
+     */
     public static class JavaOptionsConsumer implements CommandLine.IParameterConsumer {
-        public void consumeParameters(Stack<String> args, CommandLine.Model.ArgSpec argSpec, CommandLine.Model.CommandSpec commandSpec) {
+        public void consumeParameters(Stack<String> args, CommandLine.Model.ArgSpec argSpec,
+                                      CommandLine.Model.CommandSpec commandSpec) {
             if (args.isEmpty()) {
                 throw new CommandLine.ParameterException(commandSpec.commandLine(),
                         "Error: option '-J', '--JAVA_OPTS' requires a parameter");
