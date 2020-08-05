@@ -16,7 +16,7 @@
 package com.hazelcast.commandline.managementcenter;
 
 import com.hazelcast.commandline.AbstractCommandLine;
-import com.hazelcast.commandline.HazelcastVersionProvider;
+import com.hazelcast.commandline.VersionProvider;
 import com.hazelcast.commandline.ProcessExecutor;
 import picocli.CommandLine;
 
@@ -31,7 +31,7 @@ import static com.hazelcast.internal.util.StringUtil.isNullOrEmpty;
  * Commandline class for Hazelcast Management Center operations
  */
 @CommandLine.Command(name = "mc", description = "Utility for Hazelcast Management Center operations.",
-        versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
+        versionProvider = VersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
 public class ManagementCenterCommandLine extends AbstractCommandLine {
 
     private String mcVersion;
@@ -39,7 +39,7 @@ public class ManagementCenterCommandLine extends AbstractCommandLine {
     public ManagementCenterCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor)
             throws IOException {
         super(out, err, processExecutor, false);
-        mcVersion = new HazelcastVersionProvider().getMcVersion();
+        mcVersion = new VersionProvider().getMcVersion();
     }
 
     @Override
@@ -85,7 +85,7 @@ public class ManagementCenterCommandLine extends AbstractCommandLine {
     private void buildAndStartManagementCenter(List<String> parameters)
             throws IOException, InterruptedException {
         List<String> commandList = new ArrayList<>();
-        String path = System.getProperty("java.home") + SEPARATOR + "bin" + SEPARATOR + "java";
+        String path = System.getProperty("java.home") + NAME_SEPARATOR + "bin" + NAME_SEPARATOR + "java";
         commandList.add(path);
         commandList.add("-cp");
         commandList.add(WORKING_DIRECTORY + "/artifacts/hazelcast-management-center-" + mcVersion + ".war");

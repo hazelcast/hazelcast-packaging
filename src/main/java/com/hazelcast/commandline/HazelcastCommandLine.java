@@ -33,7 +33,7 @@ import static picocli.CommandLine.Option;
  * Main command class for Hazelcast operations
  */
 @Command(name = "hz", description = "Utility for the Hazelcast operations." + "%n%n"
-        + "Global options are:%n", versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
+        + "Global options are:%n", versionProvider = VersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
 public class HazelcastCommandLine
         extends AbstractCommandLine {
 
@@ -59,7 +59,7 @@ public class HazelcastCommandLine
                 .setOut(new PrintWriter(out))
                 .setErr(new PrintWriter(err))
                 .setTrimQuotes(true)
-                .setExecutionExceptionHandler(new HazelcastExceptionHandler());
+                .setExecutionExceptionHandler(new ExceptionHandler());
         cmd.execute(args);
 
         String version = getBuildInfo().getVersion();
@@ -124,7 +124,7 @@ public class HazelcastCommandLine
                 classpath.append(CLASSPATH_SEPARATOR).append(path);
             }
         }
-        String path = System.getProperty("java.home") + SEPARATOR + "bin" + SEPARATOR + "java";
+        String path = System.getProperty("java.home") + NAME_SEPARATOR + "bin" + NAME_SEPARATOR + "java";
         commandList.add(path);
         commandList.add("-cp");
         commandList.add(classpath.toString());

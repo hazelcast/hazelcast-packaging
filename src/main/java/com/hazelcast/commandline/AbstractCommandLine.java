@@ -17,7 +17,6 @@ package com.hazelcast.commandline;
 
 import picocli.CommandLine;
 
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
@@ -29,10 +28,22 @@ import java.util.Stack;
  * Abstract command line class.
  */
 public abstract class AbstractCommandLine implements Runnable {
-    protected static final String WORKING_DIRECTORY = System.getProperty("hazelcast.commandline.workingdirectory", "distro/src");
-    protected static final String SEPARATOR = FileSystems.getDefault().getSeparator();
-    static final String HZ_FINE_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION = "/config/hazelcast-fine-level-logging.properties";
-    static final String HZ_FINEST_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION = "/config/hazelcast-finest-level-logging.properties";
+    /**
+     * Working directory of the distribution
+     */
+    public static final String WORKING_DIRECTORY = System.getProperty("hazelcast.commandline.workingdirectory", "distro/src");
+    /**
+     * Name separator based on the running file system
+     */
+    public static final String NAME_SEPARATOR = FileSystems.getDefault().getSeparator();
+    /**
+     * FINE level logging properties file for java.util.logging
+     */
+    public static final String LOGGING_PROPERTIES_FINE_LEVEL = "/config/hazelcast-fine-level-logging.properties";
+    /**
+     * FINEST level logging properties file for java.util.logging
+     */
+    public static final String LOGGING_PROPERTIES_FINEST_LEVEL = "/config/hazelcast-finest-level-logging.properties";
     static final String CLASSPATH_SEPARATOR = ":";
     static final int MIN_JAVA_VERSION_FOR_MODULAR_OPTIONS = 9;
 
@@ -43,7 +54,6 @@ public abstract class AbstractCommandLine implements Runnable {
     protected ProcessExecutor processExecutor;
     //Process input stream is only needed for test purposes, this flag is used to enable it when needed.
     protected boolean processInputStreamEnabled;
-    protected InputStream processInputStream;
 
     public AbstractCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor,
                                boolean processInputStreamEnabled) {
@@ -53,28 +63,12 @@ public abstract class AbstractCommandLine implements Runnable {
         this.processInputStreamEnabled = processInputStreamEnabled;
     }
 
-    protected void printf(String format, Object... objects) {
-        out.printf(format, objects);
-    }
-
-    protected void println(String msg) {
-        out.println(msg);
-    }
-
-    protected void printlnErr(String msg) {
-        err.println(msg);
-    }
-
-    public InputStream getProcessInputStream() {
-        return processInputStream;
-    }
-
     protected void addLogging(List<String> args, boolean verbose, boolean finestVerbose) {
         if (verbose) {
-            args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + HZ_FINE_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION);
+            args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + LOGGING_PROPERTIES_FINE_LEVEL);
         }
         if (finestVerbose) {
-            args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + HZ_FINEST_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION);
+            args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + LOGGING_PROPERTIES_FINEST_LEVEL);
         }
     }
 

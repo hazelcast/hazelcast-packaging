@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.hazelcast.commandline.AbstractCommandLine.CLASSPATH_SEPARATOR;
-import static com.hazelcast.commandline.AbstractCommandLine.HZ_FINEST_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION;
-import static com.hazelcast.commandline.AbstractCommandLine.HZ_FINE_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION;
+import static com.hazelcast.commandline.AbstractCommandLine.LOGGING_PROPERTIES_FINEST_LEVEL;
+import static com.hazelcast.commandline.AbstractCommandLine.LOGGING_PROPERTIES_FINE_LEVEL;
 import static com.hazelcast.commandline.AbstractCommandLine.WORKING_DIRECTORY;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
@@ -75,15 +75,13 @@ public class HazelcastCommandLineTest {
     }
 
     @Test
-    public void test_start_withConfigFile_IncorrectFileFormat()
+    public void test_start_withoutConfigFile()
             throws Exception {
-        // given
-        String configFile = "path/to/test-hazelcast.incorrect";
         // when
-        hazelcastCommandLine.start(configFile, null, null, null, null, false, false);
-//         then
-//        verify(processExecutor)
-//                .buildAndStart((List<String>) argThat(Matchers.hasItems("-Dhazelcast.config=" + configFile)));
+        hazelcastCommandLine.start(null, null, null, null, null, false, false);
+        // then
+        verify(processExecutor)
+                .buildAndStart((List<String>) argThat(Matchers.hasItems("-Dhazelcast.default.config=" + WORKING_DIRECTORY + "/config/hazelcast.yaml")));
     }
 
     @Test
@@ -145,7 +143,7 @@ public class HazelcastCommandLineTest {
         hazelcastCommandLine.start(null, null, null, null, null, verbose, false);
         // then
         verify(processExecutor).buildAndStart((List<String>) argThat(Matchers.hasItems(
-                "-Djava.util.logging.config.file=" + WORKING_DIRECTORY + HZ_FINE_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION)));
+                "-Djava.util.logging.config.file=" + WORKING_DIRECTORY + LOGGING_PROPERTIES_FINE_LEVEL)));
     }
 
     @Test
@@ -157,6 +155,22 @@ public class HazelcastCommandLineTest {
         hazelcastCommandLine.start(null, null, null, null, null, false, finestVerbose);
         // then
         verify(processExecutor).buildAndStart((List<String>) argThat(Matchers.hasItems(
-                "-Djava.util.logging.config.file=" + WORKING_DIRECTORY + HZ_FINEST_LEVEL_LOGGING_PROPERTIES_FILE_LOCATION)));
+                "-Djava.util.logging.config.file=" + WORKING_DIRECTORY + LOGGING_PROPERTIES_FINEST_LEVEL)));
+    }
+
+    @Test
+    public void test_start_ModularJavaOptions()
+            throws Exception {
+        // given
+        System.setProperty("java.specification.version", "9");
+        // when
+        hazelcastCommandLine.start(null, null, null, null, null, false, false);
+        // then
+        verify(processExecutor).buildAndStart((List<String>) argThat(
+                Matchers.hasItems("--add-modules", "java.se", "--add-exports", "java.base/jdk.internal.ref=ALL-UNNAMED",
+                        "--add-opens", "java.base/java.lang=ALL-UNNAMED", "--add-opens", "java.base/java.nio=ALL-UNNAMED",
+                        "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED", "--add-opens",
+                        "java.management/sun.management=ALL-UNNAMED", "--add-opens",
+                        "jdk.management/com.sun.management.internal=ALL-UNNAMED")));
     }
 }

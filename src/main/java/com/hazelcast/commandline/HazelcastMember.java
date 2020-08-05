@@ -32,10 +32,10 @@ public final class HazelcastMember {
 
     public static void main(String[] args)
             throws Exception {
-        Hazelcast.newHazelcastInstance(getConfig());
+        Hazelcast.newHazelcastInstance(config());
     }
 
-    private static Config getConfig()
+    protected static Config config()
             throws Exception {
         String hazelcastConfig = System.getProperty("hazelcast.config");
         if (!isNullOrEmpty(hazelcastConfig)) {

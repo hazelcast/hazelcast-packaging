@@ -25,17 +25,17 @@ public class ProcessExecutor {
 
     public void buildAndStart(List<String> commandList)
             throws IOException, InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder(commandList);
+        ProcessBuilder processBuilder = createProcessBuilder(commandList);
         processBuilder.redirectErrorStream(true);
         processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         processBuilder.start().waitFor();
     }
 
-    public int exec(List<String> commandList) throws IOException, InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder(commandList);
-        processBuilder.redirectErrorStream(true);
-        Process process = processBuilder.start();
-        return process.waitFor();
+    /**
+     * For test purposes.
+     */
+    protected ProcessBuilder createProcessBuilder(List<String> commandList) {
+        return new ProcessBuilder(commandList);
     }
 }
 
