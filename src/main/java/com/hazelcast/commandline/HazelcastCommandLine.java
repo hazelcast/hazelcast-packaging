@@ -19,8 +19,10 @@ import com.hazelcast.commandline.managementcenter.ManagementCenterCommandLine;
 import picocli.CommandLine;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,8 +58,8 @@ public class HazelcastCommandLine
         ProcessExecutor processExecutor = new ProcessExecutor();
         CommandLine cmd = new CommandLine(new HazelcastCommandLine(out, err, processExecutor))
                 .addSubcommand("mc", new ManagementCenterCommandLine(out, err, processExecutor))
-                .setOut(new PrintWriter(out))
-                .setErr(new PrintWriter(err))
+                .setOut(createPrintWriter(out))
+                .setErr(createPrintWriter(err))
                 .setTrimQuotes(true)
                 .setExecutionExceptionHandler(new ExceptionHandler());
         cmd.execute(args);
@@ -67,6 +69,10 @@ public class HazelcastCommandLine
         if (args.length == 0) {
             cmd.usage(out);
         }
+    }
+
+    private static PrintWriter createPrintWriter(PrintStream printStream) {
+        return new PrintWriter(new OutputStreamWriter(printStream, StandardCharsets.UTF_8));
     }
 
     @Override
