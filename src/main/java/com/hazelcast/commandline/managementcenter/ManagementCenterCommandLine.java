@@ -38,7 +38,7 @@ public class ManagementCenterCommandLine extends AbstractCommandLine {
 
     public ManagementCenterCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor)
             throws IOException {
-        super(out, err, processExecutor, false);
+        super(out, err, processExecutor);
         mcVersion = new VersionProvider().getMcVersion();
     }
 

@@ -15,18 +15,15 @@
 
 package com.hazelcast.commandline;
 
-import com.hazelcast.commandline.test.annotation.UnitTest;
 import com.hazelcast.config.Config;
 import org.junit.After;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-@Category(UnitTest.class)
 public class HazelcastMemberTest {
     @After
     public void clearProperties() {

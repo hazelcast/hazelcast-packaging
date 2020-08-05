@@ -40,12 +40,7 @@ public class HazelcastCommandLine
         extends AbstractCommandLine {
 
     public HazelcastCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor) {
-        super(out, err, processExecutor, false);
-    }
-
-    public HazelcastCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor,
-                                boolean processInputStreamEnabled) {
-        super(out, err, processExecutor, processInputStreamEnabled);
+        super(out, err, processExecutor);
     }
 
     public static void main(String[] args)

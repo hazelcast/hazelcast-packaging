@@ -15,10 +15,8 @@
 
 package com.hazelcast.commandline;
 
-import com.hazelcast.commandline.test.annotation.UnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import picocli.CommandLine;
 
 import java.io.PrintWriter;
@@ -29,7 +27,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Category(UnitTest.class)
 public class ExceptionHandlerTest {
 
     private Exception exception;

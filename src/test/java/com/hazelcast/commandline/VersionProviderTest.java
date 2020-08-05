@@ -15,13 +15,10 @@
 
 package com.hazelcast.commandline;
 
-import com.hazelcast.commandline.test.annotation.UnitTest;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import static org.junit.Assert.assertArrayEquals;
 
-@Category(UnitTest.class)
 public class VersionProviderTest {
     @Test
     public void test_gerVersion() {

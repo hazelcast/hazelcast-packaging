@@ -15,10 +15,8 @@
 
 package com.hazelcast.commandline;
 
-import com.hazelcast.commandline.test.annotation.UnitTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import picocli.CommandLine;
 import picocli.CommandLine.Model.OptionSpec;
 
@@ -29,7 +27,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Category(UnitTest.class)
 public class JavaOptionsConsumerTest {
 
     private CommandLine.Model.ArgSpec argSpec;

@@ -52,15 +52,11 @@ public abstract class AbstractCommandLine implements Runnable {
     @CommandLine.Spec
     protected CommandLine.Model.CommandSpec spec;
     protected ProcessExecutor processExecutor;
-    //Process input stream is only needed for test purposes, this flag is used to enable it when needed.
-    protected boolean processInputStreamEnabled;
 
-    public AbstractCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor,
-                               boolean processInputStreamEnabled) {
+    public AbstractCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor) {
         this.out = out;
         this.err = err;
         this.processExecutor = processExecutor;
-        this.processInputStreamEnabled = processInputStreamEnabled;
     }
 
     protected void addLogging(List<String> args, boolean verbose, boolean finestVerbose) {

@@ -16,11 +16,9 @@
 package com.hazelcast.commandline.managementcenter;
 
 import com.hazelcast.commandline.ProcessExecutor;
-import com.hazelcast.commandline.test.annotation.UnitTest;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +36,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-@Category(UnitTest.class)
 public class ManagementCenterCommandLineTest {
     private ProcessExecutor processExecutor;
     private ManagementCenterCommandLine mcCommandLine;

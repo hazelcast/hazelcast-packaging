@@ -15,11 +15,9 @@
 
 package com.hazelcast.commandline;
 
-import com.hazelcast.commandline.test.annotation.UnitTest;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +36,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
-@Category(UnitTest.class)
 public class HazelcastCommandLineTest {
     private ProcessExecutor processExecutor;
     private HazelcastCommandLine hazelcastCommandLine;
@@ -50,7 +47,7 @@ public class HazelcastCommandLineTest {
 
         when(process.getInputStream()).thenReturn(mock(InputStream.class));
 
-        hazelcastCommandLine = new HazelcastCommandLine(mock(PrintStream.class), mock(PrintStream.class), processExecutor, false);
+        hazelcastCommandLine = new HazelcastCommandLine(mock(PrintStream.class), mock(PrintStream.class), processExecutor);
     }
 
     @Test
