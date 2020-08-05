@@ -50,11 +50,13 @@ public class HazelcastCommandLine
 
     public static void main(String[] args)
             throws IOException {
-        runCommandLine(System.out, System.err, args);
+        runCommandLine(args);
     }
 
-    private static void runCommandLine(PrintStream out, PrintStream err, String[] args)
+    private static void runCommandLine(String[] args)
             throws IOException {
+        PrintStream out = System.out;
+        PrintStream err = System.err;
         ProcessExecutor processExecutor = new ProcessExecutor();
         CommandLine cmd = new CommandLine(new HazelcastCommandLine(out, err, processExecutor))
                 .addSubcommand("mc", new ManagementCenterCommandLine(out, err, processExecutor))
