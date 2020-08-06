@@ -6,19 +6,23 @@ This tool runs under Unix-like environments only.
 
 ## Usage
 
-Firstly, build the package with `maven`:
+Firstly, build the distribution:
 
 ```
-mvn clean install
+cd distro/
+make
 ```
 
-Then, use the following command to run the tool:
+After running the `make` command successfully, navigate to `distro/build/dist/bin` folder and run the `./hazelcast` script:  
 
 ```
-java -jar target/hazelcast-command-line-0.2-SNAPSHOT-jar-with-dependencies.jar
+cd build/dist/bin
+./hazelcast
 ```
 
 This will print the usage options. You can follow the instructions in the output.
+
+The compressed distribution package is also available at `distro/build/package/` folder. You can extract & use it. 
 
 ## Checkstyle validation
 
