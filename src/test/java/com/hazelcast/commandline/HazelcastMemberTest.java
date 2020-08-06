@@ -16,6 +16,7 @@
 package com.hazelcast.commandline;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.InvalidConfigurationException;
 import org.junit.After;
 import org.junit.Test;
 
@@ -72,5 +73,16 @@ public class HazelcastMemberTest {
         Config config = HazelcastMember.config();
         // then
         assertEquals("hz-xml-configured-cluster", config.getClusterName());
+    }
+
+    @Test(expected = InvalidConfigurationException.class)
+    public void test_config_invalidConfig()
+            throws Exception {
+        // given
+        System.setProperty("hazelcast.config", "src/test/resources/invalid-hazelcast.yaml");
+        // when
+        HazelcastMember.config();
+        // then
+        // Exception expected
     }
 }

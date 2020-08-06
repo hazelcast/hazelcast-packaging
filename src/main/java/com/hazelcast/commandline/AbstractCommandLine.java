@@ -59,15 +59,6 @@ public abstract class AbstractCommandLine implements Runnable {
         this.processExecutor = processExecutor;
     }
 
-    protected void addLogging(List<String> args, boolean verbose, boolean finestVerbose) {
-        if (verbose) {
-            args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + LOGGING_PROPERTIES_FINE_LEVEL);
-        }
-        if (finestVerbose) {
-            args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + LOGGING_PROPERTIES_FINEST_LEVEL);
-        }
-    }
-
     /**
      * {@code picocli.CommandLine.IParameterConsumer} implementation to handle Java options.
      * Please see the details <a href=https://github.com/remkop/picocli/issues/1125>here</a>.
@@ -87,6 +78,15 @@ public abstract class AbstractCommandLine implements Runnable {
             String arg = args.pop();
             String[] splitArgs = arg.split(argSpec.splitRegex());
             Collections.addAll(list, splitArgs);
+        }
+    }
+
+    protected void addLogging(List<String> args, boolean verbose, boolean finestVerbose) {
+        if (verbose) {
+            args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + LOGGING_PROPERTIES_FINE_LEVEL);
+        }
+        if (finestVerbose) {
+            args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + LOGGING_PROPERTIES_FINEST_LEVEL);
         }
     }
 }

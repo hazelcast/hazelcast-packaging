@@ -16,10 +16,16 @@
 package com.hazelcast.commandline;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.ConfigStream;
 import com.hazelcast.config.FileSystemXmlConfig;
 import com.hazelcast.config.FileSystemYamlConfig;
 import com.hazelcast.config.InterfacesConfig;
+import com.hazelcast.config.InvalidConfigurationException;
 import com.hazelcast.core.Hazelcast;
+import com.hazelcast.internal.config.MemberXmlConfigRootTagRecognizer;
+import com.hazelcast.internal.config.MemberYamlConfigRootTagRecognizer;
+
+import java.io.FileInputStream;
 
 import static com.hazelcast.internal.util.StringUtil.isNullOrEmpty;
 
@@ -53,10 +59,12 @@ public final class HazelcastMember {
 
     private static Config createConfig(String configPath)
             throws Exception {
-        try {
+        if (new MemberYamlConfigRootTagRecognizer().isRecognized(new ConfigStream(new FileInputStream(configPath)))) {
             return new FileSystemYamlConfig(configPath);
-        } catch (Exception e) {
+        } else if (new MemberXmlConfigRootTagRecognizer().isRecognized(new ConfigStream(new FileInputStream(configPath)))) {
             return new FileSystemXmlConfig(configPath);
+        } else {
+            throw new InvalidConfigurationException("Provided configuration file is invalid.");
         }
     }
 }
