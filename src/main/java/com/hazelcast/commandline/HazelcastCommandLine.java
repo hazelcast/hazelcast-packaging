@@ -91,7 +91,7 @@ public class HazelcastCommandLine
                     + "classpath (Use ',' to separate multiple paths). You can add jars, classes, or the directories that contain classes/jars.")
                     String[] additionalClassPath,
             @Option(names = {"-J", "--JAVA_OPTS"}, paramLabel = "<option>", parameterConsumer = JavaOptionsConsumer.class,
-                    description = "Specify additional Java <option> (Use ',' to separate multiple options).")
+                    split = ",", description = "Specify additional Java <option> (Use ',' to separate multiple options).")
                     List<String> javaOptions,
             @Option(names = {"-v", "--verbose"},
                     description = "Output with FINE level verbose logging.")
