@@ -1,2 +1,2 @@
 hazelcast:
-  cluster-name: hz-cluster
+  cluster-name: dev

@@ -18,42 +18,28 @@ package com.hazelcast.commandline;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
-import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
 /**
- * Abstract command line class.
+ * Abstract command line class. The methods and properties in this class are shared in other commandline implementations.
  */
-public abstract class AbstractCommandLine implements Runnable {
-    /**
-     * Working directory of the distribution
-     */
-    public static final String WORKING_DIRECTORY = System.getProperty("hazelcast.commandline.workingdirectory", "distro/src");
-    /**
-     * Name separator based on the running file system
-     */
-    public static final String NAME_SEPARATOR = FileSystems.getDefault().getSeparator();
-    /**
-     * FINE level logging properties file for java.util.logging
-     */
-    public static final String LOGGING_PROPERTIES_FINE_LEVEL = "/config/hazelcast-fine-level-logging.properties";
-    /**
-     * FINEST level logging properties file for java.util.logging
-     */
-    public static final String LOGGING_PROPERTIES_FINEST_LEVEL = "/config/hazelcast-finest-level-logging.properties";
+abstract class AbstractCommandLine implements Runnable {
+    static final String WORKING_DIRECTORY = System.getProperty("hazelcast.commandline.workingdirectory", "distro/src");
+    static final String LOGGING_PROPERTIES_FINE_LEVEL = "/config/hazelcast-fine-level-logging.properties";
+    static final String LOGGING_PROPERTIES_FINEST_LEVEL = "/config/hazelcast-finest-level-logging.properties";
     static final String CLASSPATH_SEPARATOR = ":";
     static final int MIN_JAVA_VERSION_FOR_MODULAR_OPTIONS = 9;
 
-    protected final PrintStream out;
-    protected final PrintStream err;
+    final PrintStream out;
+    final PrintStream err;
     @CommandLine.Spec
-    protected CommandLine.Model.CommandSpec spec;
-    protected ProcessExecutor processExecutor;
+    CommandLine.Model.CommandSpec spec;
+    ProcessExecutor processExecutor;
 
-    public AbstractCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor) {
+    AbstractCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor) {
         this.out = out;
         this.err = err;
         this.processExecutor = processExecutor;
@@ -63,7 +49,7 @@ public abstract class AbstractCommandLine implements Runnable {
      * {@code picocli.CommandLine.IParameterConsumer} implementation to handle Java options.
      * Please see the details <a href=https://github.com/remkop/picocli/issues/1125>here</a>.
      */
-    public static class JavaOptionsConsumer implements CommandLine.IParameterConsumer {
+    static class JavaOptionsConsumer implements CommandLine.IParameterConsumer {
         public void consumeParameters(Stack<String> args, CommandLine.Model.ArgSpec argSpec,
                                       CommandLine.Model.CommandSpec commandSpec) {
             if (args.isEmpty()) {
@@ -81,7 +67,7 @@ public abstract class AbstractCommandLine implements Runnable {
         }
     }
 
-    protected void addLogging(List<String> args, boolean verbose, boolean finestVerbose) {
+    void addLogging(List<String> args, boolean verbose, boolean finestVerbose) {
         if (verbose) {
             args.add("-Djava.util.logging.config.file=" + WORKING_DIRECTORY + LOGGING_PROPERTIES_FINE_LEVEL);
         }

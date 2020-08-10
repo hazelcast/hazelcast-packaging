@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Handler for OS level process operations.
+ * Handler for process operations.
  */
 public class ProcessExecutor {
 

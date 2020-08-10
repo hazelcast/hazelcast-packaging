@@ -13,11 +13,8 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.hazelcast.commandline.managementcenter;
+package com.hazelcast.commandline;
 
-import com.hazelcast.commandline.AbstractCommandLine;
-import com.hazelcast.commandline.VersionProvider;
-import com.hazelcast.commandline.ProcessExecutor;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -53,7 +50,7 @@ public class ManagementCenterCommandLine extends AbstractCommandLine {
     @CommandLine.Command(description = "Starts a new Hazelcast Management Center instance", mixinStandardHelpOptions = true)
     public void start(
             @CommandLine.Option(names = {"-c", "--context-path"}, paramLabel = "<context-path>",
-                    description = "Bind to the specified <context-path>.")
+                    description = "Bind to the specified <context-path> which is the path that Management Center runs.")
                     String contextPath,
             @CommandLine.Option(names = {"-p", "--port"}, paramLabel = "<port>",
                     description = "Bind to the specified <port>.", defaultValue = "8080")
@@ -85,7 +82,7 @@ public class ManagementCenterCommandLine extends AbstractCommandLine {
     private void buildAndStartManagementCenter(List<String> parameters)
             throws IOException, InterruptedException {
         List<String> commandList = new ArrayList<>();
-        String path = System.getProperty("java.home") + NAME_SEPARATOR + "bin" + NAME_SEPARATOR + "java";
+        String path = System.getProperty("java.home") + "/bin/java";
         commandList.add(path);
         commandList.add("-cp");
         commandList.add(WORKING_DIRECTORY + "/artifacts/hazelcast-management-center-" + mcVersion + ".war");

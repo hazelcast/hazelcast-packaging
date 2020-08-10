@@ -15,7 +15,6 @@
 
 package com.hazelcast.commandline;
 
-import com.hazelcast.commandline.managementcenter.ManagementCenterCommandLine;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -115,10 +114,10 @@ public class HazelcastCommandLine
         args.add("-Djava.net.preferIPv4Stack=true");
         addLogging(args, verbose, finestVerbose);
 
-        buildAndStartJavaProcess(HazelcastMember.class, args, additionalClassPath);
+        buildAndStartJavaProcess(args, additionalClassPath);
     }
 
-    private void buildAndStartJavaProcess(Class aClass, List<String> parameters, String[] additionalClassPath)
+    private void buildAndStartJavaProcess(List<String> parameters, String[] additionalClassPath)
             throws IOException, InterruptedException {
         List<String> commandList = new ArrayList<>();
         StringBuilder classpath = new StringBuilder(System.getProperty("java.class.path"));
@@ -127,13 +126,13 @@ public class HazelcastCommandLine
                 classpath.append(CLASSPATH_SEPARATOR).append(path);
             }
         }
-        String path = System.getProperty("java.home") + NAME_SEPARATOR + "bin" + NAME_SEPARATOR + "java";
+        String path = System.getProperty("java.home") + "/bin/java";
         commandList.add(path);
         commandList.add("-cp");
         commandList.add(classpath.toString());
         commandList.addAll(parameters);
         fixModularJavaOptions(commandList);
-        commandList.add(aClass.getName());
+        commandList.add(HazelcastMember.class.getName());
         processExecutor.buildAndStart(commandList);
     }
 

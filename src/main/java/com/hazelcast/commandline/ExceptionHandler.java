@@ -23,7 +23,7 @@ import java.io.PrintWriter;
 /**
  * Exception handler for processing the tool & Hazelcast related errors
  */
-public class ExceptionHandler
+class ExceptionHandler
         implements CommandLine.IExecutionExceptionHandler {
     @Override
     public int handleExecutionException(Exception ex, CommandLine commandLine, CommandLine.ParseResult parseResult) {

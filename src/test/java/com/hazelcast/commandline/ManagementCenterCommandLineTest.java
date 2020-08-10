@@ -13,9 +13,8 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.hazelcast.commandline.managementcenter;
+package com.hazelcast.commandline;
 
-import com.hazelcast.commandline.ProcessExecutor;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
