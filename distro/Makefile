@@ -31,8 +31,6 @@ dist:
 	mkdir -p ${HZ_LIB}
 	cp src/README.txt ${DIST}
 	cp src/bin/hazelcast ${HZ_BIN}
-	for f in ${HZ_BIN}/* ; do sed -i '.bak' 's/$${hazelcast_version}/${HAZELCAST_VERSION}/g' $$f ; done
-	rm -f ${HZ_BIN}/*.bak
 	chmod +x ${HZ_BIN}/*
 
 get-artifacts: dist
