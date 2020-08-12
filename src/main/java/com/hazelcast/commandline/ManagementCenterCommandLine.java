@@ -29,11 +29,11 @@ import static com.hazelcast.internal.util.StringUtil.isNullOrEmpty;
  */
 @CommandLine.Command(name = "mc", description = "Utility for Hazelcast Management Center operations.",
         versionProvider = VersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
-public class ManagementCenterCommandLine extends AbstractCommandLine {
+class ManagementCenterCommandLine extends AbstractCommandLine {
 
     private String mcVersion;
 
-    public ManagementCenterCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor)
+    ManagementCenterCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor)
             throws IOException {
         super(out, err, processExecutor);
         mcVersion = new VersionProvider().getMcVersion();
@@ -48,7 +48,7 @@ public class ManagementCenterCommandLine extends AbstractCommandLine {
     }
 
     @CommandLine.Command(description = "Starts a new Hazelcast Management Center instance", mixinStandardHelpOptions = true)
-    public void start(
+    void start(
             @CommandLine.Option(names = {"-c", "--context-path"}, paramLabel = "<context-path>",
                     description = "Bind to the specified <context-path> which is the path that Management Center runs.")
                     String contextPath,

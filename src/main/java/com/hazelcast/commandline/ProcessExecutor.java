@@ -21,9 +21,9 @@ import java.util.List;
 /**
  * Handler for process operations.
  */
-public class ProcessExecutor {
+class ProcessExecutor {
 
-    public void buildAndStart(List<String> commandList)
+    void buildAndStart(List<String> commandList)
             throws IOException, InterruptedException {
         ProcessBuilder processBuilder = createProcessBuilder(commandList);
         processBuilder.redirectErrorStream(true);
@@ -34,7 +34,7 @@ public class ProcessExecutor {
     /**
      * For test purposes.
      */
-    protected ProcessBuilder createProcessBuilder(List<String> commandList) {
+    ProcessBuilder createProcessBuilder(List<String> commandList) {
         return new ProcessBuilder(commandList);
     }
 }

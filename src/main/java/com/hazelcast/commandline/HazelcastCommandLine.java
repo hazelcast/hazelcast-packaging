@@ -35,10 +35,10 @@ import static picocli.CommandLine.Option;
  */
 @Command(name = "hz", description = "Utility for the Hazelcast operations." + "%n%n"
         + "Global options are:%n", versionProvider = VersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
-public class HazelcastCommandLine
+class HazelcastCommandLine
         extends AbstractCommandLine {
 
-    public HazelcastCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor) {
+    HazelcastCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor) {
         super(out, err, processExecutor);
     }
 
@@ -76,7 +76,7 @@ public class HazelcastCommandLine
     }
 
     @Command(description = "Starts a new Hazelcast IMDG member", mixinStandardHelpOptions = true, sortOptions = false)
-    public void start(
+    void start(
             @Option(names = {"-c", "--config"}, paramLabel = "<file>", description = "Use <file> for Hazelcast configuration. "
                     + "Accepted formats are XML and YAML. ")
                     String configFilePath,

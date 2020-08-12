@@ -32,7 +32,7 @@ import static com.hazelcast.internal.util.StringUtil.isNullOrEmpty;
 /**
  * Class for starting new Hazelcast members
  */
-public final class HazelcastMember {
+final class HazelcastMember {
     private HazelcastMember() {
     }
 
@@ -41,7 +41,7 @@ public final class HazelcastMember {
         Hazelcast.newHazelcastInstance(config());
     }
 
-    protected static Config config()
+    static Config config()
             throws Exception {
         String hazelcastConfig = System.getProperty("hazelcast.config");
         if (!isNullOrEmpty(hazelcastConfig)) {

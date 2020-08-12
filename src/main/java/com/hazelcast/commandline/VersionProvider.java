@@ -23,7 +23,7 @@ import java.util.Properties;
 /**
  * Implementation of {@link picocli.CommandLine.IVersionProvider} for providing version information.
  */
-public class VersionProvider
+class VersionProvider
         implements CommandLine.IVersionProvider {
     protected static final String TOOL_VERSION_NAME = "tool.version";
     protected static final String HZ_VERSION_NAME = "hz.version";
@@ -33,7 +33,7 @@ public class VersionProvider
     private final String hzVersion;
     private final String mcVersion;
 
-    public VersionProvider()
+    VersionProvider()
             throws IOException {
         Properties commandlineProperties = new Properties();
         commandlineProperties.load(getClass().getClassLoader().getResourceAsStream("version.properties"));
@@ -42,7 +42,7 @@ public class VersionProvider
         mcVersion = commandlineProperties.getProperty(MC_VERSION_NAME);
     }
 
-    protected VersionProvider(String toolVersion, String hzVersion, String mcVersion) {
+    VersionProvider(String toolVersion, String hzVersion, String mcVersion) {
         this.toolVersion = toolVersion;
         this.hzVersion = hzVersion;
         this.mcVersion = mcVersion;
@@ -54,7 +54,7 @@ public class VersionProvider
                             "Hazelcast Management Center included: " + mcVersion};
     }
 
-    public String getMcVersion() {
+    String getMcVersion() {
         return mcVersion;
     }
 }

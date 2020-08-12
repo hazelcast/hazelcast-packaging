@@ -54,7 +54,7 @@ abstract class AbstractCommandLine implements Runnable {
                                       CommandLine.Model.CommandSpec commandSpec) {
             if (args.isEmpty()) {
                 throw new CommandLine.ParameterException(commandSpec.commandLine(),
-                        "Error: option '-J', '--JAVA_OPTS' requires a parameter");
+                        "Missing required parameter for option '--JAVA_OPTS' (<option>)");
             }
             List<String> list = argSpec.getValue();
             if (list == null) {
