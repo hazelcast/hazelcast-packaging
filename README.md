@@ -13,7 +13,7 @@ cd distro/
 make
 ```
 
-After running the `make` command successfully, navigate to `distro/build/dist/bin` folder and run the `./hazelcast` script:  
+After running the `make` command successfully, navigate to `distro/build/dist/bin` folder and run the `./hz` script:  
 
 ```
 cd build/dist/bin
