@@ -37,7 +37,7 @@ dist:
 	mkdir -p ${HZ_CFG}
 	mkdir -p ${HZ_LIB}
 	cp src/README.txt ${DIST}
-	cp src/bin/hazelcast ${HZ_BIN}
+	cp src/bin/hz ${HZ_BIN}
 	chmod +x ${HZ_BIN}/*
 
 get-artifacts: dist

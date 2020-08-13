@@ -17,7 +17,7 @@ After running the `make` command successfully, navigate to `distro/build/dist/bi
 
 ```
 cd build/dist/bin
-./hazelcast
+./hz
 ```
 
 This will print the usage options. You can follow the instructions in the output.
