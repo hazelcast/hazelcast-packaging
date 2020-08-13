@@ -85,7 +85,7 @@ class ManagementCenterCommandLine extends AbstractCommandLine {
         String path = System.getProperty("java.home") + "/bin/java";
         commandList.add(path);
         commandList.add("-cp");
-        commandList.add(WORKING_DIRECTORY + "/artifacts/hazelcast-management-center-" + mcVersion + ".war");
+        commandList.add(WORKING_DIRECTORY + "/artifacts/hazelcast-management-center-" + mcVersion + ".jar");
         commandList.addAll(parameters);
         commandList.add("com.hazelcast.webmonitor.Launcher");
         processExecutor.buildAndStart(commandList);
