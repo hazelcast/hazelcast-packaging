@@ -46,7 +46,7 @@ get-artifacts: dist
 	cp ../target/hazelcast-command-line-*-jar-with-dependencies.jar ${HZ_LIB}/hazelcast-command-line.jar
 	wget -O ${MC_INSTALL_TAR} http://download.hazelcast.com/management-center/${MC_INSTALL_TAR}
 	tar -zxf ${MC_INSTALL_TAR}
-	rm -rf ${MC_INSTALL_TAR}
+	rm ${MC_INSTALL_TAR}
 	mv ${MC_INSTALL_NAME}/${MC_INSTALL_JAR} ${HZ_ARTIFACTS}
 	rm -rf ${MC_INSTALL_NAME}
 	cp src/config/hazelcast-*-logging.properties ${HZ_CFG}
