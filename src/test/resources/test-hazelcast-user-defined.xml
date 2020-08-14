@@ -13,22 +13,17 @@
   ~ WARRANTIES OF ANY KIND, either express or implied. See the License for the
   ~ specific language governing permissions and limitations under the License.
   -->
+
+<!--
+    The default Hazelcast configuration. This is used when no hazelcast.xml is present.
+    Please see the schema for how to configure Hazelcast at https://hazelcast.com/schema/config/hazelcast-config-3.10.xsd
+    or the documentation at https://hazelcast.org/documentation/
+-->
 <!--suppress XmlDefaultAttributeValue -->
 <hazelcast xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.12.xsd"
-           xmlns="http://www.hazelcast.com/schema/config">
-    <group>
-        <name>${group.name}</name>
-    </group>
+           xmlns="http://www.hazelcast.com/schema/config"
+           xsi:schemaLocation="http://www.hazelcast.com/schema/config
+           http://www.hazelcast.com/schema/config/hazelcast-config-4.0.xsd">
 
-    <network>
-        <port auto-increment="true" port-count="100">${network.port}</port>
-        <interfaces enabled="${interfaces.enabled}">
-            <interface>${network.interface}</interface>
-        </interfaces>
-    </network>
-
-    <properties>
-        <property name="hazelcast.socket.bind.any">${bind.any}</property>
-    </properties>
+    <cluster-name>hz-xml-configured-cluster</cluster-name>
 </hazelcast>

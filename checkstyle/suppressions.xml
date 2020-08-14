@@ -52,26 +52,4 @@
             checks="ExplicitInitialization|EqualsHashCode|MissingSwitchDefault|TrailingComment"
             files="[\\/]src[\\/]test[\\/]"/>
 
-    <suppress
-            checks="FileLength|MethodLength|LineLength|AnonInnerLength|MethodCount|ReturnCount|ExecutableStatementCount"
-            files="[\\/]src[\\/]test-acceptance[\\/]"/>
-    <suppress
-            checks="Javadoc|MagicNumber|ClassDataAbstractionCoupling|ClassFanOutComplexityCheck|IllegalImport|IllegalType"
-            files="[\\/]src[\\/]test-acceptance[\\/]"/>
-    <suppress
-            checks="NPathComplexity|CyclomaticComplexity|BooleanExpressionComplexity|RegexpSinglelineJava"
-            files="[\\/]src[\\/]test-acceptance[\\/]"/>
-    <suppress
-            checks="TypeName|MemberName|ConstantName|LocalVariableName|LocalFinalVariableName|MethodName"
-            files="[\\/]src[\\/]test-acceptance[\\/]"/>
-    <suppress
-            checks="FinalClass|HideUtilityClassConstructor|InnerAssignment|EmptyBlock|DeclarationOrder|VisibilityModifier"
-            files="[\\/]src[\\/]test-acceptance[\\/]"/>
-    <suppress
-            checks="ExplicitInitialization|EqualsHashCode|MissingSwitchDefault|TrailingComment"
-            files="[\\/]src[\\/]test-acceptance[\\/]"/>
-    <suppress
-            checks="PackageDeclarationCheck"
-            files="[\\/]src[\\/]test-acceptance[\\/]"/>
-
 </suppressions>

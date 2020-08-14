@@ -15,34 +15,26 @@
 
 package com.hazelcast.commandline;
 
+import com.hazelcast.internal.util.StringUtil;
 import picocli.CommandLine;
-import picocli.CommandLine.ExecutionException;
-import picocli.CommandLine.ParseResult;
+
+import java.io.PrintWriter;
 
 /**
- * Handler class for exceptions during the command run
- *
- * @param <R> the type of the parsed command
+ * Exception handler for processing the tool & Hazelcast related errors
  */
-public class ExceptionHandler<R>
-        extends CommandLine.DefaultExceptionHandler<R> {
+class ExceptionHandler
+        implements CommandLine.IExecutionExceptionHandler {
     @Override
-    public R handleExecutionException(ExecutionException ex, ParseResult parseResult) {
-        CommandLine cmdLine = ex.getCommandLine();
-        while (cmdLine.getParent() != null) {
-            cmdLine = cmdLine.getParent();
-        }
-        HazelcastCommandLine hzCmd = cmdLine.getCommand();
-        if (hzCmd.isVerbose) {
-            ex.printStackTrace(err());
+    public int handleExecutionException(Exception ex, CommandLine commandLine, CommandLine.ParseResult parseResult) {
+        PrintWriter err = commandLine.getErr();
+        CommandLine.Help.ColorScheme colorScheme = commandLine.getColorScheme();
+        if (!StringUtil.isNullOrEmpty(ex.getMessage())) {
+            err.println(colorScheme.errorText(ex.getMessage()));
         } else {
-            err().println("ERROR: " + ex.getCause().getMessage());
-            err().println();
-            err().println("To see the full stack trace, please re-run with the -v/--verbosity option at the top level command");
+            ex.printStackTrace(err);
         }
-        if (hasExitCode()) {
-            exit(exitCode());
-        }
-        throw ex;
+        commandLine.usage(err, colorScheme);
+        return 0;
     }
 }

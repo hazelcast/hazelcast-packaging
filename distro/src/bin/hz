@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# find the current directory and set the parent directory as HAZELCAST_HOME.
+PRGDIR="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)"
+export HAZELCAST_HOME=${HAZELCAST_HOME:-$(cd "$PRGDIR/.." >/dev/null; pwd -P)}
+
+if [ $JAVA_HOME ] ; then
+    RUN_JAVA=$JAVA_HOME/bin/java
+else
+    RUN_JAVA=`which java 2>/dev/null`
+fi
+
+if [ -z $RUN_JAVA ] ; then
+    echo "Error: JRE not found. Please install JRE 8 or higher in your PATH or set JAVA_HOME appropriately"
+    exit 1
+fi
+
+export CLASSPATH="$HAZELCAST_HOME/lib/**"
+
+HZ_CMD="${RUN_JAVA} -cp ${CLASSPATH} ${JAVA_OPTS} -Dhazelcast.commandline.workingdirectory=${HAZELCAST_HOME} com.hazelcast.commandline.HazelcastCommandLine"
+
+${HZ_CMD} "$@"

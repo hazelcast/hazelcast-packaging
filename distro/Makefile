@@ -1,8 +1,16 @@
-HAZELCAST_VERSION=0.2-SNAPSHOT
+include ../src/main/resources/version.properties
+CLI_VERSION=1.0-SNAPSHOT
+MC_VERSION=${mc.version}
 
 DIST=build/dist
 HZ_BIN=${DIST}/bin
+HZ_ARTIFACTS=${DIST}/artifacts
+HZ_CFG=${DIST}/config
 HZ_LIB=${DIST}/lib
+
+MC_INSTALL_NAME=hazelcast-management-center-${MC_VERSION}
+MC_INSTALL_TAR=${MC_INSTALL_NAME}.tar.gz
+MC_INSTALL_JAR=hazelcast-management-center-${MC_VERSION}.jar
 
 .PHONY: all clean clean-all clean-dist get-artifacts dist package
 
@@ -15,6 +23,7 @@ clean: clean-dist
 clean-all:
 	# cleaning up everything
 	rm -fr build
+	rm -fr ${MC_INSTALL_NAME}
 
 clean-dist:
 	# cleaning up dist
@@ -24,20 +33,27 @@ dist:
 	# copying docs and scripts
 	mkdir -p ${DIST}
 	mkdir -p ${HZ_BIN}
+	mkdir -p ${HZ_ARTIFACTS}
+	mkdir -p ${HZ_CFG}
 	mkdir -p ${HZ_LIB}
 	cp src/README.txt ${DIST}
-	cp src/hazelcast ${HZ_BIN}
-	for f in ${HZ_BIN}/* ; do sed -i '.bak' 's/$${hazelcast_version}/${HAZELCAST_VERSION}/g' $$f ; done
-	rm -f ${HZ_BIN}/*.bak
+	cp src/bin/hz ${HZ_BIN}
 	chmod +x ${HZ_BIN}/*
 
 get-artifacts: dist
 	# get cli artifacts
 	cd .. && mvn clean package && cd -
 	cp ../target/hazelcast-command-line-*-jar-with-dependencies.jar ${HZ_LIB}/hazelcast-command-line.jar
+	wget -O ${MC_INSTALL_TAR} http://download.hazelcast.com/management-center/${MC_INSTALL_TAR}
+	tar -zxf ${MC_INSTALL_TAR}
+	rm ${MC_INSTALL_TAR}
+	mv ${MC_INSTALL_NAME}/${MC_INSTALL_JAR} ${HZ_ARTIFACTS}
+	rm -rf ${MC_INSTALL_NAME}
+	cp src/config/hazelcast-*-logging.properties ${HZ_CFG}
+	cp src/config/hazelcast.yaml ${HZ_CFG}
 
 package:
 	# creating package
 	mkdir -p build/package
-	tar -zcf build/package/hazelcast-command-line-${HAZELCAST_VERSION}.tar.gz -C ${DIST} README.txt bin lib
-	@echo "Archive build/package/hazelcast-command-line-${HAZELCAST_VERSION}.tar.gz created successfully"
+	tar -zcf build/package/hazelcast-command-line-${CLI_VERSION}.tar.gz -C ${DIST} README.txt bin lib config artifacts
+	@echo "Archive build/package/hazelcast-command-line-${CLI_VERSION}.tar.gz created successfully"

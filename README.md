@@ -6,27 +6,23 @@ This tool runs under Unix-like environments only.
 
 ## Usage
 
-Firstly, build the package with `maven`:
+Firstly, build the distribution:
 
 ```
-mvn clean install
+cd distro/
+make
 ```
 
-Then, use the following command to run the tool:
+After running the `make` command successfully, navigate to `distro/build/dist/bin` folder and run the `./hz` script:  
 
 ```
-java -jar target/hazelcast-command-line-0.2-SNAPSHOT-jar-with-dependencies.jar
+cd build/dist/bin
+./hz
 ```
 
 This will print the usage options. You can follow the instructions in the output.
 
-## Running acceptance tests
-
-Since this tool interacts with OS to run the commands, it has separate acceptance tests kept under `src/test-acceptance` folder. Note that you need a Unix-like environment to run these tests. To run these tests, please run the following command:
-
-```
-mvn clean verify
-```   
+The compressed distribution package is also available at `distro/build/package/` folder. You can extract & use it. 
 
 ## Checkstyle validation
 

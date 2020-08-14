@@ -15,75 +15,145 @@
 
 package com.hazelcast.commandline;
 
-import com.hazelcast.commandline.member.HazelcastProcessStore;
-import com.hazelcast.commandline.member.MemberCommandLine;
-import com.hazelcast.commandline.member.ProcessExecutor;
-import com.hazelcast.core.HazelcastException;
 import picocli.CommandLine;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.nio.file.FileSystems;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.hazelcast.instance.BuildInfoProvider.getBuildInfo;
+import static com.hazelcast.internal.util.StringUtil.isNullOrEmpty;
 import static picocli.CommandLine.Command;
-import static picocli.CommandLine.DefaultExceptionHandler;
-import static picocli.CommandLine.Help;
 import static picocli.CommandLine.Option;
-import static picocli.CommandLine.RunAll;
 
 /**
- * Main command class for Hazelcast IMDG operations
+ * Main command class for Hazelcast operations
  */
-@Command(name = "hazelcast", description = "Utility for the Hazelcast IMDG operations." + "%n%n"
-        + "Global options are:%n", versionProvider = HazelcastVersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
-public class HazelcastCommandLine
-        implements Runnable {
+@Command(name = "hz", description = "Utility for the Hazelcast operations." + "%n%n"
+        + "Global options are:%n", versionProvider = VersionProvider.class, mixinStandardHelpOptions = true, sortOptions = false)
+class HazelcastCommandLine
+        extends AbstractCommandLine {
 
-    /**
-     * File system separator of the runtime environment
-     */
-    public static final String SEPARATOR = FileSystems.getDefault().getSeparator();
-
-    @Option(names = {"-v", "--verbosity"}, description = {"Show logs from Hazelcast and full stack trace of errors"}, order = 1)
-    protected boolean isVerbose;
-
-    public static void main(String[] args) {
-        runCommandLine(System.out, System.err, true, args);
+    HazelcastCommandLine(PrintStream out, PrintStream err, ProcessExecutor processExecutor) {
+        super(out, err, processExecutor);
     }
 
-    private static void runCommandLine(PrintStream out, PrintStream err, boolean shouldExit, String[] args) {
-        checkIfEnvSupported();
-        String hazelcastHome = System.getProperty("user.home") + "/.hazelcast";
-        CommandLine cmd = new CommandLine(new HazelcastCommandLine()).addSubcommand("member",
-                new MemberCommandLine(out, err, new HazelcastProcessStore(hazelcastHome), new ProcessExecutor()));
+    public static void main(String[] args)
+            throws IOException {
+        runCommandLine(args);
+    }
+
+    private static void runCommandLine(String[] args)
+            throws IOException {
+        PrintStream out = System.out;
+        PrintStream err = System.err;
+        ProcessExecutor processExecutor = new ProcessExecutor();
+        CommandLine cmd = new CommandLine(new HazelcastCommandLine(out, err, processExecutor))
+                .addSubcommand("mc", new ManagementCenterCommandLine(out, err, processExecutor))
+                .setOut(createPrintWriter(out))
+                .setErr(createPrintWriter(err))
+                .setTrimQuotes(true)
+                .setExecutionExceptionHandler(new ExceptionHandler());
+        cmd.execute(args);
 
         String version = getBuildInfo().getVersion();
         cmd.getCommandSpec().usageMessage().header("Hazelcast IMDG " + version);
         if (args.length == 0) {
             cmd.usage(out);
-        } else {
-            DefaultExceptionHandler<List<Object>> excHandler = new ExceptionHandler<List<Object>>().useErr(err)
-                                                                                                   .useAnsi(Help.Ansi.AUTO);
-            if (shouldExit) {
-                excHandler.andExit(1);
-            }
-            List<Object> parsed = cmd.parseWithHandlers(new RunAll().useOut(out).useAnsi(Help.Ansi.AUTO), excHandler, args);
-            // when only top command was executed, print usage info
-            if (parsed != null && parsed.size() == 1) {
-                cmd.usage(out);
-            }
         }
     }
 
-    private static void checkIfEnvSupported() {
-        String osName = System.getProperty("os.name");
-        if (!osName.equals("Linux") && !osName.contains("OS X") && !osName.equals("SunOS") && !osName.equals("AIX")) {
-            throw new HazelcastException("Platforms other than Unix-like are not supported right now.");
-        }
+    private static PrintWriter createPrintWriter(PrintStream printStream) {
+        return new PrintWriter(new OutputStreamWriter(printStream, StandardCharsets.UTF_8));
     }
 
     @Override
     public void run() {
     }
+
+    @Command(description = "Starts a new Hazelcast IMDG member", mixinStandardHelpOptions = true, sortOptions = false)
+    void start(
+            @Option(names = {"-c", "--config"}, paramLabel = "<file>", description = "Use <file> for Hazelcast configuration. "
+                    + "Accepted formats are XML and YAML. ")
+                    String configFilePath,
+            @Option(names = {"-p", "--port"}, paramLabel = "<port>",
+                    description = "Bind to the specified <port>. Please note that if the specified port is in use, "
+                            + "it will auto-increment to the first free port. (default: 5701)", defaultValue = "5701")
+                    String port,
+            @Option(names = {"-i", "--interface"}, paramLabel = "<interface>",
+                    description = "Bind to the specified <interface> (default: bind to all interfaces).", defaultValue = "127.0.0.1")
+                    String hzInterface,
+            @Option(names = {"-j", "--jar"}, paramLabel = "<path>", split = ",", description = "Add <path> to Hazelcast "
+                    + "classpath (Use ',' to separate multiple paths). You can add jars, classes, or the directories that contain classes/jars.")
+                    String[] additionalClassPath,
+            @Option(names = {"-J", "--JAVA_OPTS"}, paramLabel = "<option>", parameterConsumer = JavaOptionsConsumer.class,
+                    split = ",", description = "Specify additional Java <option> (Use ',' to separate multiple options).")
+                    List<String> javaOptions,
+            @Option(names = {"-v", "--verbose"},
+                    description = "Output with FINE level verbose logging.")
+                    boolean verbose,
+            @Option(names = {"-vv", "--vverbose"},
+                    description = "Output with FINEST level verbose logging.")
+                    boolean finestVerbose)
+            throws IOException, InterruptedException {
+        List<String> args = new ArrayList<>();
+        if (!isNullOrEmpty(configFilePath)) {
+            args.add("-Dhazelcast.config=" + configFilePath);
+        } else {
+            args.add("-Dhazelcast.default.config=" + AbstractCommandLine.WORKING_DIRECTORY + "/config/hazelcast.yaml");
+        }
+        args.add("-Dnetwork.port=" + port);
+        args.add("-Dnetwork.interface=" + hzInterface);
+        if (javaOptions != null && javaOptions.size() > 0) {
+            args.addAll(javaOptions);
+        }
+        args.add("-Djava.net.preferIPv4Stack=true");
+        addLogging(args, verbose, finestVerbose);
+
+        buildAndStartJavaProcess(args, additionalClassPath);
+    }
+
+    private void buildAndStartJavaProcess(List<String> parameters, String[] additionalClassPath)
+            throws IOException, InterruptedException {
+        List<String> commandList = new ArrayList<>();
+        StringBuilder classpath = new StringBuilder(System.getProperty("java.class.path"));
+        if (additionalClassPath != null) {
+            for (String path : additionalClassPath) {
+                classpath.append(CLASSPATH_SEPARATOR).append(path);
+            }
+        }
+        String path = System.getProperty("java.home") + "/bin/java";
+        commandList.add(path);
+        commandList.add("-cp");
+        commandList.add(classpath.toString());
+        commandList.addAll(parameters);
+        fixModularJavaOptions(commandList);
+        commandList.add(HazelcastMember.class.getName());
+        processExecutor.buildAndStart(commandList);
+    }
+
+    private void fixModularJavaOptions(List<String> commandList) {
+        double javaVersion = Double.parseDouble(System.getProperty("java.specification.version"));
+        if (javaVersion >= MIN_JAVA_VERSION_FOR_MODULAR_OPTIONS) {
+            commandList.add("--add-modules");
+            commandList.add("java.se");
+            commandList.add("--add-exports");
+            commandList.add("java.base/jdk.internal.ref=ALL-UNNAMED");
+            commandList.add("--add-opens");
+            commandList.add("java.base/java.lang=ALL-UNNAMED");
+            commandList.add("--add-opens");
+            commandList.add("java.base/java.nio=ALL-UNNAMED");
+            commandList.add("--add-opens");
+            commandList.add("java.base/sun.nio.ch=ALL-UNNAMED");
+            commandList.add("--add-opens");
+            commandList.add("java.management/sun.management=ALL-UNNAMED");
+            commandList.add("--add-opens");
+            commandList.add("jdk.management/com.sun.management.internal=ALL-UNNAMED");
+        }
+    }
+
 }

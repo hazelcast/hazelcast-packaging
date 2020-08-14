@@ -15,16 +15,27 @@
 
 package com.hazelcast.commandline;
 
-import picocli.CommandLine;
-
-import static com.hazelcast.instance.BuildInfoProvider.getBuildInfo;
+import java.io.IOException;
+import java.util.List;
 
 /**
- * Implementation of {@link picocli.CommandLine.IVersionProvider} for providing Hazelcast version.
+ * Handler for process operations.
  */
-public class HazelcastVersionProvider
-        implements CommandLine.IVersionProvider {
-    public String[] getVersion() {
-        return new String[]{getBuildInfo().getVersion()};
+class ProcessExecutor {
+
+    void buildAndStart(List<String> commandList)
+            throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = createProcessBuilder(commandList);
+        processBuilder.redirectErrorStream(true);
+        processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        processBuilder.start().waitFor();
+    }
+
+    /**
+     * For test purposes.
+     */
+    ProcessBuilder createProcessBuilder(List<String> commandList) {
+        return new ProcessBuilder(commandList);
     }
 }
+
