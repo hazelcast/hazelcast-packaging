@@ -31,3 +31,6 @@ jobs:
 
       - name: Make
         run: cd distro && make
+
+      - name: Run CLI
+        run: distro/build/dist/bin/hz
