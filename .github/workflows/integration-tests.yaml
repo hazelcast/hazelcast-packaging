@@ -33,4 +33,8 @@ jobs:
         run: cd distro && make
 
       - name: Run CLI
-        run: distro/build/dist/bin/hz start
+        run: distro/build/dist/bin/hz start > log.txt 2>&1 &
+
+      - name: Check output
+        if: !(cat log.txt | grep "Members {size:1")
+        run: exit 1
