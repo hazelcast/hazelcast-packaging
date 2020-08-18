@@ -32,8 +32,14 @@ jobs:
       - name: Make
         run: cd distro && make
 
-      - name: Run CLI
-        run: distro/build/dist/bin/hz start > log.txt 2>&1 &
+      - name: Run CLI for IMDG
+        run: distro/build/dist/bin/hz start > log-imdg.txt 2>&1 &
 
       - name: Check output
-        run: sleep 30s && cat log.txt | grep "Members {size:1"
+        run: sleep 15s && cat log-imdg.txt | grep "Members {size:1"
+
+      - name: Run CLI for MC
+        run: distro/build/dist/bin/hz mc start > log-mc.txt 2>&1 &
+
+      - name: Check output
+        run: sleep 15s && cat log-mc.txt | grep "Hazelcast Management Center successfully started at"
