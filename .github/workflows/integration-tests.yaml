@@ -36,5 +36,4 @@ jobs:
         run: distro/build/dist/bin/hz start > log.txt 2>&1 &
 
       - name: Check output
-        if: false == (cat log.txt | grep "Members {size:1")
-        run: exit 1
+        run: cat log.txt | grep "Members {size:1"
