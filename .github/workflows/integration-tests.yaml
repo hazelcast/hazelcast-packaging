@@ -33,4 +33,4 @@ jobs:
         run: cd distro && make
 
       - name: Run CLI
-        run: distro/build/dist/bin/hz
+        run: distro/build/dist/bin/hz start
