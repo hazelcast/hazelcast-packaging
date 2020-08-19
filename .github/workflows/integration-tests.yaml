@@ -33,10 +33,21 @@ jobs:
         run: cd distro && make
 
       - name: Run CLI for IMDG
-        run: distro/build/dist/bin/hz start -c src/test/resources/integration-test-hazelcast.yaml
+        run: distro/build/dist/bin/hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
       - name: Check IMDG health
-        run: curl 127.0.0.1:5701/hazelcast/health/ready
+        run: |
+          attempts=0
+          max_attempts=10
+          until $(curl --fail "127.0.0.1:5701/hazelcast/health/ready"); do
+            if [ ${attempts} -eq ${max_attempts} ];then
+                echo "Hazelcast not responding"
+                exit 1
+            fi
+            printf '.'
+            attempts=$(($attempts+1))
+            sleep 1
+          done
 
       - name: Run CLI for MC
         run: distro/build/dist/bin/hz mc start > log-mc.txt 2>&1 &
