@@ -52,7 +52,7 @@ jobs:
       - name: Run CLI for MC
         run: distro/build/dist/bin/hz mc start -J -Dhazelcast.mc.healthCheck.enable=true &
 
-      - name: Check output
+      - name: Check MC health
         run: |
           attempts=0
           max_attempts=10
