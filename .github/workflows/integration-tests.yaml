@@ -33,7 +33,7 @@ jobs:
         run: cd distro && make
 
       - name: Run CLI for IMDG
-        run: distro/build/dist/bin/hz start -x src/test/resources/integration-test-hazelcast.yaml &
+        run: distro/build/dist/bin/hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
       - name: Check IMDG health
         run: |
@@ -50,7 +50,18 @@ jobs:
           done
 
       - name: Run CLI for MC
-        run: distro/build/dist/bin/hz mc start > log-mc.txt 2>&1 &
+        run: distro/build/dist/bin/hz mc start -J -Dhazelcast.mc.healthCheck.enable=true &
 
       - name: Check output
-        run: sleep 15s && cat log-mc.txt | grep "Hazelcast Management Center successfully started at"
+        run: |
+          attempts=0
+          max_attempts=10
+          until $(curl --output /dev/null --silent --fail "localhost:8080/health"); do
+            if [ ${attempts} -eq ${max_attempts} ];then
+                echo "Hazelcast MC not responding"
+                exit 1
+            fi
+            printf '.'
+            attempts=$(($attempts+1))
+            sleep 1
+          done
