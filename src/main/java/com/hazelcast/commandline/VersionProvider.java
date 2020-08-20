@@ -50,8 +50,8 @@ class VersionProvider
 
     public String[] getVersion() {
         return new String[]{"CLI tool: " + toolVersion,
-                            "Hazelcast IMDG included: " + hzVersion,
-                            "Hazelcast Management Center included: " + mcVersion};
+                            "Hazelcast IMDG: " + hzVersion,
+                            "Hazelcast Management Center: " + mcVersion};
     }
 
     String getMcVersion() {

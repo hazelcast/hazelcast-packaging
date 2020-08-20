@@ -27,8 +27,8 @@ public class VersionProviderTest {
         String hzVersion = "hzVersion";
         String mcVersion = "mcVersion";
         String[] expected = {"CLI tool: " + toolVersion,
-                             "Hazelcast IMDG included: " + hzVersion,
-                             "Hazelcast Management Center included: " + mcVersion};
+                             "Hazelcast IMDG: " + hzVersion,
+                             "Hazelcast Management Center: " + mcVersion};
         // when
         String[] version = new VersionProvider(toolVersion, hzVersion, mcVersion).getVersion();
         // then
