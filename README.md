@@ -42,6 +42,15 @@ $ hz start -c /full/path/to/config-file.yaml
 
 Please note that only XML and YAML configurations are supported and a full path is required. If `-c, --config=<file>` option is not set then the configuration file at `[INSTALLATION_DIR]/config/hazelcast.yaml` is used. You can update this file to configure starting Hazelcast members.
 
+Additionally, you can see which file is used to configure Hazelcast instance at the first log line after start. Please see an example output below:
+
+```
+$ ./hz start
+Aug 21, 2020 1:40:04 PM com.hazelcast.config.FileSystemYamlConfig
+INFO: Configuring Hazelcast from '/Users/myuser/hazelcast-command-line/distro/build/dist/config/hazelcast.yaml'.
+...
+``` 
+
 ### How to start a Hazelcast member with additional Java options
 
 The following command will allow you to start a Hazelcast member with additional Java options:
