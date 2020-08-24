@@ -47,7 +47,8 @@ class ManagementCenterCommandLine extends AbstractCommandLine {
         }
     }
 
-    @CommandLine.Command(description = "Starts a new Hazelcast Management Center instance", mixinStandardHelpOptions = true)
+    @CommandLine.Command(description = "Starts a new Hazelcast Management Center instance", mixinStandardHelpOptions = true,
+            sortOptions = false)
     void start(
             @CommandLine.Option(names = {"-c", "--context-path"}, paramLabel = "<context-path>",
                     description = "Bind to the specified <context-path> which is the path that Management Center runs.")
