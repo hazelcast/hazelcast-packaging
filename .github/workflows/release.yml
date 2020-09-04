@@ -1,0 +1,95 @@
+name: publish-release
+on:
+  push:
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v4.2020.08.2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ '8' ]
+        architecture: [ 'x64' ]
+    name: CLI Release Automation
+    steps:
+      - uses: actions/checkout@v2.3.2
+
+      - name: Setup JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+          architecture: ${{ matrix.architecture }}
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Make
+        run: cd distro && make
+
+      - name: Set RELEASE & RELEASE_INFO
+        run: |
+          echo ::set-env name=RELEASE::$(echo ${{ github.ref }} | cut -c 12-)
+          echo ::set-env name=RELEASE_INFO::$(distro/build/dist/bin/hz -V)
+
+      - name: Set ASSET_NAME
+        run: |
+          echo ::set-env name=ASSET_NAME::$(printf "hazelcast-command-line-%s.tar.gz" ${{ env.RELEASE }})
+
+      - name: Set ASSET_PATH
+        run: |
+          echo ::set-env name=ASSET_PATH::$(printf "distro/build/package/%s" ${{ env.ASSET_NAME }})
+
+      - name: Set ASSET_SHASUM
+        run: |
+          echo ::set-env name=ASSET_SHASUM::$(sha256sum ${{ env.ASSET_PATH }} | cut -d ' ' -f 1)
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ env.RELEASE }}
+          body: |
+            Hazelcast Command Line ${{ env.RELEASE }} release
+            # Version Info
+            ${{ env.RELEASE_INFO }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.ASSET_PATH }}
+          asset_name: ${{ env.ASSET_NAME }}
+          asset_content_type: application/zip
+
+      - name: Checkout homebrew-tap repo
+        uses: actions/checkout@v2.3.1
+        with:
+          repository: hazelcast/homebrew-tap
+          ref: master
+          token: ${{ secrets.DEVOPS_SECRET }}
+
+      - name: Change the artifact in homebrew-tap
+        run: |
+          sed -i 's+url.*$+url "${{ steps.upload-release-asset.outputs.browser_download_url }}"+g' hazelcast.rb
+          sed -i 's+sha256.*$+sha256 "${{ env.ASSET_SHASUM }}"+g' hazelcast.rb
+
+      - name: Commit changes
+        run: |
+          git config --global user.name 'devOpsHazelcast'
+          git config --global user.email 'devops@hazelcast.com'
+          git commit -am "Hazelcast Command Line ${{ env.RELEASE }} release"
+
+      - name: Push to homebrew-tap repo
+        run: git push
