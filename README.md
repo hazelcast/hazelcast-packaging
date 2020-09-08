@@ -40,7 +40,7 @@ $ brew install hazelcast
 
 ### Install manually with archive package
 
-Please download the latest archive package from this repository's [releases section](https://github.com/hazelcast/hazelcast-command-line/releases). Once you downloaded, you can extract it any location and start using Hazelcast Command Line:
+Please download the latest archive package from this repository's [releases section](https://github.com/hazelcast/hazelcast-command-line/releases). Once you downloaded, you can extract it and start using Hazelcast Command Line as follows:
 
 ```
 $ wget https://github.com/hazelcast/hazelcast-command-line/releases/download/v4.2020.08.1/hazelcast-command-line-4.2020.08.1.tar.gz
