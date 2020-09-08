@@ -1,5 +1,3 @@
-hazelcast controls Hazelcast IMDG member instances
+Hazelcast Command Line is a tool which allows users to install & run Hazelcast IMDG and Management Center on local environment.
 
-Usage: hazelcast COMMAND
-
-Run 'hazelcast --help' for more information.
+Run 'hz --help' for more information.

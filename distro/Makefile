@@ -54,6 +54,7 @@ get-artifacts: dist
 
 package:
 	# creating package
-	mkdir -p build/package
-	tar -zcf build/package/hazelcast-command-line-${CLI_VERSION}.tar.gz -C ${DIST} README.txt bin lib config artifacts
+	mkdir -p build/package/hazelcast-command-line-${CLI_VERSION}
+	cp -r ${DIST}/ build/package/hazelcast-command-line-${CLI_VERSION}
+	tar -zcf build/package/hazelcast-command-line-${CLI_VERSION}.tar.gz -C build/package hazelcast-command-line-${CLI_VERSION}
 	@echo "Archive build/package/hazelcast-command-line-${CLI_VERSION}.tar.gz created successfully"
