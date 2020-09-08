@@ -5,6 +5,9 @@ Hazelcast Command Line is a tool which allows users to install & run Hazelcast I
 ## Table of Contents
 
 * [Requirements](#requirements)
+* [Installation](#installation)
+    * [Install on macOS with Homebrew](#install-on-macos-with-homebrew)
+    * [Install manually with archive package](#install-manually-with-archive-package)
 * [Basic Usages](#basic-usages)
     * [How to start a Hazelcast member](#how-to-start-a-hazelcast-member)
     * [How to start a Hazelcast member with custom configuration](#how-to-start-a-hazelcast-member-with-custom-configuration)
@@ -21,6 +24,29 @@ Hazelcast Command Line is a tool which allows users to install & run Hazelcast I
 
 - This tool runs under Unix-like environments only.
 - JRE 8+ should be installed.
+
+## Installation
+
+You can install Hazelcast Command Line using [Homebrew](https://brew.sh/) on macOS or manually on other operating systems. Support for other package managers such as [yum](http://yum.baseurl.org/) and [apt](https://wiki.debian.org/Apt) are in progress.
+
+### Install on macOS with Homebrew 
+
+To install with Homebrew, you first need to tap the `hazelcast/hz-tap` repository. Once you’ve tapped the repo, you can use `brew install` to install:
+
+```
+$ brew tap hazelcast/hz-tap
+$ brew install hazelcast
+```
+
+### Install manually with archive package
+
+Please download the latest archive package from this repository's [releases section](https://github.com/hazelcast/hazelcast-command-line/releases). Once you downloaded, you can extract it and start using Hazelcast Command Line as follows:
+
+```
+$ wget https://github.com/hazelcast/hazelcast-command-line/releases/download/v4.2020.08.1/hazelcast-command-line-4.2020.08.1.tar.gz
+$ tar -xzvf hazelcast-command-line-4.2020.08.1.tar.gz
+$ ./bin/hz
+``` 
 
 ## Basic Usages
 
