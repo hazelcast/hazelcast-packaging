@@ -27,7 +27,7 @@ Hazelcast Command Line is a tool which allows users to install & run Hazelcast I
 
 ## Installation
 
-You can install Hazelcast Command Line using [Homebrew](https://brew.sh/) on macOS or manually on other operating systems.
+You can install Hazelcast Command Line using [Homebrew](https://brew.sh/) on macOS or manually on other operating systems. Support for other package managers such as [yum](http://yum.baseurl.org/) and [apt](https://wiki.debian.org/Apt) are in progress.
 
 ### Install on macOS with Homebrew 
 
