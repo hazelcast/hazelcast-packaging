@@ -1,5 +1,5 @@
 include ../src/main/resources/version.properties
-CLI_VERSION=4.2020.09-SNAPSHOT
+CLI_VERSION=4.2020.09
 MC_VERSION=${mc.version}
 
 DIST=build/dist
