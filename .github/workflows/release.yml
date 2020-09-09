@@ -73,14 +73,14 @@ jobs:
           asset_name: ${{ env.ASSET_NAME }}
           asset_content_type: application/zip
 
-      - name: Checkout homebrew-tap repo
+      - name: Checkout homebrew-hz repo
         uses: actions/checkout@v2.3.1
         with:
-          repository: hazelcast/homebrew-tap
+          repository: hazelcast/homebrew-hz
           ref: master
           token: ${{ secrets.DEVOPS_SECRET }}
 
-      - name: Change the artifact in homebrew-tap
+      - name: Change the artifact in homebrew-hz
         run: |
           sed -i 's+url.*$+url "${{ steps.upload-release-asset.outputs.browser_download_url }}"+g' hazelcast.rb
           sed -i 's+sha256.*$+sha256 "${{ env.ASSET_SHASUM }}"+g' hazelcast.rb
@@ -91,5 +91,5 @@ jobs:
           git config --global user.email 'devops@hazelcast.com'
           git commit -am "Hazelcast Command Line ${{ env.RELEASE }} release"
 
-      - name: Push to homebrew-tap repo
+      - name: Push to homebrew-hz repo
         run: git push

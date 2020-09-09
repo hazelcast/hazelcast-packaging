@@ -43,9 +43,10 @@ $ brew install hazelcast
 Please download the latest archive package from this repository's [releases section](https://github.com/hazelcast/hazelcast-command-line/releases). Once you downloaded, you can extract it and start using Hazelcast Command Line as follows:
 
 ```
-$ wget https://github.com/hazelcast/hazelcast-command-line/releases/download/v4.2020.08.1/hazelcast-command-line-4.2020.08.1.tar.gz
-$ tar -xzvf hazelcast-command-line-4.2020.08.1.tar.gz
-$ ./bin/hz
+$ wget https://github.com/hazelcast/hazelcast-command-line/releases/download/v4.2020.09/hazelcast-command-line-4.2020.09.tar.gz
+$ tar -xzvf hazelcast-command-line-4.2020.09.tar.gz
+$ cd hazelcast-command-line-4.2020.09/bin
+$ ./hz
 ``` 
 
 ## Basic Usages
@@ -125,7 +126,7 @@ This command prints Hazelcast IMDG, Management Center and the tool's version inf
 
 ```
 $ hz -V
-CLI tool: 4.2020.08.1
+CLI tool: 4.2020.09
 Hazelcast IMDG: 4.1-BETA-1
 Hazelcast Management Center: 4.2020.08
 ```
