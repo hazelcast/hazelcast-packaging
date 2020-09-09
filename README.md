@@ -126,7 +126,7 @@ This command prints Hazelcast IMDG, Management Center and the tool's version inf
 ```
 $ hz -V
 CLI tool: 4.2020.08.1
-Hazelcast IMDG: 4.0.2
+Hazelcast IMDG: 4.1-BETA-1
 Hazelcast Management Center: 4.2020.08
 ```
 
