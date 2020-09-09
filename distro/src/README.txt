@@ -1,3 +1,3 @@
-Hazelcast Command Line is a tool which allows users to install & run Hazelcast IMDG and Management Center on local environment.
+Hazelcast Command Line is a tool that allows users to install & run Hazelcast IMDG and Management Center on the local environment.
 
 Run 'hz --help' for more information.
