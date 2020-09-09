@@ -31,10 +31,10 @@ You can install Hazelcast Command Line using [Homebrew](https://brew.sh/) on mac
 
 ### Install on macOS with Homebrew 
 
-To install with Homebrew, you first need to tap the `hazelcast/hz-tap` repository. Once you’ve tapped the repo, you can use `brew install` to install:
+To install with Homebrew, you first need to tap the `hazelcast/hz` repository. Once you’ve tapped the repo, you can use `brew install` to install:
 
 ```
-$ brew tap hazelcast/hz-tap
+$ brew tap hazelcast/hz
 $ brew install hazelcast
 ```
 
