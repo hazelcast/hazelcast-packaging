@@ -86,7 +86,11 @@ The following command will allow you to start a Hazelcast member with additional
 $ hz start -J <option1>,<option2>
 ``` 
 
-You can use `,` to separate multiple paths. Please note that class path settings (such as `-cp`, `-jar`) are **not** allowed.
+You can use `,` to separate multiple paths. Please note that class path settings (such as `-cp`, `-jar`) are **not** allowed. Instead, use the `-j <path1>,<path2>` option to add classes or JAR files to the classpath:
+
+```
+$ hz start -j lib/domain-classes.jar
+```
 
 When you run `hz start` command with any available option, it starts a Hazelcast instance in the foreground. Please use Ctrl+C (SIGINT) to gracefully stop the running instance. For all other available options, refer to `hz start --help`. 
 
@@ -167,3 +171,4 @@ Please use the following command to run [SpotBugs](https://spotbugs.github.io/) 
 ```
 mvn -P spotbugs clean compile
 ```
+
