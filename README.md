@@ -86,13 +86,21 @@ The following command will allow you to start a Hazelcast member with additional
 $ hz start -J <option1>,<option2>
 ``` 
 
-You can use `,` to separate multiple paths. Please note that class path settings (such as `-cp`, `-jar`) are **not** allowed. Instead, use the `-j <path1>,<path2>` option to add classes or JAR files to the classpath:
+You can use `,` to separate multiple options. Please note that class path settings (such as `-cp`, `-jar`) are **not** allowed (See [this section](#how-to-start-a-hazelcast-member-with-additional-classpath) to add classes or JAR files to the classpath).
+
+### How to start a Hazelcast member with additional classpath
+
+You can run the following command to start a Hazelcast member with additional classes or JAR files in the classpath:
 
 ```
-$ hz start -j lib/domain-classes.jar
+$ hz start -j <path1>,<path2>
 ```
 
-When you run `hz start` command with any available option, it starts a Hazelcast instance in the foreground. Please use Ctrl+C (SIGINT) to gracefully stop the running instance. For all other available options, refer to `hz start --help`. 
+Please use `,` to separate multiple paths to classes or JAR files. 
+
+When you run `hz start` command with any available option, it starts a Hazelcast instance in the foreground. Please use Ctrl+C (SIGINT) to gracefully stop the running instance. 
+
+For all other available options, refer to `hz start --help`. 
 
 ### How to start a Hazelcast Management Center
 
@@ -120,9 +128,11 @@ The following command will allow you to start a Hazelcast Management Center with
 $ hz mc start -J <option1>,<option2>
 ``` 
 
-You can use `,` to separate multiple paths. Please note that class path settings (such as `-cp`, `-jar`) are **not** allowed. 
+You can use `,` to separate multiple options. Please note that class path settings (such as `-cp`, `-jar`) are **not** allowed. 
 
-When you run `hz mc start` command with any available option, it starts a Hazelcast Management Center instance in the foreground. Please use Ctrl+C (SIGINT) to gracefully stop the running instance. For all other available options, refer to `hz mc start --help`. 
+When you run `hz mc start` command with any available option, it starts a Hazelcast Management Center instance in the foreground. Please use Ctrl+C (SIGINT) to gracefully stop the running instance. 
+
+For all other available options, refer to `hz mc start --help`. 
 
 ### How to print version information
 
