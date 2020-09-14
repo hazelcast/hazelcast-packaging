@@ -12,6 +12,7 @@ Hazelcast Command Line is a tool which allows users to install & run Hazelcast I
     * [How to start a Hazelcast member](#how-to-start-a-hazelcast-member)
     * [How to start a Hazelcast member with custom configuration](#how-to-start-a-hazelcast-member-with-custom-configuration)
     * [How to start a Hazelcast member with additional Java options](#how-to-start-a-hazelcast-management-center-with-additional-java-options)
+    * [How to start a Hazelcast member with additional classpath](#how-to-start-a-hazelcast-member-with-additional-classpath)
     * [How to start a Hazelcast Management Center](#how-to-start-a-hazelcast-management-center)
     * [How to start a Hazelcast Management Center with custom context path and port](#how-to-start-a-hazelcast-management-center-with-custom-context-path-and-port)
     * [How to start a Hazelcast Management Center with additional Java options](#how-to-start-a-hazelcast-management-center-with-additional-java-options)
@@ -86,9 +87,21 @@ The following command will allow you to start a Hazelcast member with additional
 $ hz start -J <option1>,<option2>
 ``` 
 
-You can use `,` to separate multiple paths. Please note that class path settings (such as `-cp`, `-jar`) are **not** allowed.
+You can use `,` to separate multiple options. Please note that class path settings (such as `-cp`, `-jar`) are **not** allowed (See [this section](#how-to-start-a-hazelcast-member-with-additional-classpath) to add classes or JAR files to the classpath).
 
-When you run `hz start` command with any available option, it starts a Hazelcast instance in the foreground. Please use Ctrl+C (SIGINT) to gracefully stop the running instance. For all other available options, refer to `hz start --help`. 
+### How to start a Hazelcast member with additional classpath
+
+You can run the following command to start a Hazelcast member with additional classes or JAR files in the classpath:
+
+```
+$ hz start -j <path1>,<path2>
+```
+
+Please use `,` to separate multiple paths to classes or JAR files. 
+
+When you run `hz start` command with any available option, it starts a Hazelcast instance in the foreground. Please use Ctrl+C (SIGINT) to gracefully stop the running instance. 
+
+For all other available options, refer to `hz start --help`. 
 
 ### How to start a Hazelcast Management Center
 
@@ -116,9 +129,11 @@ The following command will allow you to start a Hazelcast Management Center with
 $ hz mc start -J <option1>,<option2>
 ``` 
 
-You can use `,` to separate multiple paths. Please note that class path settings (such as `-cp`, `-jar`) are **not** allowed. 
+You can use `,` to separate multiple options. Please note that class path settings (such as `-cp`, `-jar`) are **not** allowed. 
 
-When you run `hz mc start` command with any available option, it starts a Hazelcast Management Center instance in the foreground. Please use Ctrl+C (SIGINT) to gracefully stop the running instance. For all other available options, refer to `hz mc start --help`. 
+When you run `hz mc start` command with any available option, it starts a Hazelcast Management Center instance in the foreground. Please use Ctrl+C (SIGINT) to gracefully stop the running instance. 
+
+For all other available options, refer to `hz mc start --help`. 
 
 ### How to print version information
 
@@ -167,3 +182,4 @@ Please use the following command to run [SpotBugs](https://spotbugs.github.io/) 
 ```
 mvn -P spotbugs clean compile
 ```
+
