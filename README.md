@@ -12,6 +12,7 @@ Hazelcast Command Line is a tool which allows users to install & run Hazelcast I
     * [How to start a Hazelcast member](#how-to-start-a-hazelcast-member)
     * [How to start a Hazelcast member with custom configuration](#how-to-start-a-hazelcast-member-with-custom-configuration)
     * [How to start a Hazelcast member with additional Java options](#how-to-start-a-hazelcast-management-center-with-additional-java-options)
+    * [How to start a Hazelcast member with additional classpath](#how-to-start-a-hazelcast-member-with-additional-classpath)
     * [How to start a Hazelcast Management Center](#how-to-start-a-hazelcast-management-center)
     * [How to start a Hazelcast Management Center with custom context path and port](#how-to-start-a-hazelcast-management-center-with-custom-context-path-and-port)
     * [How to start a Hazelcast Management Center with additional Java options](#how-to-start-a-hazelcast-management-center-with-additional-java-options)
