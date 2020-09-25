@@ -104,7 +104,7 @@ class HazelcastCommandLine
         if (!isNullOrEmpty(configFilePath)) {
             args.add("-Dhazelcast.config=" + configFilePath);
         } else {
-            args.add("-Dhazelcast.default.config=" + AbstractCommandLine.WORKING_DIRECTORY + "/config/hazelcast.yaml");
+            args.add("-Dhazelcast.default.config=" + AbstractCommandLine.WORKING_DIRECTORY + "/bin/hazelcast.xml");
         }
         args.add("-Dnetwork.port=" + port);
         args.add("-Dnetwork.interface=" + hzInterface);

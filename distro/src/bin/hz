@@ -23,7 +23,7 @@ export HAZELCAST_HOME=${HAZELCAST_HOME:-$(cd "$PRGDIR/.." >/dev/null; pwd -P)}
 if [ $JAVA_HOME ] ; then
     RUN_JAVA=$JAVA_HOME/bin/java
 else
-    RUN_JAVA=`which java 2>/dev/null`
+    RUN_JAVA=`command -v java 2>/dev/null`
 fi
 
 if [ -z $RUN_JAVA ] ; then
@@ -31,7 +31,7 @@ if [ -z $RUN_JAVA ] ; then
     exit 1
 fi
 
-export CLASSPATH="$HAZELCAST_HOME/lib/**"
+export CLASSPATH="$HAZELCAST_HOME/lib/hazelcast-command-line-CLI_VERSION.jar:$HAZELCAST_HOME/lib/hazelcast-all-HZ_VERSION.jar"
 
 HZ_CMD="${RUN_JAVA} -cp ${CLASSPATH} ${JAVA_OPTS} -Dhazelcast.commandline.workingdirectory=${HAZELCAST_HOME} com.hazelcast.commandline.HazelcastCommandLine"
 
