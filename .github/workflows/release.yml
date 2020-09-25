@@ -30,18 +30,22 @@ jobs:
       - name: Make
         run: cd distro && make
 
+      - name: Set HZ_VERSION
+        run: |
+          echo ::set-env name=HZ_VERSION::$(grep '<hazelcast.version>' pom.xml | sed "s@.*<hazelcast.version>\(.*\)</hazelcast.version>.*@\1@")
+
       - name: Set RELEASE & RELEASE_INFO
         run: |
           echo ::set-env name=RELEASE::$(echo ${{ github.ref }} | cut -c 12-)
-          echo ::set-env name=RELEASE_INFO::$(distro/build/dist/bin/hz -V)
+          echo ::set-env name=RELEASE_INFO::$(distro/build/dist/hazelcast-${{ env.HZ_VERSION }}/bin/hz -V)
 
       - name: Set ASSET_NAME
         run: |
-          echo ::set-env name=ASSET_NAME::$(printf "hazelcast-command-line-%s.tar.gz" ${{ env.RELEASE }})
+          echo ::set-env name=ASSET_NAME::$(printf "hazelcast-%s.tar.gz" ${{ env.HZ_VERSION }})
 
       - name: Set ASSET_PATH
         run: |
-          echo ::set-env name=ASSET_PATH::$(printf "distro/build/package/%s" ${{ env.ASSET_NAME }})
+          echo ::set-env name=ASSET_PATH::$(printf "distro/build/dist/%s" ${{ env.ASSET_NAME }})
 
       - name: Set ASSET_SHASUM
         run: |
