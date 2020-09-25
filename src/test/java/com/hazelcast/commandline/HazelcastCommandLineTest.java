@@ -78,7 +78,7 @@ public class HazelcastCommandLineTest {
         hazelcastCommandLine.start(null, null, null, null, null, false, false);
         // then
         verify(processExecutor)
-                .buildAndStart((List<String>) argThat(Matchers.hasItems("-Dhazelcast.default.config=" + WORKING_DIRECTORY + "/config/hazelcast.yaml")));
+                .buildAndStart((List<String>) argThat(Matchers.hasItems("-Dhazelcast.default.config=" + WORKING_DIRECTORY + "/bin/hazelcast.xml")));
     }
 
     @Test

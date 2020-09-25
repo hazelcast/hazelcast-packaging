@@ -1,18 +1,12 @@
-include ../src/main/resources/version.properties
-CLI_VERSION=4.2020.10-SNAPSHOT
-MC_VERSION=${mc.version}
-
+CLI_VERSION := $(shell grep -m1 '<version>' ../pom.xml | sed "s@.*<version>\(.*\)</version>.*@\1@")
+HZ_VERSION := $(shell grep '<hazelcast.version>' ../pom.xml | sed "s@.*<hazelcast.version>\(.*\)</hazelcast.version>.*@\1@")
+HZ_INSTALL_NAME=hazelcast-${HZ_VERSION}
+HZ_INSTALL_TAR=${HZ_INSTALL_NAME}.tar.gz
+HZ_BIN=${DIST}/${HZ_INSTALL_NAME}/bin
+HZ_LIB=${DIST}/${HZ_INSTALL_NAME}/lib
 DIST=build/dist
-HZ_BIN=${DIST}/bin
-HZ_ARTIFACTS=${DIST}/artifacts
-HZ_CFG=${DIST}/config
-HZ_LIB=${DIST}/lib
 
-MC_INSTALL_NAME=hazelcast-management-center-${MC_VERSION}
-MC_INSTALL_TAR=${MC_INSTALL_NAME}.tar.gz
-MC_INSTALL_JAR=hazelcast-management-center-${MC_VERSION}.jar
-
-.PHONY: all clean clean-all clean-dist get-artifacts dist package
+.PHONY: all clean clean-all clean-dist get-artifacts package
 
 all: clean-all get-artifacts package
 
@@ -23,38 +17,27 @@ clean: clean-dist
 clean-all:
 	# cleaning up everything
 	rm -fr build
-	rm -fr ${MC_INSTALL_NAME}
 
 clean-dist:
 	# cleaning up dist
 	rm -fr ${DIST}
 
-dist:
-	# copying docs and scripts
-	mkdir -p ${DIST}
-	mkdir -p ${HZ_BIN}
-	mkdir -p ${HZ_ARTIFACTS}
-	mkdir -p ${HZ_CFG}
-	mkdir -p ${HZ_LIB}
-	cp src/README.txt ${DIST}
-	cp src/bin/hz ${HZ_BIN}
-	chmod +x ${HZ_BIN}/*
-
-get-artifacts: dist
-	# get cli artifacts
+get-artifacts:
+	# get artifacts
 	cd .. && mvn clean package && cd -
-	cp ../target/hazelcast-command-line-*-jar-with-dependencies.jar ${HZ_LIB}/hazelcast-command-line.jar
-	wget -O ${MC_INSTALL_TAR} http://download.hazelcast.com/management-center/${MC_INSTALL_TAR}
-	tar -zxf ${MC_INSTALL_TAR}
-	rm ${MC_INSTALL_TAR}
-	mv ${MC_INSTALL_NAME}/${MC_INSTALL_JAR} ${HZ_ARTIFACTS}
-	rm -rf ${MC_INSTALL_NAME}
-	cp src/config/hazelcast-*-logging.properties ${HZ_CFG}
-	cp src/config/hazelcast.yaml ${HZ_CFG}
+	mkdir -p ${DIST}
+	wget -O ${DIST}/${HZ_INSTALL_TAR} "https://download.hazelcast.com/download.jsp?version=hazelcast-${HZ_VERSION}&type=tar&p="
+	tar -zxf ${DIST}/${HZ_INSTALL_TAR} -C ${DIST}
+	rm ${DIST}/${HZ_INSTALL_TAR}
+	cp ../target/hazelcast-command-line-*-cli.jar ${HZ_LIB}/hazelcast-command-line-${CLI_VERSION}.jar
+	cp src/bin/hazelcast-*-logging.properties ${HZ_BIN}
+	cp src/bin/hz ${HZ_BIN}
+	sed -i '.bak' 's+HZ_VERSION+${HZ_VERSION}+g' ${HZ_BIN}/hz
+	sed -i '.bak' 's+CLI_VERSION+${CLI_VERSION}+g' ${HZ_BIN}/hz
+	rm ${HZ_BIN}/hz.bak
+	chmod +x ${HZ_BIN}/hz
 
 package:
 	# creating package
-	mkdir -p build/package/hazelcast-command-line-${CLI_VERSION}
-	cp -r ${DIST}/. build/package/hazelcast-command-line-${CLI_VERSION}
-	tar -zcf build/package/hazelcast-command-line-${CLI_VERSION}.tar.gz -C build/package hazelcast-command-line-${CLI_VERSION}
-	@echo "Archive build/package/hazelcast-command-line-${CLI_VERSION}.tar.gz created successfully"
+	tar -zcf ${DIST}/${HZ_INSTALL_TAR} -C ${DIST} ${HZ_INSTALL_NAME}
+	@echo "Archive ${DIST}/${HZ_INSTALL_TAR} created successfully"
