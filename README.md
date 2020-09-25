@@ -155,10 +155,10 @@ cd distro/
 make
 ```
 
-After running the `make` command successfully, navigate to `distro/build/dist/hazelcast-4.1-BETA-1/bin` folder and run the `./hz` script:  
+After running the `make` command successfully, navigate to `distro/build/dist/hazelcast-{hazelcast.version}/bin` folder and run the `./hz` script:  
 
 ```
-cd build/dist/hazelcast-4.1-BETA-1/bin
+cd build/dist/hazelcast-{hazelcast.version}/bin
 ./hz
 ```
 
