@@ -32,8 +32,12 @@ jobs:
       - name: Make
         run: cd distro && make
 
+      - name: Set HZ_VERSION
+        run: |
+          echo ::set-env name=HZ_VERSION::$(grep '<hazelcast.version>' pom.xml | sed "s@.*<hazelcast.version>\(.*\)</hazelcast.version>.*@\1@")
+
       - name: Run CLI for IMDG
-        run: distro/build/dist/bin/hz start -c src/test/resources/integration-test-hazelcast.yaml &
+        run: distro/build/dist/hazelcast-${{ env.HZ_VERSION }}/bin/hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
       - name: Check IMDG health
         run: |
@@ -50,7 +54,7 @@ jobs:
           done
 
       - name: Run CLI for MC
-        run: distro/build/dist/bin/hz mc start -J -Dhazelcast.mc.healthCheck.enable=true &
+        run: distro/build/dist/hazelcast-${{ env.HZ_VERSION }}/bin/hz mc start -J -Dhazelcast.mc.healthCheck.enable=true &
 
       - name: Check MC health
         run: |
