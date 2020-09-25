@@ -155,16 +155,16 @@ cd distro/
 make
 ```
 
-After running the `make` command successfully, navigate to `distro/build/dist/bin` folder and run the `./hz` script:  
+After running the `make` command successfully, navigate to `distro/build/dist/hazelcast-4.1-BETA-1/bin` folder and run the `./hz` script:  
 
 ```
-cd build/dist/bin
+cd build/dist/hazelcast-4.1-BETA-1/bin
 ./hz
 ```
 
 This will print the usage options. You can follow the instructions in the output.
 
-The compressed distribution package is also available at `distro/build/package/` folder. You can extract & use it.
+The compressed distribution package is also available at `distro/build/dist/` folder. You can extract & use it.
 
 
 ### Checkstyle validation
