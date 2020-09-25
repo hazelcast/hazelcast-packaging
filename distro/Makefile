@@ -32,8 +32,8 @@ get-artifacts:
 	cp ../target/hazelcast-command-line-*-cli.jar ${HZ_LIB}/hazelcast-command-line-${CLI_VERSION}.jar
 	cp src/bin/hazelcast-*-logging.properties ${HZ_BIN}
 	cp src/bin/hz ${HZ_BIN}
-	sed -i '.bak' 's+HZ_VERSION+${HZ_VERSION}+g' ${HZ_BIN}/hz
-	sed -i '.bak' 's+CLI_VERSION+${CLI_VERSION}+g' ${HZ_BIN}/hz
+	sed -i.bak 's+HZ_VERSION+${HZ_VERSION}+g' ${HZ_BIN}/hz
+	sed -i.bak 's+CLI_VERSION+${CLI_VERSION}+g' ${HZ_BIN}/hz
 	rm ${HZ_BIN}/hz.bak
 	chmod +x ${HZ_BIN}/hz
 
