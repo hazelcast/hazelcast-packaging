@@ -77,16 +77,16 @@ jobs:
           asset_name: ${{ env.ASSET_NAME }}
           asset_content_type: application/zip
 
-      - name: Create & Upload deb package
-        run: |
-          mkdir -p packages/deb/hazelcast/usr/lib/hazelcast
-          mkdir -p packages/deb/hazelcast/usr/bin
-          tar -xvf ${{ env.ASSET_PATH }} -C packages/deb/hazelcast/usr/lib/hazelcast/
-          ln -s /usr/lib/hazelcast/hazelcast-${{ env.HZ_VERSION }}/bin/hz packages/deb/hazelcast/usr/bin/hz
-          sed -i 's+Version:.*$+Version: ${{ env.RELEASE }}+g' packages/deb/hazelcast/DEBIAN/control
-          dpkg-deb --build packages/deb/hazelcast
-          mv packages/deb/hazelcast.deb hazelcast-${{ env.RELEASE }}-all.deb
-          curl -T hazelcast-${{ env.RELEASE }}-all.deb -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/deb/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.HZ_VERSION }}-all.deb;deb_distribution=stable;deb_component=main;deb_architecture=all;publish=1"
+#      - name: Create & Upload deb package
+#        run: |
+#          mkdir -p packages/deb/hazelcast/usr/lib/hazelcast
+#          mkdir -p packages/deb/hazelcast/usr/bin
+#          tar -xvf ${{ env.ASSET_PATH }} -C packages/deb/hazelcast/usr/lib/hazelcast/
+#          ln -s /usr/lib/hazelcast/hazelcast-${{ env.HZ_VERSION }}/bin/hz packages/deb/hazelcast/usr/bin/hz
+#          sed -i 's+Version:.*$+Version: ${{ env.RELEASE }}+g' packages/deb/hazelcast/DEBIAN/control
+#          dpkg-deb --build packages/deb/hazelcast
+#          mv packages/deb/hazelcast.deb hazelcast-${{ env.RELEASE }}-all.deb
+#          curl -T hazelcast-${{ env.RELEASE }}-all.deb -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/deb/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.HZ_VERSION }}-all.deb;deb_distribution=stable;deb_component=main;deb_architecture=all;publish=1"
 
       - name: Create & Upload rpm package
         run: |
