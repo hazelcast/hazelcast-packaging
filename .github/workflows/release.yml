@@ -94,7 +94,7 @@ jobs:
           sudo cp ${{ env.ASSET_PATH }} /home/runner/rpmbuild/SOURCES/
           sed -i 's+%define hzversion.*$+%define hzversion ${{ env.HZ_VERSION }}+g' packages/rpm/hazelcast.spec
           sed -i 's+Version:.*$+Version:    ${{ env.RELEASE }}+g' packages/rpm/hazelcast.spec
-          rpmbuild -bb packages/rpm/hazelcast.spec
+          sudo rpmbuild -bb packages/rpm/hazelcast.spec
           curl -T /root/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/rpm/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-1.noarch.rpm;publish=1"
 
 #      - name: Checkout homebrew-hz repo
