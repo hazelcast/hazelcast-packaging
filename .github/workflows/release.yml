@@ -90,7 +90,7 @@ jobs:
 
       - name: Create & Upload rpm package
         run: |
-          sudo apt update && apt install -y rpm
+          sudo apt update && sudo apt install -y rpm
           cp ${{ env.ASSET_PATH }} /root/rpmbuild/SOURCES/
           sed -i 's+%define hzversion.*$+%define hzversion ${{ env.HZ_VERSION }}+g' packages/rpm/hazelcast.spec
           sed -i 's+Version:.*$+Version:    ${{ env.RELEASE }}+g' packages/rpm/hazelcast.spec
