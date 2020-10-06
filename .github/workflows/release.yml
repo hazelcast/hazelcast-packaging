@@ -86,7 +86,7 @@ jobs:
           sed -i 's+Version:.*$+Version: ${{ env.RELEASE }}+g' packages/deb/hazelcast/DEBIAN/control
           dpkg-deb --build packages/deb/hazelcast
           mv packages/deb/hazelcast.deb hazelcast-${{ env.RELEASE }}-all.deb
-          curl -T hazelcast-${{ env.RELEASE }}-all.deb -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/deb/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.HZ_VERSION }}-all.deb;deb_distribution=stable;deb_component=main;deb_architecture=all;publish=1"
+          curl --header "X-GPG-PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}" -T hazelcast-${{ env.RELEASE }}-all.deb -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/deb/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.HZ_VERSION }}-all.deb;deb_distribution=stable;deb_component=main;deb_architecture=all;publish=1"
 
       - name: Create & Upload rpm package
         run: |
@@ -95,7 +95,7 @@ jobs:
           sed -i 's+%define hzversion.*$+%define hzversion ${{ env.HZ_VERSION }}+g' packages/rpm/hazelcast.spec
           sed -i 's+Version:.*$+Version:    ${{ env.RELEASE }}+g' packages/rpm/hazelcast.spec
           sudo rpmbuild -bb packages/rpm/hazelcast.spec
-          curl -T /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/rpm/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-1.noarch.rpm;publish=1"
+          curl --header "X-GPG-PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}" -T /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/rpm/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-1.noarch.rpm;publish=1"
 
 #      - name: Checkout homebrew-hz repo
 #        uses: actions/checkout@v2.3.1
