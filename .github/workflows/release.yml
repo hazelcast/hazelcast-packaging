@@ -85,8 +85,17 @@ jobs:
           ln -s /usr/lib/hazelcast/hazelcast-${{ env.HZ_VERSION }}/bin/hz packages/deb/hazelcast/usr/bin/hz
           sed -i 's+Version:.*$+Version: ${{ env.RELEASE }}+g' packages/deb/hazelcast/DEBIAN/control
           dpkg-deb --build packages/deb/hazelcast
-          mv packages/deb/hazelcast.deb hazelcast-${{ env.HZ_VERSION }}-all.deb
-          curl -T hazelcast-${{ env.HZ_VERSION }}-all.deb -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/deb/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.HZ_VERSION }}-all.deb;deb_distribution=stable;deb_component=main;deb_architecture=all;publish=1"
+          mv packages/deb/hazelcast.deb hazelcast-${{ env.RELEASE }}-all.deb
+          curl -T hazelcast-${{ env.RELEASE }}-all.deb -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/deb/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.HZ_VERSION }}-all.deb;deb_distribution=stable;deb_component=main;deb_architecture=all;publish=1"
+
+      - name: Create & Upload rpm package
+        run: |
+          sudo apt update && apt install -y rpm
+          cp ${{ env.ASSET_PATH }} /root/rpmbuild/SOURCES/
+          sed -i 's+%define hzversion.*$+%define hzversion ${{ env.HZ_VERSION }}+g' packages/rpm/hazelcast.spec
+          sed -i 's+Version:.*$+Version:    ${{ env.RELEASE }}+g' packages/rpm/hazelcast.spec
+          rpmbuild -bb packages/rpm/hazelcast.spec
+          curl -T /root/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/rpm/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-1.noarch.rpm;publish=1"
 
 #      - name: Checkout homebrew-hz repo
 #        uses: actions/checkout@v2.3.1
