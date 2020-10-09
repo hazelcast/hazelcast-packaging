@@ -1,4 +1,4 @@
 %_signature gpg
 %_gpg_path /home/runner/.gnupg
-%_gpg_name devOpsHazelcast
+%_gpg_name Hazelcast
 %_gpgbin /usr/bin/gpg
