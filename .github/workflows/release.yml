@@ -104,7 +104,7 @@ jobs:
           gpg --export -a 'devOpsHazelcast' > RPM-GPG-KEY-devOpsHazelcast
           sudo rpm --import RPM-GPG-KEY-devOpsHazelcast
           sudo rpmbuild -bb packages/rpm/hazelcast.spec
-          rpm --addsign /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm
+          sudo rpm --addsign /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm
           curl --header "X-GPG-PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}" -T /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/rpm/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-1.noarch.rpm;publish=1"
 
 #      - name: Checkout homebrew-hz repo
