@@ -96,7 +96,7 @@ jobs:
           sed -i 's+Version:.*$+Version:    ${{ env.RELEASE }}+g' packages/rpm/hazelcast.spec
           cp packages/rpm/.rpmmacros /home/runner/
           mkdir -p ~/.gnupg/
-          printf ${{ secrets.DEVOPS_PRIVATE_KEY }} | base64 --decode > ~/.gnupg/private.key
+          printf "${{ secrets.DEVOPS_PRIVATE_KEY }}" | base64 --decode > ~/.gnupg/private.key
           gpg --batch --import ~/.gnupg/private.key
           printf 'allow-preset-passphrase' > ~/.gnupg/gpg-agent.conf
           gpg-connect-agent reloadagent /bye
