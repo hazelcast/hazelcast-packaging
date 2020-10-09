@@ -95,10 +95,10 @@ jobs:
           sed -i 's+%define hzversion.*$+%define hzversion ${{ env.HZ_VERSION }}+g' packages/rpm/hazelcast.spec
           sed -i 's+Version:.*$+Version:    ${{ env.RELEASE }}+g' packages/rpm/hazelcast.spec
           cp packages/rpm/.rpmmacros /home/runner/
-          mkdir -p ~/.gnupg/
-          printf "${{ secrets.DEVOPS_PRIVATE_KEY }}" | base64 --decode > ~/.gnupg/private.key
-          gpg --batch --import ~/.gnupg/private.key
-          printf 'allow-preset-passphrase' > ~/.gnupg/gpg-agent.conf
+          gpg --list-keys
+          printf "${{ secrets.DEVOPS_PRIVATE_KEY }}" | base64 --decode > /root/.gnupg/private.key
+          gpg --batch --import /root/.gnupg/private.key
+          printf 'allow-preset-passphrase' > /root/.gnupg/gpg-agent.conf
           gpg-connect-agent reloadagent /bye
           /usr/lib/gnupg2/gpg-preset-passphrase --passphrase ${{ secrets.BINTRAY_PASSPHRASE }} --preset 6EA3503722147A112293AD7B86E774369E01C743
           gpg --export -a 'devOpsHazelcast' > RPM-GPG-KEY-devOpsHazelcast
