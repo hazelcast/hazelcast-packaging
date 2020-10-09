@@ -100,9 +100,9 @@ jobs:
           gpg --batch --import /home/runner/.gnupg/private.key
           sudo printf 'allow-preset-passphrase' > /home/runner/.gnupg/gpg-agent.conf
           gpg-connect-agent reloadagent /bye
-          /usr/lib/gnupg2/gpg-preset-passphrase --passphrase ${{ secrets.BINTRAY_PASSPHRASE }} --preset 6EA3503722147A112293AD7B86E774369E01C743
-          gpg --export -a 'devOpsHazelcast' > RPM-GPG-KEY-devOpsHazelcast
-          sudo rpm --import RPM-GPG-KEY-devOpsHazelcast
+          /usr/lib/gnupg2/gpg-preset-passphrase --passphrase ${{ secrets.BINTRAY_PASSPHRASE }} --preset 50907674C38F9E099C35345E246EBBA203D8E107
+          gpg --export -a 'Hazelcast' > RPM-GPG-KEY-Hazelcast
+          sudo rpm --import RPM-GPG-KEY-Hazelcast
           sudo rpmbuild -bb packages/rpm/hazelcast.spec
           sudo rpm --addsign /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm
           curl --header "X-GPG-PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}" -T /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/rpm/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-1.noarch.rpm;publish=1"
