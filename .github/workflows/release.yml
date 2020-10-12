@@ -77,35 +77,35 @@ jobs:
           asset_name: ${{ env.ASSET_NAME }}
           asset_content_type: application/zip
 
-#      - name: Create & Upload deb package
-#        run: |
-#          mkdir -p packages/deb/hazelcast/usr/lib/hazelcast
-#          mkdir -p packages/deb/hazelcast/usr/bin
-#          tar -xvf ${{ env.ASSET_PATH }} -C packages/deb/hazelcast/usr/lib/hazelcast/
-#          ln -s /usr/lib/hazelcast/hazelcast-${{ env.HZ_VERSION }}/bin/hz packages/deb/hazelcast/usr/bin/hz
-#          sed -i 's+Version:.*$+Version: ${{ env.RELEASE }}+g' packages/deb/hazelcast/DEBIAN/control
-#          dpkg-deb --build packages/deb/hazelcast
-#          mv packages/deb/hazelcast.deb hazelcast-${{ env.RELEASE }}-all.deb
-#          curl --header "X-GPG-PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}" -T hazelcast-${{ env.RELEASE }}-all.deb -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/deb/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.HZ_VERSION }}-all.deb;deb_distribution=stable;deb_component=main;deb_architecture=all;publish=1"
-
-      - name: Create & Sign & Upload rpm package
+      - name: Create & Upload deb package
         run: |
-          sudo mkdir -p /home/runner/rpmbuild/SOURCES/
-          sudo cp ${{ env.ASSET_PATH }} /home/runner/rpmbuild/SOURCES/
-          sed -i 's+%define hzversion.*$+%define hzversion ${{ env.HZ_VERSION }}+g' packages/rpm/hazelcast.spec
-          sed -i 's+Version:.*$+Version:    ${{ env.RELEASE }}+g' packages/rpm/hazelcast.spec
-          cp packages/rpm/.rpmmacros /home/runner/
-          gpg --list-keys
-          sudo printf "${{ secrets.DEVOPS_PRIVATE_KEY }}" | base64 --decode > /home/runner/.gnupg/private.key
-          gpg --batch --import /home/runner/.gnupg/private.key
-          sudo printf 'allow-preset-passphrase' > /home/runner/.gnupg/gpg-agent.conf
-          gpg-connect-agent reloadagent /bye
-          /usr/lib/gnupg2/gpg-preset-passphrase --passphrase ${{ secrets.BINTRAY_PASSPHRASE }} --preset 50907674C38F9E099C35345E246EBBA203D8E107
-          gpg --export -a 'Hazelcast' > RPM-GPG-KEY-Hazelcast
-          sudo rpm --import RPM-GPG-KEY-Hazelcast
-          sudo rpmbuild -bb packages/rpm/hazelcast.spec
-          sudo rpm --addsign /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm
-          curl --header "X-GPG-PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}" -T /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/rpm/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-1.noarch.rpm;publish=1"
+          mkdir -p packages/deb/hazelcast/usr/lib/hazelcast
+          mkdir -p packages/deb/hazelcast/usr/bin
+          tar -xvf ${{ env.ASSET_PATH }} -C packages/deb/hazelcast/usr/lib/hazelcast/
+          ln -s /usr/lib/hazelcast/hazelcast-${{ env.HZ_VERSION }}/bin/hz packages/deb/hazelcast/usr/bin/hz
+          sed -i 's+Version:.*$+Version: ${{ env.RELEASE }}+g' packages/deb/hazelcast/DEBIAN/control
+          dpkg-deb --build packages/deb/hazelcast
+          mv packages/deb/hazelcast.deb hazelcast-${{ env.RELEASE }}-all.deb
+          curl --header "X-GPG-PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}" -T hazelcast-${{ env.RELEASE }}-all.deb -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/deb/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.HZ_VERSION }}-all.deb;deb_distribution=stable;deb_component=main;deb_architecture=all;publish=1"
+
+#      - name: Create & Sign & Upload rpm package
+#        run: |
+#          sudo mkdir -p /home/runner/rpmbuild/SOURCES/
+#          sudo cp ${{ env.ASSET_PATH }} /home/runner/rpmbuild/SOURCES/
+#          sed -i 's+%define hzversion.*$+%define hzversion ${{ env.HZ_VERSION }}+g' packages/rpm/hazelcast.spec
+#          sed -i 's+Version:.*$+Version:    ${{ env.RELEASE }}+g' packages/rpm/hazelcast.spec
+#          cp packages/rpm/.rpmmacros /home/runner/
+#          gpg --list-keys
+#          sudo printf "${{ secrets.DEVOPS_PRIVATE_KEY }}" | base64 --decode > /home/runner/.gnupg/private.key
+#          gpg --batch --import /home/runner/.gnupg/private.key
+#          sudo printf 'allow-preset-passphrase' > /home/runner/.gnupg/gpg-agent.conf
+#          gpg-connect-agent reloadagent /bye
+#          /usr/lib/gnupg2/gpg-preset-passphrase --passphrase ${{ secrets.BINTRAY_PASSPHRASE }} --preset 50907674C38F9E099C35345E246EBBA203D8E107
+#          gpg --export -a 'Hazelcast' > RPM-GPG-KEY-Hazelcast
+#          sudo rpm --import RPM-GPG-KEY-Hazelcast
+#          sudo rpmbuild -bb packages/rpm/hazelcast.spec
+#          sudo rpm --addsign /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm
+#          curl --header "X-GPG-PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}" -T /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm -ualparslan@hazelcast:${{ secrets.BINTRAY_SECRET }} "https://api.bintray.com/content/hazelcast/rpm/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-1.noarch.rpm;publish=1"
 
 #      - name: Checkout homebrew-hz repo
 #        uses: actions/checkout@v2.3.1
