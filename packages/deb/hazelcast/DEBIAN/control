@@ -1,6 +1,6 @@
 Package: hazelcast
 Source: hazelcast
-Version: 4.2020.11
+Version: 4.2020.10
 Section: imdg
 Priority: optional
 Architecture: all

@@ -1,7 +1,7 @@
 %define hzversion 4.1-BETA-1
 
 Name:		hazelcast
-Version:    4.2020.1
+Version:    4.2020.10
 Release:	1
 Summary:	A tool that allows users to install & run Hazelcast IMDG and Management Center on the local environment
 
@@ -42,11 +42,10 @@ hz --help
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-# List of files that this package installs on the system
 %files
 %{_prefix}/lib/%{name}/%{name}-%{hzversion}/*
 %{_bindir}/hz
 
 %changelog
-* Wed Sep 9 2020 Alparslan Avci <alparslan@hazelcast.com> - 1.0
-- This is the first version
+* Tue Oct 13 2020 Devops Hazelcast <devops@hazelcast.com> - 4.2020.10
+- This is the initial RPM package spec
