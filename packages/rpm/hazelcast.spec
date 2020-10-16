@@ -44,8 +44,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %{_prefix}/lib/%{name}/%{name}-%{hzversion}/*
+%config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/*.xml
+%config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/*.yaml
 %{_bindir}/hz
 
 %changelog
+* Tue Oct 13 2020 Devops Hazelcast <devops@hazelcast.com> - 4.2020.10
+- Mark configuration files for upgrades
 * Tue Oct 13 2020 Devops Hazelcast <devops@hazelcast.com> - 4.2020.10
 - This is the initial RPM package spec
