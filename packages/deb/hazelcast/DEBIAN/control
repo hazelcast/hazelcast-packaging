@@ -1,0 +1,11 @@
+Package: hazelcast
+Source: hazelcast
+Version: 4.2020.10
+Section: imdg
+Priority: optional
+Architecture: all
+Depends: default-jdk | java8-sdk
+Maintainer: Alparslan Avci <alparslan@hazelcast.com>
+Description: A tool that allows users to install & run Hazelcast IMDG and Management Center on the local environment
+Homepage: https://hazelcast.org/
+License: ASL 2.0
