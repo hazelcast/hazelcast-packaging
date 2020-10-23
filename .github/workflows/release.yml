@@ -127,8 +127,8 @@ jobs:
           sed -i "s+class HazelcastAT.* <\(.*$\)+class HazelcastAT${VERSION_NODOTS} <\1+g" hazelcast@${{ env.RELEASE }}.rb
           sed -i 's+url.*$+url "${{ steps.upload-release-asset.outputs.browser_download_url }}"+g' hazelcast@${{ env.RELEASE }}.rb
           sed -i 's+sha256.*$+sha256 "${{ env.ASSET_SHASUM }}"+g' hazelcast@${{ env.RELEASE }}.rb
-          # remove the old symlink
-          # create symlink with the new version
+          sudo rm Aliases/hazelcast
+          ln -s ../hazelcast@${{ env.RELEASE }}.rb Aliases/hazelcast
 
       - name: Commit changes
         run: |
