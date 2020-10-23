@@ -124,8 +124,8 @@ jobs:
           LATEST_FILE=$(readlink -f Aliases/hazelcast)
           sudo cp ${LATEST_FILE} hazelcast@${{ env.RELEASE }}.rb
           # update new file's class name
-          sed -i 's+url.*$+url "${{ steps.upload-release-asset.outputs.browser_download_url }}"+g' hazelcast.rb
-          sed -i 's+sha256.*$+sha256 "${{ env.ASSET_SHASUM }}"+g' hazelcast.rb
+          sed -i 's+url.*$+url "${{ steps.upload-release-asset.outputs.browser_download_url }}"+g' hazelcast@${{ env.RELEASE }}.rb
+          sed -i 's+sha256.*$+sha256 "${{ env.ASSET_SHASUM }}"+g' hazelcast@${{ env.RELEASE }}.rb
           # remove the old symlink
           # create symlink with the new version
 
