@@ -121,9 +121,7 @@ jobs:
 
       - name: Change the artifact in homebrew-hz
         run: |
-#         find the latest version's .rb file from symlink
           LATEST_FILE=$(readlink -f Aliases/hazelcast)
-#         copy .rb file
           sudo cp ${LATEST_FILE} hazelcast@${{ env.RELEASE }}.rb
 #         update new file's class name
           sed -i 's+url.*$+url "${{ steps.upload-release-asset.outputs.browser_download_url }}"+g' hazelcast.rb
