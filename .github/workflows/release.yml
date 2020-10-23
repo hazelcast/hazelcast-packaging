@@ -117,7 +117,7 @@ jobs:
         with:
           repository: alparslanavci/homebrew-hz
           ref: master
-          token: ${{ secrets.DEVOPS_SECRET }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Change the artifact in homebrew-hz
         run: |
@@ -131,8 +131,8 @@ jobs:
 
       - name: Commit changes
         run: |
-          git config --global user.name 'devOpsHazelcast'
-          git config --global user.email 'devops@hazelcast.com'
+          git config --global user.name 'alparslanavci'
+          git config --global user.email 'alparslanavci@gmail.com'
           git add hazelcast@${{ env.RELEASE }}.rb
           git commit -am "Hazelcast Command Line ${{ env.RELEASE }} release"
 
