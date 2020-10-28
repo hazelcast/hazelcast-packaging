@@ -140,8 +140,8 @@ jobs:
         run: |
           sudo apt install yum-utils
           wget https://bintray.com/hazelcast/rpm/rpm -O bintray-hazelcast-rpm.repo
-          mkdir -p /etc/yum.repos.d/
-          mv bintray-hazelcast-rpm.repo /etc/yum.repos.d/
+          sudo mkdir -p /etc/yum.repos.d/
+          sudo mv bintray-hazelcast-rpm.repo /etc/yum.repos.d/
           sudo yum install hazelcast-${{ env.RELEASE }}
           hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
