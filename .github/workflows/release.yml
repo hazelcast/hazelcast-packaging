@@ -95,7 +95,7 @@ jobs:
         run: |
           attempts=0
           max_attempts=10
-          until $(curl --silent --fail "https://bintray.com/api/ui/download/hazelcast/deb/dists/stable/Release"); do
+          until $(wget "https://bintray.com/api/ui/download/hazelcast/deb/dists/stable/Release.gpg"); do
             if [ ${attempts} -eq ${max_attempts} ];then
                 echo "Deb package is not signed"
                 exit 1
