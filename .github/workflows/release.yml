@@ -93,17 +93,6 @@ jobs:
 
       - name: Install deb package for test
         run: |
-          attempts=0
-          max_attempts=10
-          until $(wget "https://bintray.com/api/ui/download/hazelcast/deb/dists/stable/Release.gpg"); do
-            if [ ${attempts} -eq ${max_attempts} ];then
-                echo "Deb package is not signed"
-                exit 1
-            fi
-            printf '.'
-            attempts=$(($attempts+1))
-            sleep 1
-          done
           wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=hazelcast | sudo apt-key add -
           echo "deb http://dl.bintray.com/hazelcast/deb stable main" | sudo tee -a /etc/apt/sources.list
           sudo apt update && sudo apt install hazelcast
