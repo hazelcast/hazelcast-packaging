@@ -113,28 +113,51 @@ jobs:
             attempts=$(($attempts+1))
             sleep 1
           done
+          kill -9 $(jps | grep "HazelcastMember" | awk '{print $1;}')
 
-#      - name: Create & Sign & Upload rpm package
-#        run: |
-#          sudo mkdir -p /home/runner/rpmbuild/SOURCES/
-#          sudo cp ${{ env.ASSET_PATH }} /home/runner/rpmbuild/SOURCES/
-#          sed -i 's+%define hzversion.*$+%define hzversion ${{ env.HZ_VERSION }}+g' packages/rpm/hazelcast.spec
-#          sed -i 's+Version:.*$+Version:    ${{ env.RELEASE }}+g' packages/rpm/hazelcast.spec
-#          cp packages/rpm/.rpmmacros /home/runner/
-#          gpg --list-keys
-#          sudo printf "${{ secrets.DEVOPS_PRIVATE_KEY }}" | base64 --decode > /home/runner/.gnupg/private.key
-#          gpg --batch --import /home/runner/.gnupg/private.key
-#          sudo printf 'allow-preset-passphrase' > /home/runner/.gnupg/gpg-agent.conf
-#          gpg-connect-agent reloadagent /bye
-#          /usr/lib/gnupg2/gpg-preset-passphrase --passphrase ${{ secrets.BINTRAY_PASSPHRASE }} --preset 50907674C38F9E099C35345E246EBBA203D8E107
-#          gpg --export -a 'Hazelcast' > RPM-GPG-KEY-Hazelcast
-#          sudo rpm --import RPM-GPG-KEY-Hazelcast
-#          sudo rpmbuild -bb packages/rpm/hazelcast.spec
-#          sudo rpm --addsign /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm
-#          curl --header "X-GPG-PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}" -T \
-#            /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm -udevopshazelcast:${{ secrets.BINTRAY_SECRET }} \
-#            "https://api.bintray.com/content/hazelcast/rpm/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-1.noarch.rpm;publish=1"
-#
+      - name: Create & Sign & Upload rpm package
+        run: |
+          sudo mkdir -p /home/runner/rpmbuild/SOURCES/
+          sudo cp ${{ env.ASSET_PATH }} /home/runner/rpmbuild/SOURCES/
+          sed -i 's+%define hzversion.*$+%define hzversion ${{ env.HZ_VERSION }}+g' packages/rpm/hazelcast.spec
+          sed -i 's+Version:.*$+Version:    ${{ env.RELEASE }}+g' packages/rpm/hazelcast.spec
+          cp packages/rpm/.rpmmacros /home/runner/
+          gpg --list-keys
+          sudo printf "${{ secrets.DEVOPS_PRIVATE_KEY }}" | base64 --decode > /home/runner/.gnupg/private.key
+          gpg --batch --import /home/runner/.gnupg/private.key
+          sudo printf 'allow-preset-passphrase' > /home/runner/.gnupg/gpg-agent.conf
+          gpg-connect-agent reloadagent /bye
+          /usr/lib/gnupg2/gpg-preset-passphrase --passphrase ${{ secrets.BINTRAY_PASSPHRASE }} --preset 50907674C38F9E099C35345E246EBBA203D8E107
+          gpg --export -a 'Hazelcast' > RPM-GPG-KEY-Hazelcast
+          sudo rpm --import RPM-GPG-KEY-Hazelcast
+          sudo rpmbuild -bb packages/rpm/hazelcast.spec
+          sudo rpm --addsign /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm
+          curl --header "X-GPG-PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}" -T \
+            /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm -udevopshazelcast:${{ secrets.BINTRAY_SECRET }} \
+            "https://api.bintray.com/content/hazelcast/rpm/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-1.noarch.rpm;publish=1"
+
+      - name: Install rpm package for test
+        run: |
+          wget https://bintray.com/hazelcast/rpm/rpm -O bintray-hazelcast-rpm.repo
+          mv bintray-hazelcast-rpm.repo /etc/yum.repos.d/
+          yum install hazelcast-${{ env.RELEASE }}
+          hz start -c src/test/resources/integration-test-hazelcast.yaml &
+
+      - name: Check IMDG health
+        run: |
+          attempts=0
+          max_attempts=10
+          until $(curl --silent --fail "127.0.0.1:5701/hazelcast/health/ready"); do
+            if [ ${attempts} -eq ${max_attempts} ];then
+                echo "Hazelcast not responding"
+                exit 1
+            fi
+            printf '.'
+            attempts=$(($attempts+1))
+            sleep 1
+          done
+          kill -9 $(jps | grep "HazelcastMember" | awk '{print $1;}')
+
 #      - name: Checkout homebrew-hz repo
 #        uses: actions/checkout@v2.3.1
 #        with:
