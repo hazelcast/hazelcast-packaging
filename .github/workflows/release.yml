@@ -142,7 +142,7 @@ jobs:
           wget https://bintray.com/hazelcast/rpm/rpm -O bintray-hazelcast-rpm.repo
           sudo mkdir -p /etc/yum.repos.d/
           sudo mv bintray-hazelcast-rpm.repo /etc/yum.repos.d/
-          sudo yum install hazelcast-${{ env.RELEASE }}
+          sudo yum install hazelcast-${{ env.RELEASE }}-1
           hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
       - name: Check IMDG health
