@@ -32,7 +32,7 @@ jobs:
 
       - name: Set HZ_VERSION
         run: |
-          echo $(rpm -v)
+          rpm --version
           exit 1
           echo ::set-env name=HZ_VERSION::$(grep '<hazelcast.version>' pom.xml | sed "s@.*<hazelcast.version>\(.*\)</hazelcast.version>.*@\1@")
 
