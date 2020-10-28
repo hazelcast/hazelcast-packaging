@@ -138,11 +138,13 @@ jobs:
 
       - name: Install rpm package for test
         run: |
+          # await rpm metadata to be updated
+          sleep 60
           sudo apt install yum-utils
           wget https://bintray.com/hazelcast/rpm/rpm -O bintray-hazelcast-rpm.repo
           sudo mkdir -p /etc/yum.repos.d/
           sudo mv bintray-hazelcast-rpm.repo /etc/yum.repos.d/
-          sudo yum install hazelcast-${{ env.RELEASE }}-1
+          sudo yum install hazelcast-${{ env.RELEASE }}
           hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
       - name: Check IMDG health
