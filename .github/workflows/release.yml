@@ -95,7 +95,7 @@ jobs:
         run: |
           wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=hazelcast | sudo apt-key add -
           echo "deb http://dl.bintray.com/hazelcast/deb stable main" | sudo tee -a /etc/apt/sources.list
-          sudo apt update && sudo apt install hazelcast
+          sudo apt update && sudo apt install hazelcast=${{ env.RELEASE }}
           hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
       - name: Check IMDG health
