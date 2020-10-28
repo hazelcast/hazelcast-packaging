@@ -94,7 +94,7 @@ jobs:
       - name: Install deb package for test
         run: |
           # await deb metadata to be signed
-          sleep 60
+          sleep 120
           wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=hazelcast | sudo apt-key add -
           echo "deb http://dl.bintray.com/hazelcast/deb stable main" | sudo tee -a /etc/apt/sources.list
           sudo apt update && sudo apt install hazelcast=${{ env.RELEASE }}
@@ -139,7 +139,7 @@ jobs:
       - name: Install rpm package for test
         run: |
           # await rpm metadata to be updated
-          sleep 60
+          sleep 120
           sudo apt install yum-utils
           wget https://bintray.com/hazelcast/rpm/rpm -O bintray-hazelcast-rpm.repo
           sudo mkdir -p /etc/yum.repos.d/
