@@ -95,30 +95,6 @@ jobs:
             -udevopshazelcast:${{ secrets.BINTRAY_SECRET }} \
             "https://api.bintray.com/content/hazelcast/deb/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-all.deb;deb_distribution=stable;deb_component=main;deb_architecture=all;publish=1"
 
-      - name: Install deb package for test
-        run: |
-          # await deb metadata to be signed
-          sleep 120
-          wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=hazelcast | sudo apt-key add -
-          echo "deb http://dl.bintray.com/hazelcast/deb stable main" | sudo tee -a /etc/apt/sources.list
-          sudo apt update && sudo apt install hazelcast=${{ env.RELEASE }}
-          hz start -c src/test/resources/integration-test-hazelcast.yaml &
-
-      - name: Check IMDG health
-        run: |
-          attempts=0
-          max_attempts=10
-          until $(curl --silent --fail "127.0.0.1:5701/hazelcast/health/ready"); do
-            if [ ${attempts} -eq ${max_attempts} ];then
-                echo "Hazelcast not responding"
-                exit 1
-            fi
-            printf '.'
-            attempts=$(($attempts+1))
-            sleep 1
-          done
-          kill -9 $(jps | grep "HazelcastMember" | awk '{print $1;}')
-
       - name: Create & Sign & Upload rpm package
         run: |
           sudo mkdir -p /home/runner/rpmbuild/SOURCES/
@@ -140,39 +116,72 @@ jobs:
             /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm -udevopshazelcast:${{ secrets.BINTRAY_SECRET }} \
             "https://api.bintray.com/content/hazelcast/rpm/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-1.noarch.rpm;publish=1"
 
-#      - name: Checkout homebrew-hz repo
-#        uses: actions/checkout@v2.3.1
-#        with:
-#          repository: hazelcast/homebrew-hz
-#          ref: master
-#          token: ${{ secrets.DEVOPS_SECRET }}
-#
-#      - name: Change the artifact in homebrew-hz
-#        run: |
-#          LATEST_FILE=$(readlink -f Aliases/hazelcast)
-#          sudo cp ${LATEST_FILE} hazelcast@${{ env.RELEASE }}.rb
-#          VERSION_NODOTS=$(echo ${{ env.RELEASE }} | sed 's+\.++g')
-#          sed -i "s+class HazelcastAT.* <\(.*$\)+class HazelcastAT${VERSION_NODOTS} <\1+g" hazelcast@${{ env.RELEASE }}.rb
-#          sed -i 's+url.*$+url "${{ steps.upload-release-asset.outputs.browser_download_url }}"+g' hazelcast@${{ env.RELEASE }}.rb
-#          sed -i 's+sha256.*$+sha256 "${{ env.ASSET_SHASUM }}"+g' hazelcast@${{ env.RELEASE }}.rb
-#          sudo rm Aliases/hazelcast
-#          ln -s ../hazelcast@${{ env.RELEASE }}.rb Aliases/hazelcast
-#
-#      - name: Commit changes
-#        run: |
-#          git config --global user.name 'devOpsHazelcast'
-#          git config --global user.email 'devops@hazelcast.com'
-#          git add hazelcast@${{ env.RELEASE }}.rb
-#          git commit -am "Hazelcast Command Line ${{ env.RELEASE }} release"
-#
-#      - name: Push to homebrew-hz repo
-#        run: git push
-#
-  verify:
+      - name: Checkout homebrew-hz repo
+        uses: actions/checkout@v2.3.1
+        with:
+          repository: alparslanavci/homebrew-hz
+          ref: master
+          token: ${{ secrets.ALP_SECRET }}
+
+      - name: Change the artifact in homebrew-hz
+        run: |
+          LATEST_FILE=$(readlink -f Aliases/hazelcast)
+          sudo cp ${LATEST_FILE} hazelcast@${{ env.RELEASE }}.rb
+          VERSION_NODOTS=$(echo ${{ env.RELEASE }} | sed 's+\.++g')
+          sed -i "s+class HazelcastAT.* <\(.*$\)+class HazelcastAT${VERSION_NODOTS} <\1+g" hazelcast@${{ env.RELEASE }}.rb
+          sed -i 's+url.*$+url "${{ steps.upload-release-asset.outputs.browser_download_url }}"+g' hazelcast@${{ env.RELEASE }}.rb
+          sed -i 's+sha256.*$+sha256 "${{ env.ASSET_SHASUM }}"+g' hazelcast@${{ env.RELEASE }}.rb
+          sudo rm Aliases/hazelcast
+          ln -s ../hazelcast@${{ env.RELEASE }}.rb Aliases/hazelcast
+
+      - name: Commit changes
+        run: |
+          # git config --global user.name 'devOpsHazelcast'
+          # git config --global user.email 'devops@hazelcast.com'
+          git config --global user.name 'alparslanavci'
+          git config --global user.email 'alparslanavci@gmail.com'
+          git add hazelcast@${{ env.RELEASE }}.rb
+          git commit -am "Hazelcast Command Line ${{ env.RELEASE }} release"
+
+      - name: Push to homebrew-hz repo
+        run: git push
+
+  verify-deb:
+    runs-on: ubuntu-latest
+    needs: build
+    name: CLI Release DEB Verification
+    steps:
+      - uses: actions/checkout@v2.3.2
+
+      - name: Install CLI from deb
+        run: |
+          # await deb metadata to be signed
+          sleep 120
+          wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=hazelcast | sudo apt-key add -
+          echo "deb http://dl.bintray.com/hazelcast/deb stable main" | sudo tee -a /etc/apt/sources.list
+          sudo apt update && sudo apt install hazelcast=${{ needs.build.outputs.release }}
+          hz start -c src/test/resources/integration-test-hazelcast.yaml &
+
+      - name: Check IMDG health
+        run: |
+          attempts=0
+          max_attempts=10
+          until $(curl --silent --fail "127.0.0.1:5701/hazelcast/health/ready"); do
+            if [ ${attempts} -eq ${max_attempts} ];then
+                echo "Hazelcast not responding"
+                exit 1
+            fi
+            printf '.'
+            attempts=$(($attempts+1))
+            sleep 1
+          done
+          kill -9 $(jps | grep "HazelcastMember" | awk '{print $1;}')
+
+  verify-rpm:
     runs-on: ubuntu-latest
     container: centos:latest
     needs: build
-    name: CLI Release Verification
+    name: CLI Release RPM Verification
     steps:
       - uses: actions/checkout@v2.3.2
 
@@ -185,6 +194,33 @@ jobs:
           # curl -L "https://dl.bintray.com/hazelcast/rpm/hazelcast-${{ needs.build.outputs.release }}-1.noarch.rpm" -o hazelcast-${{ needs.build.outputs.release }}.noarch.rpm
           # rpm -i hazelcast-${{ needs.build.outputs.release }}.noarch.rpm
           hz start -c src/test/resources/integration-test-hazelcast.yaml &
+
+      - name: Check IMDG health
+        run: |
+          attempts=0
+          max_attempts=10
+          until $(curl --silent --fail "127.0.0.1:5701/hazelcast/health/ready"); do
+            if [ ${attempts} -eq ${max_attempts} ];then
+                echo "Hazelcast not responding"
+                exit 1
+            fi
+            printf '.'
+            attempts=$(($attempts+1))
+            sleep 1
+          done
+          kill -9 $(jps | grep "HazelcastMember" | awk '{print $1;}')
+
+  verify-homebrew:
+    runs-on: macos-latest
+    needs: build
+    name: CLI Release Homebrew Verification
+    steps:
+      - uses: actions/checkout@v2.3.2
+
+      - name: Install CLI from homebrew
+        run: |
+          brew tap alparslanavci/hz
+          brew install hazelcast@${{ needs.build.outputs.release }}
 
       - name: Check IMDG health
         run: |
