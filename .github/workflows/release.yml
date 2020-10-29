@@ -32,8 +32,6 @@ jobs:
 
       - name: Set HZ_VERSION
         run: |
-          rpm --version
-          exit 1
           echo ::set-env name=HZ_VERSION::$(grep '<hazelcast.version>' pom.xml | sed "s@.*<hazelcast.version>\(.*\)</hazelcast.version>.*@\1@")
 
       - name: Set RELEASE & RELEASE_INFO
@@ -141,12 +139,9 @@ jobs:
       - name: Install rpm package for test
         run: |
           # await rpm metadata to be updated
-          sleep 120
-          sudo apt install yum-utils
-          wget https://bintray.com/hazelcast/rpm/rpm -O bintray-hazelcast-rpm.repo
-          sudo mkdir -p /etc/yum.repos.d/
-          sudo mv bintray-hazelcast-rpm.repo /etc/yum.repos.d/
-          sudo yum install hazelcast-${{ env.RELEASE }}
+          # sleep 120
+          curl -L "https://dl.bintray.com/hazelcast/rpm/hazelcast-${{ env.RELEASE }}-1.noarch.rpm" -o hazelcast-${{ env.RELEASE }}.noarch.rpm
+          rpm -i hazelcast-${{ env.RELEASE }}.noarch.rpm
           hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
       - name: Check IMDG health
