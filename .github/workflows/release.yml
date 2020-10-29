@@ -191,8 +191,6 @@ jobs:
           wget https://bintray.com/hazelcast/rpm/rpm -O bintray-hazelcast-rpm.repo
           mv bintray-hazelcast-rpm.repo /etc/yum.repos.d/
           yum install -y hazelcast-${{ needs.build.outputs.release }}
-          # curl -L "https://dl.bintray.com/hazelcast/rpm/hazelcast-${{ needs.build.outputs.release }}-1.noarch.rpm" -o hazelcast-${{ needs.build.outputs.release }}.noarch.rpm
-          # rpm -i hazelcast-${{ needs.build.outputs.release }}.noarch.rpm
           hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
       - name: Check IMDG health
@@ -221,6 +219,7 @@ jobs:
         run: |
           brew tap alparslanavci/hz
           brew install hazelcast@${{ needs.build.outputs.release }}
+          hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
       - name: Check IMDG health
         run: |
