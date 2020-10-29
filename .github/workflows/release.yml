@@ -155,8 +155,8 @@ jobs:
 
       - name: Install CLI from deb
         run: |
-          # await deb metadata to be signed
-          sleep 120
+          # await some time for deb metadata to be signed
+          sleep 60
           wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=hazelcast | sudo apt-key add -
           echo "deb http://dl.bintray.com/hazelcast/deb stable main" | sudo tee -a /etc/apt/sources.list
           sudo apt update && sudo apt install hazelcast=${{ needs.build.outputs.release }}
