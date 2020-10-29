@@ -1,7 +1,7 @@
 name: verify-release
 on:
   workflow_run:
-    workflows: ["CLI Release Automation"]
+    workflows: ["publish-release"]
     types:
       - completed
 jobs:
