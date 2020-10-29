@@ -174,10 +174,10 @@ jobs:
     needs: build
     name: CLI Release Verification
     steps:
-      - name: Run in container
+      - uses: actions/checkout@v2.3.2
+
+      - name: Install CLI from rpm
         run: |
-          # await rpm metadata to be updated
-          # sleep 120
           yum install -y wget
           wget https://bintray.com/hazelcast/rpm/rpm -O bintray-hazelcast-rpm.repo
           mv bintray-hazelcast-rpm.repo /etc/yum.repos.d/
