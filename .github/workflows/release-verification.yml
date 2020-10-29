@@ -11,14 +11,13 @@ jobs:
     steps:
       - name: Run in container
         run: |
-          # await rpm metadata to be updated
-          # sleep 120
+          RELEASE = $(echo ${{ github.ref }} | cut -c 12-)
           yum install -y wget
           wget https://bintray.com/hazelcast/rpm/rpm -O bintray-hazelcast-rpm.repo
           mv bintray-hazelcast-rpm.repo /etc/yum.repos.d/
-          yum install hazelcast-${{ env.RELEASE }}
-          # curl -L "https://dl.bintray.com/hazelcast/rpm/hazelcast-${{ env.RELEASE }}-1.noarch.rpm" -o hazelcast-${{ env.RELEASE }}.noarch.rpm
-          # rpm -i hazelcast-${{ env.RELEASE }}.noarch.rpm
+          yum install hazelcast-${RELEASE}
+          # curl -L "https://dl.bintray.com/hazelcast/rpm/hazelcast-${RELEASE}-1.noarch.rpm" -o hazelcast-${RELEASE}.noarch.rpm
+          # rpm -i hazelcast-${RELEASE}.noarch.rpm
           hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
       - name: Check IMDG health
