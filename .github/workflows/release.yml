@@ -181,7 +181,7 @@ jobs:
           yum install -y wget
           wget https://bintray.com/hazelcast/rpm/rpm -O bintray-hazelcast-rpm.repo
           mv bintray-hazelcast-rpm.repo /etc/yum.repos.d/
-          yum install hazelcast-${{ needs.build.outputs.release }}
+          yum install -y hazelcast-${{ needs.build.outputs.release }}
           # curl -L "https://dl.bintray.com/hazelcast/rpm/hazelcast-${{ needs.build.outputs.release }}-1.noarch.rpm" -o hazelcast-${{ needs.build.outputs.release }}.noarch.rpm
           # rpm -i hazelcast-${{ needs.build.outputs.release }}.noarch.rpm
           hz start -c src/test/resources/integration-test-hazelcast.yaml &
