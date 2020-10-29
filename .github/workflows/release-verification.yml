@@ -1,0 +1,37 @@
+name: verify-release
+on:
+  workflow_run:
+    workflows: ["CLI Release Automation"]
+    types:
+      - completed
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: centos:latest
+    steps:
+      - name: Run in container
+        run: |
+          # await rpm metadata to be updated
+          # sleep 120
+          yum install -y wget
+          wget https://bintray.com/hazelcast/rpm/rpm -O bintray-hazelcast-rpm.repo
+          mv bintray-hazelcast-rpm.repo /etc/yum.repos.d/
+          yum install hazelcast-${{ env.RELEASE }}
+          # curl -L "https://dl.bintray.com/hazelcast/rpm/hazelcast-${{ env.RELEASE }}-1.noarch.rpm" -o hazelcast-${{ env.RELEASE }}.noarch.rpm
+          # rpm -i hazelcast-${{ env.RELEASE }}.noarch.rpm
+          hz start -c src/test/resources/integration-test-hazelcast.yaml &
+
+      - name: Check IMDG health
+        run: |
+          attempts=0
+          max_attempts=10
+          until $(curl --silent --fail "127.0.0.1:5701/hazelcast/health/ready"); do
+            if [ ${attempts} -eq ${max_attempts} ];then
+                echo "Hazelcast not responding"
+                exit 1
+            fi
+            printf '.'
+            attempts=$(($attempts+1))
+            sleep 1
+          done
+          kill -9 $(jps | grep "HazelcastMember" | awk '{print $1;}')
