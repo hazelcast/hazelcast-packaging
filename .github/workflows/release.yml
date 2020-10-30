@@ -173,7 +173,6 @@ jobs:
             attempts=$(($attempts+1))
             sleep 1
           done
-          kill -9 $(jps | grep "HazelcastMember" | awk '{print $1;}')
 
   verify-rpm:
     runs-on: ubuntu-latest
@@ -204,7 +203,6 @@ jobs:
             attempts=$(($attempts+1))
             sleep 1
           done
-          kill -9 $(jps | grep "HazelcastMember" | awk '{print $1;}')
 
   verify-homebrew:
     runs-on: macos-latest
@@ -232,4 +230,3 @@ jobs:
             attempts=$(($attempts+1))
             sleep 1
           done
-          kill -9 $(jps | grep "HazelcastMember" | awk '{print $1;}')
