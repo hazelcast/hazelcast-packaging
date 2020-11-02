@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "Hazelcast is successfully installed to '/usr/lib/hazelcast/hazelcast-4.1-BETA-1/'"
+hz --help
