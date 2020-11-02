@@ -120,9 +120,9 @@ jobs:
       - name: Checkout homebrew-hz repo
         uses: actions/checkout@v2.3.1
         with:
-          repository: alparslanavci/homebrew-hz
+          repository: hazelcast/homebrew-hz
           ref: master
-          token: ${{ secrets.ALP_SECRET }}
+          token: ${{ secrets.DEVOPS_SECRET }}
 
       - name: Change the artifact in homebrew-hz
         run: |
@@ -137,10 +137,8 @@ jobs:
 
       - name: Commit changes
         run: |
-          # git config --global user.name 'devOpsHazelcast'
-          # git config --global user.email 'devops@hazelcast.com'
-          git config --global user.name 'alparslanavci'
-          git config --global user.email 'alparslanavci@gmail.com'
+          git config --global user.name 'devOpsHazelcast'
+          git config --global user.email 'devops@hazelcast.com'
           git add hazelcast@${{ env.RELEASE }}.rb
           git commit -am "Hazelcast Command Line ${{ env.RELEASE }} release"
 
@@ -216,7 +214,7 @@ jobs:
 
       - name: Install CLI from homebrew
         run: |
-          brew tap alparslanavci/hz
+          brew tap hazelcast/hz
           brew install hazelcast@${{ needs.build.outputs.release }}
 
       - name: Run CLI
