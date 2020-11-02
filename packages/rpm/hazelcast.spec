@@ -36,7 +36,7 @@ rm -rf $RPM_BUILD_ROOT
 %{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz %{buildroot}/%{_bindir}/hz
 
 %post
-echo "Hazelcast is installed successfully."
+echo "Hazelcast is successfully installed to '%{_prefix}/lib/%{name}/%{name}-%{hzversion}/'"
 hz --help
 
 %clean
