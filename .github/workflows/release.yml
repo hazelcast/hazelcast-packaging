@@ -157,7 +157,7 @@ jobs:
       - name: Install CLI from deb
         run: |
           # await some time for deb metadata to be signed
-          sleep 60
+          sleep 120
           wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=hazelcast | sudo apt-key add -
           echo "deb http://dl.bintray.com/hazelcast/deb stable main" | sudo tee -a /etc/apt/sources.list
           sudo apt update && sudo apt install hazelcast=${{ needs.build.outputs.release }}
@@ -218,7 +218,9 @@ jobs:
         run: |
           brew tap alparslanavci/hz
           brew install hazelcast@${{ needs.build.outputs.release }}
-          hz start -c src/test/resources/integration-test-hazelcast.yaml &
+
+      - name: Run CLI
+        run: hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
       - name: Check IMDG health
         run: |
