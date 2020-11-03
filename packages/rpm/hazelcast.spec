@@ -36,7 +36,7 @@ rm -rf $RPM_BUILD_ROOT
 %{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz %{buildroot}/%{_bindir}/hz
 
 %post
-echo "Hazelcast is installed successfully."
+echo "Hazelcast is successfully installed to '%{_prefix}/lib/%{name}/%{name}-%{hzversion}/'"
 hz --help
 
 %clean
@@ -49,7 +49,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/hz
 
 %changelog
-* Tue Oct 13 2020 Devops Hazelcast <devops@hazelcast.com> - 4.2020.10
+* Mon Nov 02 2020 Devops Hazelcast <devops@hazelcast.com> - 4.2020.11
+- Added post installation step for usage printout
+* Tue Oct 13 2020 Devops Hazelcast <devops@hazelcast.com> - 4.2020.11
 - Mark configuration files for upgrades
-* Tue Oct 13 2020 Devops Hazelcast <devops@hazelcast.com> - 4.2020.10
+* Tue Oct 13 2020 Devops Hazelcast <devops@hazelcast.com> - 4.2020.11
 - This is the initial RPM package spec
