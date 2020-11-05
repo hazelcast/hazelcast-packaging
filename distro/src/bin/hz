@@ -31,7 +31,7 @@ if [ -z $RUN_JAVA ] ; then
     exit 1
 fi
 
-export CLASSPATH="$HAZELCAST_HOME/lib/hazelcast-command-line-CLI_VERSION.jar:$HAZELCAST_HOME/lib/hazelcast-all-HZ_VERSION.jar"
+export CLASSPATH="$HAZELCAST_HOME/lib/hazelcast-command-line-CLI_VERSION.jar:$HAZELCAST_HOME/lib/hazelcast-all-HZ_VERSION.jar:$HAZELCAST_HOME/bin/download:$HAZELCAST_HOME/bin/download/hazelcast-download.properties"
 
 HZ_CMD="${RUN_JAVA} -cp ${CLASSPATH} ${JAVA_OPTS} -Dhazelcast.commandline.workingdirectory=${HAZELCAST_HOME} com.hazelcast.commandline.HazelcastCommandLine"
 

@@ -30,6 +30,8 @@ get-artifacts:
 	tar -zxf ${DIST}/${HZ_INSTALL_TAR} -C ${DIST}
 	rm ${DIST}/${HZ_INSTALL_TAR}
 	cp ../target/hazelcast-command-line-*-cli.jar ${HZ_LIB}/hazelcast-command-line-${CLI_VERSION}.jar
+	mkdir ${HZ_BIN}/download
+	cp src/bin/download/hazelcast-download.properties ${HZ_BIN}/download
 	cp src/bin/hazelcast-*-logging.properties ${HZ_BIN}
 	cp src/bin/hz ${HZ_BIN}
 	sed -i.bak 's+HZ_VERSION+${HZ_VERSION}+g' ${HZ_BIN}/hz
