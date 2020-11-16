@@ -6,7 +6,9 @@ Hazelcast Command Line is a tool which allows users to install & run Hazelcast I
 
 * [Requirements](#requirements)
 * [Installation](#installation)
-    * [Install on macOS with Homebrew](#install-on-macos-with-homebrew)
+    * [Install with Homebrew](#install-with-homebrew)
+    * [Install with yum/dnf](#install-with-yumdnf)
+    * [Install with apt](#install-with-apt)
     * [Install manually with archive package](#install-manually-with-archive-package)
 * [Basic Usages](#basic-usages)
     * [How to start a Hazelcast member](#how-to-start-a-hazelcast-member)
@@ -28,15 +30,35 @@ Hazelcast Command Line is a tool which allows users to install & run Hazelcast I
 
 ## Installation
 
-You can install Hazelcast Command Line using [Homebrew](https://brew.sh/) on macOS or manually on other operating systems. Support for other package managers such as [yum](http://yum.baseurl.org/) and [apt](https://wiki.debian.org/Apt) are in progress.
+You can install Hazelcast Command Line using [Homebrew](https://brew.sh/), [yum](http://yum.baseurl.org/), [apt](https://wiki.debian.org/Apt), or manually using the archive package.
 
-### Install on macOS with Homebrew 
+### Install with Homebrew 
 
 To install with Homebrew, you first need to tap the `hazelcast/hz` repository. Once you’ve tapped the repo, you can use `brew install` to install:
 
 ```
 $ brew tap hazelcast/hz
 $ brew install hazelcast
+```
+
+### Install with yum/dnf 
+
+The RPM packages for Hazelcast Command Line is kept at [Hazelcast's RPM repository](https://bintray.com/hazelcast/rpm/hazelcast). Please run the following commands to install it using yum/dnf:
+
+```
+$ wget https://bintray.com/hazelcast/rpm/rpm -O bintray-hazelcast-rpm.repo
+$ sudo mv bintray-hazelcast-rpm.repo /etc/yum.repos.d/
+$ sudo yum install hazelcast
+```
+
+### Install with apt 
+
+You can find the The Debian packages for Hazelcast Command Line at [Hazelcast's Debian repository](https://bintray.com/hazelcast/deb/hazelcast). Run the following commands to install it using apt:
+
+```
+$ wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=hazelcast | sudo apt-key add -
+$ echo "deb http://dl.bintray.com/hazelcast/deb stable main" | sudo tee -a /etc/apt/sources.list
+$ sudo apt update && sudo apt install hazelcast
 ```
 
 ### Install manually with archive package
@@ -73,7 +95,7 @@ Please note that only XML and YAML configurations are supported and a full path 
 Additionally, you can see which file is used to configure Hazelcast instance at the first log line after start. Please see an example output below:
 
 ```
-$ ./hz start
+$ hz start
 Aug 21, 2020 1:40:04 PM com.hazelcast.config.FileSystemYamlConfig
 INFO: Configuring Hazelcast from '/Users/myuser/hazelcast-command-line/distro/build/dist/config/hazelcast.yaml'.
 ...
@@ -141,9 +163,9 @@ This command prints Hazelcast IMDG, Management Center and the tool's version inf
 
 ```
 $ hz -V
-CLI tool: 4.2020.09
-Hazelcast IMDG: 4.1-BETA-1
-Hazelcast Management Center: 4.2020.08
+CLI tool: 4.2020.11
+Hazelcast IMDG: 4.1
+Hazelcast Management Center: 4.2020.10
 ```
 
 ## Installation from source
