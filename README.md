@@ -43,7 +43,7 @@ $ brew install hazelcast
 
 ### Install with yum/dnf 
 
-The RPM packages for Hazelcast Command Line is kept at Hazelcast's RPM repository. Please run the following commands to install it using yum/dnf:
+The RPM packages for Hazelcast Command Line is kept at [Hazelcast's RPM repository](https://bintray.com/hazelcast/rpm/). Please run the following commands to install it using yum/dnf:
 
 ```
 $ wget https://bintray.com/hazelcast/rpm/rpm -O bintray-hazelcast-rpm.repo
@@ -53,7 +53,7 @@ $ sudo yum install hazelcast
 
 ### Install with apt 
 
-You can find the The Debian packages for Hazelcast Command Line at Hazelcast's Debian repository. Run the following commands to install it using apt:
+You can find the The Debian packages for Hazelcast Command Line at [Hazelcast's Debian repository](https://bintray.com/hazelcast/deb). Run the following commands to install it using apt:
 
 ```
 $ wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=hazelcast | sudo apt-key add -
