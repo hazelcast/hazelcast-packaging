@@ -41,7 +41,7 @@ jobs:
         run: |
           echo "RELEASE=$(echo ${{ github.ref }} | cut -c 12-)" >> $GITHUB_ENV
           echo ::set-output name=release::$(echo ${{ github.ref }} | cut -c 12-)
-          echo "RELEASE_INFO=$(distro/build/dist/hazelcast-${{ env.HZ_VERSION }}/bin/hz -V)" >> $GITHUB_ENV
+          echo "RELEASE_INFO=$(distro/build/dist/hazelcast-${{ env.HZ_VERSION }}/bin/hz -V) | awk '{print}' ORS=', ')" >> $GITHUB_ENV
 
       - name: Set ASSET_NAME
         run: |
