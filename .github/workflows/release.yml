@@ -34,26 +34,26 @@ jobs:
 
       - name: Set HZ_VERSION
         run: |
-          echo ::set-env name=HZ_VERSION::$(grep '<hazelcast.version>' pom.xml | sed "s@.*<hazelcast.version>\(.*\)</hazelcast.version>.*@\1@")
+          echo "HZ_VERSION=$(grep '<hazelcast.version>' pom.xml | sed "s@.*<hazelcast.version>\(.*\)</hazelcast.version>.*@\1@")" >> $GITHUB_ENV
 
       - name: Set RELEASE & RELEASE_INFO
         id: release-info
         run: |
-          echo ::set-env name=RELEASE::$(echo ${{ github.ref }} | cut -c 12-)
+          echo "RELEASE=$(echo ${{ github.ref }} | cut -c 12-)" >> $GITHUB_ENV
           echo ::set-output name=release::$(echo ${{ github.ref }} | cut -c 12-)
-          echo ::set-env name=RELEASE_INFO::$(distro/build/dist/hazelcast-${{ env.HZ_VERSION }}/bin/hz -V)
+          echo "RELEASE_INFO=$(distro/build/dist/hazelcast-${{ env.HZ_VERSION }}/bin/hz -V | awk '{print}' ORS=', ')" >> $GITHUB_ENV
 
       - name: Set ASSET_NAME
         run: |
-          echo ::set-env name=ASSET_NAME::$(printf "hazelcast-%s.tar.gz" ${{ env.HZ_VERSION }})
+          echo "ASSET_NAME=$(printf "hazelcast-%s.tar.gz" ${{ env.HZ_VERSION }})" >> $GITHUB_ENV
 
       - name: Set ASSET_PATH
         run: |
-          echo ::set-env name=ASSET_PATH::$(printf "distro/build/dist/%s" ${{ env.ASSET_NAME }})
+          echo "ASSET_PATH=$(printf "distro/build/dist/%s" ${{ env.ASSET_NAME }})" >> $GITHUB_ENV
 
       - name: Set ASSET_SHASUM
         run: |
-          echo ::set-env name=ASSET_SHASUM::$(sha256sum ${{ env.ASSET_PATH }} | cut -d ' ' -f 1)
+          echo "ASSET_SHASUM=$(sha256sum ${{ env.ASSET_PATH }} | cut -d ' ' -f 1)" >> $GITHUB_ENV
 
       - name: Create Release
         id: create_release
