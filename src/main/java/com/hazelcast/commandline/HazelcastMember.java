@@ -51,9 +51,11 @@ final class HazelcastMember {
         Config config = createConfig(defaultHazelcastConfig);
         config.getNetworkConfig().setPort(Integer.parseInt(System.getProperty("network.port")));
         String networkInterface = System.getProperty("network.interface");
-        config.setProperty("hazelcast.socket.bind.any", "false");
-        InterfacesConfig interfaces = config.getNetworkConfig().getInterfaces();
-        interfaces.setEnabled(true).addInterface(networkInterface);
+        if (!isNullOrEmpty(networkInterface)) {
+            config.setProperty("hazelcast.socket.bind.any", "false");
+            InterfacesConfig interfaces = config.getNetworkConfig().getInterfaces();
+            interfaces.setEnabled(true).addInterface(networkInterface);
+        }
         return config;
     }
 
