@@ -34,7 +34,7 @@ jobs:
 
       - name: Set HZ_VERSION
         run: |
-          echo "name=HZ_VERSION::$(grep '<hazelcast.version>' pom.xml | sed "s@.*<hazelcast.version>\(.*\)</hazelcast.version>.*@\1@")" >> $GITHUB_ENV
+          echo "HZ_VERSION=$(grep '<hazelcast.version>' pom.xml | sed "s@.*<hazelcast.version>\(.*\)</hazelcast.version>.*@\1@")" >> $GITHUB_ENV
 
       - name: Run CLI for IMDG
         run: distro/build/dist/hazelcast-${{ env.HZ_VERSION }}/bin/hz start -c src/test/resources/integration-test-hazelcast.yaml &
