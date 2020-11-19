@@ -94,7 +94,7 @@ jobs:
           mv packages/deb/hazelcast.deb hazelcast-${{ env.RELEASE }}-all.deb
           curl --header "X-GPG-PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}" -T hazelcast-${{ env.RELEASE }}-all.deb \
             -udevopshazelcast:${{ secrets.BINTRAY_SECRET }} \
-            "https://api.bintray.com/content/hazelcast/deb/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-all.deb;deb_distribution=stable;deb_component=main;deb_architecture=all;publish=1"
+            "https://api.bintray.com/content/hazelcast/deb/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-all.deb;deb_distribution=stable;deb_component=main;deb_architecture=i386,amd64;publish=1"
 
       - name: Create & Sign & Upload rpm package
         run: |
