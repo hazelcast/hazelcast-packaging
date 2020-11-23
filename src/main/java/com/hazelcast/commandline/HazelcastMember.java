@@ -44,14 +44,18 @@ final class HazelcastMember {
     static Config config()
             throws Exception {
         String hazelcastConfig = System.getProperty("hazelcast.config");
+        Config config;
         if (!isNullOrEmpty(hazelcastConfig)) {
-            return createConfig(hazelcastConfig);
+            config = createConfig(hazelcastConfig);
+        } else {
+            config = Config.load();
         }
-        String defaultHazelcastConfig = System.getProperty("hazelcast.default.config");
-        Config config = createConfig(defaultHazelcastConfig);
-        config.getNetworkConfig().setPort(Integer.parseInt(System.getProperty("network.port")));
+        String port = System.getProperty("network.port");
+        if (!port.equalsIgnoreCase("null")) {
+            config.getNetworkConfig().setPort(Integer.parseInt(port));
+        }
         String networkInterface = System.getProperty("network.interface");
-        if (!isNullOrEmpty(networkInterface)) {
+        if (!networkInterface.equalsIgnoreCase("null")) {
             config.setProperty("hazelcast.socket.bind.any", "false");
             InterfacesConfig interfaces = config.getNetworkConfig().getInterfaces();
             interfaces.setEnabled(true).addInterface(networkInterface);

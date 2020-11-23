@@ -82,7 +82,7 @@ class HazelcastCommandLine
                     String configFilePath,
             @Option(names = {"-p", "--port"}, paramLabel = "<port>",
                     description = "Bind to the specified <port>. Please note that if the specified port is in use, "
-                            + "it will auto-increment to the first free port. (default: 5701)", defaultValue = "5701")
+                            + "it will auto-increment to the first free port. (default: 5701)")
                     String port,
             @Option(names = {"-i", "--interface"}, paramLabel = "<interface>",
                     description = "Bind to the specified <interface>.")
@@ -103,13 +103,9 @@ class HazelcastCommandLine
         List<String> args = new ArrayList<>();
         if (!isNullOrEmpty(configFilePath)) {
             args.add("-Dhazelcast.config=" + configFilePath);
-        } else {
-            args.add("-Dhazelcast.default.config=" + AbstractCommandLine.WORKING_DIRECTORY + "/bin/hazelcast.xml");
         }
         args.add("-Dnetwork.port=" + port);
-        if (!isNullOrEmpty(hzInterface)) {
-            args.add("-Dnetwork.interface=" + hzInterface);
-        }
+        args.add("-Dnetwork.interface=" + hzInterface);
         if (javaOptions != null && javaOptions.size() > 0) {
             args.addAll(javaOptions);
         }
