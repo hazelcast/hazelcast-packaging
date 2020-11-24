@@ -72,16 +72,6 @@ public class HazelcastCommandLineTest {
     }
 
     @Test
-    public void test_start_withoutConfigFile()
-            throws Exception {
-        // when
-        hazelcastCommandLine.start(null, null, null, null, null, false, false);
-        // then
-        verify(processExecutor)
-                .buildAndStart((List<String>) argThat(Matchers.hasItems("-Dhazelcast.default.config=" + WORKING_DIRECTORY + "/bin/hazelcast.xml")));
-    }
-
-    @Test
     public void test_start_withPort()
             throws Exception {
         // given

@@ -38,7 +38,6 @@ public class HazelcastMemberTest {
     public void test_config()
             throws Exception {
         // given
-        System.setProperty("hazelcast.default.config", "src/test/resources/test-hazelcast.yaml");
         String port = "1234";
         String networkInterface = "127.0.0.1";
         System.setProperty("network.port", port);
@@ -46,7 +45,6 @@ public class HazelcastMemberTest {
         // when
         Config config = HazelcastMember.config();
         // then
-        assertEquals("hz-test-cluster", config.getClusterName());
         assertEquals(port, String.valueOf(config.getNetworkConfig().getPort()));
         assertTrue(config.getNetworkConfig().getInterfaces().isEnabled());
         assertEquals("false", config.getProperty("hazelcast.socket.bind.any"));
@@ -58,6 +56,8 @@ public class HazelcastMemberTest {
             throws Exception {
         // given
         System.setProperty("hazelcast.config", "src/test/resources/test-hazelcast-user-defined.yaml");
+        System.setProperty("network.port", "null");
+        System.setProperty("network.interface", "null");
         // when
         Config config = HazelcastMember.config();
         // then
@@ -69,6 +69,8 @@ public class HazelcastMemberTest {
             throws Exception {
         // given
         System.setProperty("hazelcast.config", "src/test/resources/test-hazelcast-user-defined.xml");
+        System.setProperty("network.port", "null");
+        System.setProperty("network.interface", "null");
         // when
         Config config = HazelcastMember.config();
         // then
