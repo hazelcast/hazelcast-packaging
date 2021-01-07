@@ -93,7 +93,7 @@ jobs:
           dpkg-deb --build packages/deb/hazelcast
           mv packages/deb/hazelcast.deb hazelcast-${{ env.RELEASE }}-all.deb
           DEB_SHASUM=$(sha256sum hazelcast-${{ env.RELEASE }}-all.deb | cut -d ' ' -f 1)
-          curl -H "Authorization: Bearer ${{ secrets.BINTRAY_SECRET }}" -H "X-Checksum-Deploy: true" -H "X-Checksum-Sha256: $DEB_SHASUM" -T "hazelcast-${{ env.RELEASE }}-all.deb" \
+          curl -H "Authorization: Bearer ${{ secrets.BINTRAY_SECRET }}" -T "hazelcast-${{ env.RELEASE }}-all.deb" \
             -X PUT "https://repository.hazelcast.com/artifactory/debian-test-local/hazelcast-${{ env.RELEASE }}-all.deb;deb.distribution=stable;deb.component=main;deb.architecture=all"
 
   verify-deb:
