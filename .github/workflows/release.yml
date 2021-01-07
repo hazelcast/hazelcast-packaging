@@ -92,9 +92,10 @@ jobs:
           sed -i 's+/usr/lib/hazelcast/hazelcast-[^/]*/\(.*$\)+/usr/lib/hazelcast/hazelcast-${{ env.HZ_VERSION }}/\1+g' packages/deb/hazelcast/DEBIAN/postinst
           dpkg-deb --build packages/deb/hazelcast
           mv packages/deb/hazelcast.deb hazelcast-${{ env.RELEASE }}-all.deb
-          curl --header "X-GPG-PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}" -T hazelcast-${{ env.RELEASE }}-all.deb \
-            -udevopshazelcast:${{ secrets.BINTRAY_SECRET }} \
-            "https://api.bintray.com/content/hazelcast/deb/hazelcast/${{ env.RELEASE }}/hazelcast-${{ env.RELEASE }}-all.deb;deb_distribution=stable;deb_component=main;deb_architecture=i386,amd64;publish=1"
+          DEB_SHASUM=$(sha256sum hazelcast-${{ env.RELEASE }}-all.deb | cut -d ' ' -f 1)
+          curl -H"Authorization: Bearer ${{ secrets.BINTRAY_SECRET }}" -H"X-Checksum-Deploy: true" -H"X-Checksum-Sha256: $DEB_SHASUM" \
+            -X PUT "https://hazelcast.jfrog.io/artifactory/debian-test-local/hazelcast-${{ env.RELEASE }}-all.deb;deb.distribution=stable;deb.component=main;deb.architecture=all" \
+            -T hazelcast-${{ env.RELEASE }}-all.deb
 
   verify-deb:
     runs-on: ubuntu-latest
@@ -107,8 +108,8 @@ jobs:
         run: |
           # await some time for deb metadata to be signed
           sleep 120
-          wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=hazelcast | sudo apt-key add -
-          echo "deb http://dl.bintray.com/hazelcast/deb stable main" | sudo tee -a /etc/apt/sources.list
+          wget -qO - https://repository.hazelcast.com/artifactory/api/gpg/key/public | sudo apt-key add -
+          echo "deb https://repository.hazelcast.com/artifactory/debian stable main" | sudo tee -a /etc/apt/sources.list
           sudo apt update && sudo apt install hazelcast=${{ needs.build.outputs.release }}
           hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
