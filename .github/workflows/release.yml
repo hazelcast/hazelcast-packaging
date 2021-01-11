@@ -111,7 +111,7 @@ jobs:
           # await some time for deb metadata to be signed
           sleep 120
           wget -qO - https://repository.hazelcast.com/artifactory/api/gpg/key/public | sudo apt-key add -
-          echo "deb https://repository.hazelcast.com/artifactory/debian stable main" | sudo tee -a /etc/apt/sources.list
+          echo "deb https://repository.hazelcast.com/artifactory/debian-test-local stable main" | sudo tee -a /etc/apt/sources.list
           sudo apt update && sudo apt install hazelcast=${{ needs.build.outputs.release }}
           hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
