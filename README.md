@@ -66,9 +66,9 @@ $ sudo apt update && sudo apt install hazelcast
 Please download the latest archive package from this repository's [releases section](https://github.com/hazelcast/hazelcast-command-line/releases). Once you downloaded, you can extract it and start using Hazelcast Command Line as follows:
 
 ```
-$ wget https://github.com/hazelcast/hazelcast-command-line/releases/download/v4.2020.09/hazelcast-command-line-4.2020.09.tar.gz
-$ tar -xzvf hazelcast-command-line-4.2020.09.tar.gz
-$ cd hazelcast-command-line-4.2020.09/bin
+$ wget https://github.com/hazelcast/hazelcast-command-line/releases/download/v4.2020.12/hazelcast-4.1.1.tar.gz
+$ tar -xzvf hazelcast-4.1.1.tar.gz
+$ cd hazelcast-4.1.1/bin
 $ ./hz
 ``` 
 
