@@ -6,11 +6,11 @@
 
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-command-line</artifactId>
-    <version>4.2021.01-SNAPSHOT</version>
+    <version>4.2021.02</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hazelcast.version>4.1.1</hazelcast.version>
+        <hazelcast.version>4.2-BETA-1</hazelcast.version>
         <picocli.version>4.4.0</picocli.version>
         <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
         <maven.checkstyle.plugin.version>2.15</maven.checkstyle.plugin.version>
