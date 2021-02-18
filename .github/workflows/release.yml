@@ -114,7 +114,7 @@ jobs:
           /usr/lib/gnupg2/gpg-preset-passphrase --passphrase ${{ secrets.BINTRAY_PASSPHRASE }} --preset 50907674C38F9E099C35345E246EBBA203D8E107
           gpg --export -a 'Hazelcast' > RPM-GPG-KEY-Hazelcast
           sudo rpm --import RPM-GPG-KEY-Hazelcast
-          sudo rpmbuild -bb packages/rpm/hazelcast.spec
+          sudo rpmbuild --buildroot='/home/runner/rpmbuild/' -bb packages/rpm/hazelcast.spec
           sudo rpm --addsign /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm
           DEB_SHA256SUM=$(sha256sum /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm | cut -d ' ' -f 1)
           DEB_SHA1SUM=$(sha1sum /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm | cut -d ' ' -f 1)
