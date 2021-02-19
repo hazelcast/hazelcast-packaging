@@ -101,26 +101,23 @@ jobs:
 
       - name: Create & Sign & Upload rpm package
         run: |
-          sudo mkdir -p /home/runner/rpmbuild/SOURCES/
-          sudo cp ${{ env.ASSET_PATH }} /home/runner/rpmbuild/SOURCES/
+          mkdir -p /home/runner/rpmbuild/SOURCES/
+          cp ${{ env.ASSET_PATH }} /home/runner/rpmbuild/SOURCES/
           sed -i 's+%define hzversion.*$+%define hzversion ${{ env.HZ_VERSION }}+g' packages/rpm/hazelcast.spec
           sed -i 's+Version:.*$+Version:    ${{ env.RELEASE }}+g' packages/rpm/hazelcast.spec
           cp packages/rpm/.rpmmacros /home/runner/
           gpg --list-keys
-          sudo printf "${{ secrets.DEVOPS_PRIVATE_KEY }}" | base64 --decode > /home/runner/.gnupg/private.key
+          printf "${{ secrets.DEVOPS_PRIVATE_KEY }}" | base64 --decode > /home/runner/.gnupg/private.key
           gpg --batch --import /home/runner/.gnupg/private.key
-          sudo printf 'allow-preset-passphrase' > /home/runner/.gnupg/gpg-agent.conf
-          gpg-connect-agent reloadagent /bye
-          /usr/lib/gnupg2/gpg-preset-passphrase --passphrase ${{ secrets.BINTRAY_PASSPHRASE }} --preset 50907674C38F9E099C35345E246EBBA203D8E107
           gpg --export -a 'Hazelcast' > RPM-GPG-KEY-Hazelcast
-          sudo rpm --import RPM-GPG-KEY-Hazelcast
-          sudo rpmbuild --define "_topdir /home/runner/rpmbuild/" -bb packages/rpm/hazelcast.spec
-          sudo rpm --addsign /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm
+          rpm --import RPM-GPG-KEY-Hazelcast
+          rpmbuild --define "_topdir /home/runner/rpmbuild/" -bb packages/rpm/hazelcast.spec
+          rpm --define "_gpg_name Hazelcast" --addsign /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm
           DEB_SHA256SUM=$(sha256sum /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm | cut -d ' ' -f 1)
           DEB_SHA1SUM=$(sha1sum /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm | cut -d ' ' -f 1)
           DEB_MD5SUM=$(md5sum /home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm | cut -d ' ' -f 1)
           curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" -H "X-Checksum-Deploy: false" -H "X-Checksum-Sha256: $DEB_SHA256SUM" \
-                      -H "X-Checksum-Sha1: $DEB_SHA1SUM" -H "X-Checksum-MD5: $DEB_MD5SUM" -T"/home/runner/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm" \
+                      -H "X-Checksum-Sha1: $DEB_SHA1SUM" -H "X-Checksum-MD5: $DEB_MD5SUM" -T"~/rpmbuild/RPMS/noarch/hazelcast-${{ env.RELEASE }}-1.noarch.rpm" \
                       -X PUT "https://repository.hazelcast.com/rpm-local/hazelcast-${{ env.RELEASE }}-1.noarch.rpm"
 
       - name: Checkout homebrew-hz repo
