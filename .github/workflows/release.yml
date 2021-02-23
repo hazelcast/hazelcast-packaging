@@ -89,7 +89,7 @@ jobs:
           sed -i 's+Version:.*$+Version:    ${{ env.RELEASE }}+g' packages/rpm/hazelcast.spec
           cp packages/rpm/.rpmmacros /home/runner/
           gpg --list-keys
-          echo "${{ secrets.DEVOPS_PRIVATE_KEY }}\n" > /home/runner/.gnupg/private.key
+          echo "${{ secrets.DEVOPS_PRIVATE_KEY }}" > /home/runner/.gnupg/private.key
           gpg --batch --import /home/runner/.gnupg/private.key
           gpg --export -a 'Hazelcast' > RPM-GPG-KEY-Hazelcast
           sudo printf 'allow-preset-passphrase' > /home/runner/.gnupg/gpg-agent.conf
