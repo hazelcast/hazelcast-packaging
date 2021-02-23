@@ -81,24 +81,6 @@ jobs:
           asset_name: ${{ env.ASSET_NAME }}
           asset_content_type: application/zip
 
-      - name: Create & Upload deb package
-        run: |
-          mkdir -p packages/deb/hazelcast/usr/lib/hazelcast
-          mkdir -p packages/deb/hazelcast/usr/bin
-          tar -xvf ${{ env.ASSET_PATH }} -C packages/deb/hazelcast/usr/lib/hazelcast/
-          ln -s /usr/lib/hazelcast/hazelcast-${{ env.HZ_VERSION }}/bin/hz packages/deb/hazelcast/usr/bin/hz
-          sed -i 's+Version:.*$+Version: ${{ env.RELEASE }}+g' packages/deb/hazelcast/DEBIAN/control
-          sed -i 's+/usr/lib/hazelcast/hazelcast-.*/\(.*$\)+/usr/lib/hazelcast/hazelcast-${{ env.HZ_VERSION }}/bin/\1+g' packages/deb/hazelcast/DEBIAN/conffiles
-          sed -i 's+/usr/lib/hazelcast/hazelcast-[^/]*/\(.*$\)+/usr/lib/hazelcast/hazelcast-${{ env.HZ_VERSION }}/\1+g' packages/deb/hazelcast/DEBIAN/postinst
-          dpkg-deb --build packages/deb/hazelcast
-          mv packages/deb/hazelcast.deb hazelcast-${{ env.RELEASE }}-all.deb
-          DEB_SHA256SUM=$(sha256sum hazelcast-${{ env.RELEASE }}-all.deb | cut -d ' ' -f 1)
-          DEB_SHA1SUM=$(sha1sum hazelcast-${{ env.RELEASE }}-all.deb | cut -d ' ' -f 1)
-          DEB_MD5SUM=$(md5sum hazelcast-${{ env.RELEASE }}-all.deb | cut -d ' ' -f 1)
-          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" -H "X-Checksum-Deploy: false" -H "X-Checksum-Sha256: $DEB_SHA256SUM" \
-            -H "X-Checksum-Sha1: $DEB_SHA1SUM" -H "X-Checksum-MD5: $DEB_MD5SUM" -T"hazelcast-${{ env.RELEASE }}-all.deb" \
-            -X PUT "https://repository.hazelcast.com/debian-test-local/hazelcast-${{ env.RELEASE }}-all.deb;deb.distribution=stable;deb.component=main;deb.architecture=all"
-
       - name: Create & Sign & Upload rpm package
         run: |
           mkdir -p /home/runner/rpmbuild/SOURCES/
