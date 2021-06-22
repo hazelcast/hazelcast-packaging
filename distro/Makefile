@@ -3,6 +3,7 @@ HZ_VERSION := $(shell grep '<hazelcast.version>' ../pom.xml | sed "s@.*<hazelcas
 MC_VERSION := $(shell grep 'mc.version' ../src/main/resources/version.properties | sed "s@.*mc.version=\(.*\)*@\1@")
 HZ_INSTALL_NAME=hazelcast-${HZ_VERSION}
 HZ_INSTALL_TAR=${HZ_INSTALL_NAME}.tar.gz
+HZ_DIST=hazelcast-distribution
 MC_INSTALL_NAME=hazelcast-management-center-${MC_VERSION}
 MC_INSTALL_TAR=${MC_INSTALL_NAME}.tar.gz
 HZ_BIN=${DIST}/${HZ_INSTALL_NAME}/bin
@@ -29,13 +30,23 @@ get-artifacts:
 	# get artifacts
 	cd .. && mvn clean package && cd -
 	mkdir -p ${DIST}
-	wget -O ${DIST}/${HZ_INSTALL_TAR} "https://download.hazelcast.com/download.jsp?version=hazelcast-${HZ_VERSION}&type=tar&p="
+	mvn dependency:get \
+			-DrepoUrl=https://oss.sonatype.org/content/repositories/snapshots/ \
+        	-Dartifact=com.hazelcast:${HZ_DIST}:${HZ_VERSION}:tar.gz \
+            -Dtransitive=false \
+            -Ddest=${HZ_DIST}-${HZ_VERSION}.tar.gz
+	mv ${HZ_DIST}-${HZ_VERSION}.tar.gz ${DIST}/${HZ_INSTALL_TAR}
 	tar -zxf ${DIST}/${HZ_INSTALL_TAR} -C ${DIST}
+	# in snapshot 5.0 we do not have hazelcast-all-5.0-SNAPSHOT.jar file,
+	# but there is hazelcast-5.0-SNAPSHOT.jar. This creates problem where script(s)
+	# such as bin/hz set classpath as hazelcast-all-5.0-SNAPSHOT.jar, where it should actually
+	# be the other one
+	# todo: this should be either generalized here, or get fixed in hz release
+	mv ${DIST}/${HZ_INSTALL_NAME}/lib/hazelcast-${HZ_VERSION}.jar ${DIST}/${HZ_INSTALL_NAME}/lib/hazelcast-all-${HZ_VERSION}.jar;
 	rm ${DIST}/${HZ_INSTALL_TAR}
 	wget -O ${DIST}/${MC_INSTALL_TAR} "https://download.hazelcast.com/management-center/hazelcast-management-center-${MC_VERSION}.tar.gz"
 	tar -zxf ${DIST}/${MC_INSTALL_TAR} -C ${DIST}
 	rm ${DIST}/${MC_INSTALL_TAR}
-	rm -r ${DIST}/${HZ_INSTALL_NAME}/management-center
 	mv ${DIST}/${MC_INSTALL_NAME} ${DIST}/${HZ_INSTALL_NAME}/management-center
 	cp ../target/hazelcast-command-line-*-cli.jar ${HZ_LIB}/hazelcast-command-line-${CLI_VERSION}.jar
 	mkdir ${HZ_BIN}/download

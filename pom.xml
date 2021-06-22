@@ -6,11 +6,11 @@
 
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-command-line</artifactId>
-    <version>4.2021.04-SNAPSHOT</version>
+    <version>4.2021.04</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hazelcast.version>4.2</hazelcast.version>
+        <hazelcast.version>5.0-SNAPSHOT</hazelcast.version>
         <picocli.version>4.4.0</picocli.version>
         <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
         <maven.checkstyle.plugin.version>2.15</maven.checkstyle.plugin.version>
@@ -195,5 +195,16 @@
             </build>
         </profile>
     </profiles>
+
+    <repositories>
+        <repository>
+            <id>oss-sonatype</id>
+            <name>oss-sonatype</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
 </project>

@@ -1,7 +1,7 @@
-%define hzversion 4.1-BETA-1
+%define hzversion 5.0-SNAPSHOT
 
 Name:		hazelcast
-Version:    4.2020.10
+Version:    5.0-SNAPSHOT
 Release:	1
 Summary:	A tool that allows users to install & run Hazelcast IMDG and Management Center on the local environment
 
@@ -37,6 +37,8 @@ rm -rf $RPM_BUILD_ROOT
 echo 'hazelcastDownloadId=CLI_RPM' > "%{buildroot}%{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/download/hazelcast-download.properties"
 
 %post
+PATH=$PATH:'%{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin'
+export PATH
 printf "\n\nHazelcast is successfully installed to '%{_prefix}/lib/%{name}/%{name}-%{hzversion}/'\n"
 hz --help
 
