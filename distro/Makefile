@@ -4,6 +4,10 @@ MC_VERSION := $(shell grep 'mc.version' ../src/main/resources/version.properties
 HZ_INSTALL_NAME=hazelcast-${HZ_VERSION}
 HZ_INSTALL_TAR=${HZ_INSTALL_NAME}.tar.gz
 HZ_DIST=hazelcast-distribution
+HZ_REPO_URL=https://repo1.maven.org/maven2/
+ifneq (, $(findstring SNAPSHOT, $(HZ_VERSION)))
+	HZ_REPO_URL=https://oss.sonatype.org/content/repositories/snapshots/
+endif
 MC_INSTALL_NAME=hazelcast-management-center-${MC_VERSION}
 MC_INSTALL_TAR=${MC_INSTALL_NAME}.tar.gz
 HZ_BIN=${DIST}/${HZ_INSTALL_NAME}/bin
@@ -31,7 +35,7 @@ get-artifacts:
 	cd .. && mvn clean package && cd -
 	mkdir -p ${DIST}
 	mvn dependency:get \
-			-DrepoUrl=https://oss.sonatype.org/content/repositories/snapshots/ \
+			-DrepoUrl=${HZ_REPO_URL} \
         	-Dartifact=com.hazelcast:${HZ_DIST}:${HZ_VERSION}:tar.gz \
             -Dtransitive=false \
             -Ddest=${HZ_DIST}-${HZ_VERSION}.tar.gz
