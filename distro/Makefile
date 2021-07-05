@@ -41,12 +41,6 @@ get-artifacts:
             -Ddest=${HZ_DIST}-${HZ_VERSION}.tar.gz
 	mv ${HZ_DIST}-${HZ_VERSION}.tar.gz ${DIST}/${HZ_INSTALL_TAR}
 	tar -zxf ${DIST}/${HZ_INSTALL_TAR} -C ${DIST}
-	# in snapshot 5.0 we do not have hazelcast-all-5.0-SNAPSHOT.jar file,
-	# but there is hazelcast-5.0-SNAPSHOT.jar. This creates problem where script(s)
-	# such as bin/hz set classpath as hazelcast-all-5.0-SNAPSHOT.jar, where it should actually
-	# be the other one
-	# todo: this should be either generalized here, or get fixed in hz release
-	mv ${DIST}/${HZ_INSTALL_NAME}/lib/hazelcast-${HZ_VERSION}.jar ${DIST}/${HZ_INSTALL_NAME}/lib/hazelcast-all-${HZ_VERSION}.jar;
 	rm ${DIST}/${HZ_INSTALL_TAR}
 	wget -O ${DIST}/${MC_INSTALL_TAR} "https://download.hazelcast.com/management-center/hazelcast-management-center-${MC_VERSION}.tar.gz"
 	tar -zxf ${DIST}/${MC_INSTALL_TAR} -C ${DIST}
