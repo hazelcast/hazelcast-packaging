@@ -1,6 +1,6 @@
 Package: hazelcast
 Source: hazelcast
-Version: 5.0-SNAPSHOT
+Version: 5.2021.8
 Section: imdg
 Priority: optional
 Architecture: all

@@ -36,9 +36,9 @@ get-artifacts:
 	mkdir -p ${DIST}
 	mvn dependency:get \
 			-DrepoUrl=${HZ_REPO_URL} \
-        	-Dartifact=com.hazelcast:${HZ_DIST}:${HZ_VERSION}:tar.gz \
-            -Dtransitive=false \
-            -Ddest=${HZ_DIST}-${HZ_VERSION}.tar.gz
+			-Dartifact=com.hazelcast:${HZ_DIST}:${HZ_VERSION}:tar.gz \
+			-Dtransitive=false \
+			-Ddest=${HZ_DIST}-${HZ_VERSION}.tar.gz
 	mv ${HZ_DIST}-${HZ_VERSION}.tar.gz ${DIST}/${HZ_INSTALL_TAR}
 	tar -zxf ${DIST}/${HZ_INSTALL_TAR} -C ${DIST}
 	rm ${DIST}/${HZ_INSTALL_TAR}

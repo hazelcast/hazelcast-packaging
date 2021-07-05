@@ -1,5 +1,5 @@
 #!/bin/sh
-echo 'hazelcastDownloadId=CLI_DEB' > "/usr/lib/hazelcast/hazelcast-5.0-SNAPSHOT/bin/download/hazelcast-download.properties"
+echo 'hazelcastDownloadId=CLI_DEB' > "/usr/lib/hazelcast/hazelcast-5.2021.8/bin/download/hazelcast-download.properties"
 
-printf "\n\nHazelcast is successfully installed to '/usr/lib/hazelcast/hazelcast-5.0-SNAPSHOT/'\n"
+printf "\n\nHazelcast is successfully installed to '/usr/lib/hazelcast/hazelcast-5.2021.8/'\n"
 hz --help
