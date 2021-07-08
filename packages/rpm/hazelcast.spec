@@ -1,7 +1,7 @@
 %define hzversion 5.2021.8
 
 Name:		hazelcast
-Version:    5.2021.8
+Version:    4.2020.10
 Release:	1
 Summary:	A tool that allows users to install & run Hazelcast IMDG and Management Center on the local environment
 
