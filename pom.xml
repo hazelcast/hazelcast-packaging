@@ -10,7 +10,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hazelcast.version>5.2021.8</hazelcast.version>
+        <hazelcast.version>5.0-SNAPSHOT</hazelcast.version>
         <picocli.version>4.4.0</picocli.version>
         <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
         <maven.checkstyle.plugin.version>2.15</maven.checkstyle.plugin.version>
