@@ -1,4 +1,4 @@
-%define hzversion 5.2021.8
+%define hzversion 4.1-BETA-1
 
 Name:		hazelcast
 Version:    4.2020.10
