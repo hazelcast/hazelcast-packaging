@@ -6,7 +6,7 @@
 
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-command-line</artifactId>
-    <version>5.2021.07</version>
+    <version>5.2021.08-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
