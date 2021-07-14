@@ -3,6 +3,11 @@ HZ_VERSION := $(shell grep '<hazelcast.version>' ../pom.xml | sed "s@.*<hazelcas
 MC_VERSION := $(shell grep 'mc.version' ../src/main/resources/version.properties | sed "s@.*mc.version=\(.*\)*@\1@")
 HZ_INSTALL_NAME=hazelcast-${HZ_VERSION}
 HZ_INSTALL_TAR=${HZ_INSTALL_NAME}.tar.gz
+HZ_DIST=hazelcast-distribution
+HZ_REPO_URL=https://repo1.maven.org/maven2/
+ifneq (, $(findstring SNAPSHOT, $(HZ_VERSION)))
+	HZ_REPO_URL=https://oss.sonatype.org/content/repositories/snapshots/
+endif
 MC_INSTALL_NAME=hazelcast-management-center-${MC_VERSION}
 MC_INSTALL_TAR=${MC_INSTALL_NAME}.tar.gz
 HZ_BIN=${DIST}/${HZ_INSTALL_NAME}/bin
@@ -29,13 +34,17 @@ get-artifacts:
 	# get artifacts
 	cd .. && mvn clean package && cd -
 	mkdir -p ${DIST}
-	wget -O ${DIST}/${HZ_INSTALL_TAR} "https://download.hazelcast.com/download.jsp?version=hazelcast-${HZ_VERSION}&type=tar&p="
+	mvn dependency:get \
+			-DrepoUrl=${HZ_REPO_URL} \
+			-Dartifact=com.hazelcast:${HZ_DIST}:${HZ_VERSION}:tar.gz \
+			-Dtransitive=false \
+			-Ddest=${HZ_DIST}-${HZ_VERSION}.tar.gz
+	mv ${HZ_DIST}-${HZ_VERSION}.tar.gz ${DIST}/${HZ_INSTALL_TAR}
 	tar -zxf ${DIST}/${HZ_INSTALL_TAR} -C ${DIST}
 	rm ${DIST}/${HZ_INSTALL_TAR}
 	wget -O ${DIST}/${MC_INSTALL_TAR} "https://download.hazelcast.com/management-center/hazelcast-management-center-${MC_VERSION}.tar.gz"
 	tar -zxf ${DIST}/${MC_INSTALL_TAR} -C ${DIST}
 	rm ${DIST}/${MC_INSTALL_TAR}
-	rm -r ${DIST}/${HZ_INSTALL_NAME}/management-center
 	mv ${DIST}/${MC_INSTALL_NAME} ${DIST}/${HZ_INSTALL_NAME}/management-center
 	cp ../target/hazelcast-command-line-*-cli.jar ${HZ_LIB}/hazelcast-command-line-${CLI_VERSION}.jar
 	mkdir ${HZ_BIN}/download

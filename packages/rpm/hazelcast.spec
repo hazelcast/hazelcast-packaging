@@ -37,6 +37,8 @@ rm -rf $RPM_BUILD_ROOT
 echo 'hazelcastDownloadId=CLI_RPM' > "%{buildroot}%{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/download/hazelcast-download.properties"
 
 %post
+PATH=$PATH:'%{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin'
+export PATH
 printf "\n\nHazelcast is successfully installed to '%{_prefix}/lib/%{name}/%{name}-%{hzversion}/'\n"
 hz --help
 
