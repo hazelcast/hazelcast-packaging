@@ -54,13 +54,13 @@ jobs:
           done
 
       - name: Run CLI for MC
-        run: distro/build/dist/hazelcast-${{ env.HZ_VERSION }}/bin/hz mc start -J -Dhazelcast.mc.healthCheck.enable=true &
+        run: distro/build/dist/hazelcast-${{ env.HZ_VERSION }}/management-center/bin/start -J -Dhazelcast.mc.healthCheck.enable=true &
 
       - name: Check MC health
         run: |
           attempts=0
           max_attempts=10
-          until $(curl --output /dev/null --silent --fail "localhost:8081/health"); do
+          until $(curl --output /dev/null --silent --fail "localhost:8080/health"); do
             if [ ${attempts} -eq ${max_attempts} ];then
                 echo "Hazelcast MC not responding"
                 exit 1
