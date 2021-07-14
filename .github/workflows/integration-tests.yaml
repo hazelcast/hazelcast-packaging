@@ -59,7 +59,7 @@ jobs:
       - name: Check MC health
         run: |
           attempts=0
-          max_attempts=500
+          max_attempts=10
           until $(curl --output /dev/null --silent --fail "http://localhost:8080/health"); do
             if [ ${attempts} -eq ${max_attempts} ];then
                 echo "Hazelcast MC not responding"
