@@ -51,8 +51,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/*.yaml
 %config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/*.options
 %config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/*.properties
-%config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/example/*.yaml
-%config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/example/*.yaml
+%config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/examples/*.yaml
+%config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/examples/*.yaml
 %{_bindir}/hz
 
 %changelog
