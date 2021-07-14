@@ -54,7 +54,9 @@ jobs:
           done
 
       - name: Run CLI for MC
-        run: distro/build/dist/hazelcast-${{ env.HZ_VERSION }}/management-center/bin/start.sh -J -Dhazelcast.mc.healthCheck.enable=true &
+        run: |
+          export JAVA_OPTS="-Dhazelcast.mc.healthCheck.enable=true"
+          distro/build/dist/hazelcast-${{ env.HZ_VERSION }}/management-center/bin/start.sh &
 
       - name: Check MC health
         run: |
