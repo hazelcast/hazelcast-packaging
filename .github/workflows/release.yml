@@ -88,7 +88,7 @@ jobs:
           tar -xvf ${{ env.ASSET_PATH }} -C packages/deb/hazelcast/usr/lib/hazelcast/
           ln -s /usr/lib/hazelcast/hazelcast-${{ env.HZ_VERSION }}/bin/hz packages/deb/hazelcast/usr/bin/hz
           sed -i 's+Version:.*$+Version: ${{ env.RELEASE }}+g' packages/deb/hazelcast/DEBIAN/control
-          sed -i 's+/usr/lib/hazelcast/hazelcast-.*/\(.*$\)+/usr/lib/hazelcast/hazelcast-${{ env.HZ_VERSION }}/examples/\1+g' packages/deb/hazelcast/DEBIAN/conffiles
+          sed -i 's+/usr/lib/hazelcast/hazelcast-.*/\(.*$\)+/usr/lib/hazelcast/hazelcast-${{ env.HZ_VERSION }}/\1+g' packages/deb/hazelcast/DEBIAN/conffiles
           sed -i 's+/usr/lib/hazelcast/hazelcast-[^/]*/\(.*$\)+/usr/lib/hazelcast/hazelcast-${{ env.HZ_VERSION }}/\1+g' packages/deb/hazelcast/DEBIAN/postinst
           dpkg-deb --build packages/deb/hazelcast
           mv packages/deb/hazelcast.deb hazelcast-${{ env.RELEASE }}-all.deb
