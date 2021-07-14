@@ -1,9 +1,9 @@
-/usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/example/hazelcast-client-full-example.xml
-/usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/example/hazelcast-client-full-example.yaml
-/usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/example/hazelcast-full-example.xml
-/usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/example/hazelcast-full-example.yaml
-/usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/example/hazelcast.yaml
-/usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/example/hazelcast-client.yaml
+/usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/examples/hazelcast-client-full-example.xml
+/usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/examples/hazelcast-client-full-example.yaml
+/usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/examples/hazelcast-full-example.xml
+/usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/examples/hazelcast-full-example.yaml
+/usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/examples/hazelcast.yaml
+/usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/examples/hazelcast-client.yaml
 /usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/hazelcast.xml
 /usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/hazelcast-client.xml
 /usr/lib/hazelcast/hazelcast-4.1-BETA-1/config/jmx_agent_config.yaml
