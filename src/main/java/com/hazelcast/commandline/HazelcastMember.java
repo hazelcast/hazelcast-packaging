@@ -50,6 +50,7 @@ final class HazelcastMember {
         } else {
             config = Config.load();
         }
+        config.getJetConfig().setEnabled(true);
         String port = System.getProperty("network.port");
         if (!port.equalsIgnoreCase("null")) {
             config.getNetworkConfig().setPort(Integer.parseInt(port));

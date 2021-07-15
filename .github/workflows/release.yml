@@ -166,7 +166,7 @@ jobs:
           sudo apt update && sudo apt install hazelcast=${{ needs.build.outputs.release }}
           hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
-      - name: Check IMDG health
+      - name: Check Hazelcast health
         run: |
           attempts=0
           max_attempts=10
@@ -196,7 +196,7 @@ jobs:
           yum install -y hazelcast-${{ needs.build.outputs.release }}
           hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
-      - name: Check IMDG health
+      - name: Check Hazelcast health
         run: |
           attempts=0
           max_attempts=10
@@ -225,7 +225,7 @@ jobs:
       - name: Run CLI
         run: hz start -c src/test/resources/integration-test-hazelcast.yaml &
 
-      - name: Check IMDG health
+      - name: Check Hazelcast health
         run: |
           attempts=0
           max_attempts=10
