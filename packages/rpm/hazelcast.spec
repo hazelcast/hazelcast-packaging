@@ -3,7 +3,7 @@
 Name:		hazelcast
 Version:    4.2020.10
 Release:	1
-Summary:	A tool that allows users to install & run Hazelcast IMDG and Management Center on the local environment
+Summary:	A tool that allows users to install & run Hazelcast and Management Center on the local environment
 
 License:	ASL 2.0
 URL:		https://hazelcast.org/
@@ -15,7 +15,7 @@ Requires:	java-1.8.0-devel
 BuildArch:  noarch
 
 %description
-A tool that allows users to install & run Hazelcast IMDG and Management Center on the local environment
+A tool that allows users to install & run Hazelcast and Management Center on the local environment
 
 %prep
 %setup -c %{name}-%{hzversion}

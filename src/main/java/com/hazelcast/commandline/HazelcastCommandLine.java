@@ -61,7 +61,7 @@ class HazelcastCommandLine
         cmd.execute(args);
 
         String version = getBuildInfo().getVersion();
-        cmd.getCommandSpec().usageMessage().header("Hazelcast IMDG " + version);
+        cmd.getCommandSpec().usageMessage().header("Hazelcast " + version);
         if (args.length == 0) {
             cmd.usage(out);
         }
@@ -75,7 +75,7 @@ class HazelcastCommandLine
     public void run() {
     }
 
-    @Command(description = "Starts a new Hazelcast IMDG member", mixinStandardHelpOptions = true, sortOptions = false)
+    @Command(description = "Starts a new Hazelcast member", mixinStandardHelpOptions = true, sortOptions = false)
     void start(
             @Option(names = {"-c", "--config"}, paramLabel = "<file>", description = "Use <file> for Hazelcast configuration. "
                     + "Accepted formats are XML and YAML. ")

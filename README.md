@@ -1,6 +1,6 @@
 # Hazelcast Command Line
 
-Hazelcast Command Line is a tool which allows users to install & run Hazelcast IMDG and Management Center on local environment. 
+Hazelcast Command Line is a tool which allows users to install & run Hazelcast and Management Center on local environment. 
 
 ## Table of Contents
 
@@ -159,12 +159,12 @@ For all other available options, refer to `hz mc start --help`.
 
 ### How to print version information
 
-This command prints Hazelcast IMDG, Management Center and the tool's version information to the console output: 
+This command prints Hazelcast, Management Center and the tool's version information to the console output: 
 
 ```
 $ hz -V
 CLI tool: 4.2020.12
-Hazelcast IMDG: 4.1.1
+Hazelcast: 4.1.1
 Hazelcast Management Center: 4.2020.12
 ```
 
