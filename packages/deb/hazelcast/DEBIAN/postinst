@@ -1,5 +1,9 @@
 #!/bin/sh
 echo 'hazelcastDownloadId=CLI_DEB' > "/usr/lib/hazelcast/hazelcast-4.1-BETA-1/bin/download/hazelcast-download.properties"
 
+PATH=$PATH:'/usr/lib/hazelcast/hazelcast-4.1-BETA-1/bin'
+export PATH
+echo '/usr/lib/hazelcast/hazelcast-4.1-BETA-1/bin' >> ~/.bash_profile
+
 printf "\n\nHazelcast is successfully installed to '/usr/lib/hazelcast/hazelcast-4.1-BETA-1/'\n"
 hz --help

@@ -39,6 +39,8 @@ echo 'hazelcastDownloadId=CLI_RPM' > "%{buildroot}%{_prefix}/lib/%{name}/%{name}
 %post
 PATH=$PATH:'%{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin'
 export PATH
+echo '%{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin' >> ~/.bash_profile
+
 printf "\n\nHazelcast is successfully installed to '%{_prefix}/lib/%{name}/%{name}-%{hzversion}/'\n"
 hz --help
 
