@@ -132,7 +132,7 @@ jobs:
 
       - name: Change the artifact in homebrew-hz
         run: |
-          sudo cp hazelcast@4.X.rb hazelcast@${{ env.RELEASE }}.rb
+          sudo cp hazelcast@5.X.rb hazelcast@${{ env.RELEASE }}.rb
           VERSION_NODOTS=$(echo ${{ env.RELEASE }} | sed 's+\.++g')
           sed -i "s+class HazelcastAT.* <\(.*$\)+class HazelcastAT${VERSION_NODOTS} <\1+g" hazelcast@${{ env.RELEASE }}.rb
           sed -i 's+url.*$+url "${{ steps.upload-release-asset.outputs.browser_download_url }}"+g' hazelcast@${{ env.RELEASE }}.rb
