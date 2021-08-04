@@ -31,19 +31,36 @@ rm -rf $RPM_BUILD_ROOT
 
 %{__mkdir} -p %{buildroot}%{_prefix}/lib/%{name}/%{name}-%{hzversion}
 %{__cp} -vrf %{name}-%{hzversion}/* %{buildroot}%{_prefix}/lib/%{name}/%{name}-%{hzversion}
-%{__chmod} 755 %{buildroot}%{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz
+%{__chmod} 755 %{buildroot}%{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz*
 %{__mkdir} -p %{buildroot}/%{_bindir}
+
 %{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz %{buildroot}/%{_bindir}/hz
+%{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz-cli %{buildroot}/%{_bindir}/hz-cli
+%{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz-cluster-admin %{buildroot}/%{_bindir}/hz-cluster-admin
+%{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz-cluster-cp-admin %{buildroot}/%{_bindir}/hz-cluster-cp-admin
+%{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz-healthcheck %{buildroot}/%{_bindir}/hz-healthcheck
+%{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz-start %{buildroot}/%{_bindir}/hz-start
+%{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz-stop %{buildroot}/%{_bindir}/hz-stop
+
 echo 'hazelcastDownloadId=CLI_RPM' > "%{buildroot}%{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/download/hazelcast-download.properties"
 
 %post
-PATH=$PATH:'%{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin'
-export PATH
 printf "\n\nHazelcast is successfully installed to '%{_prefix}/lib/%{name}/%{name}-%{hzversion}/'\n"
 hz --help
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%postun
+if [  ! -f %{buildroot}/%{_bindir}/hz  ]; then
+    rm %{buildroot}/%{_bindir}/hz
+    rm %{buildroot}/%{_bindir}/hz-cli
+    rm %{buildroot}/%{_bindir}/hz-cluster-admin
+    rm %{buildroot}/%{_bindir}/hz-cluster-cp-admin
+    rm %{buildroot}/%{_bindir}/hz-healthcheck
+    rm %{buildroot}/%{_bindir}/hz-start
+    rm %{buildroot}/%{_bindir}/hz-stop
+fi
 
 %files
 %{_prefix}/lib/%{name}/%{name}-%{hzversion}/*
@@ -54,6 +71,12 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/examples/*.yaml
 %config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/examples/*.xml
 %{_bindir}/hz
+%{_bindir}/hz-cli
+%{_bindir}/hz-cluster-admin
+%{_bindir}/hz-cluster-cp-admin
+%{_bindir}/hz-healthcheck
+%{_bindir}/hz-start
+%{_bindir}/hz-stop
 
 %changelog
 * Mon Nov 02 2020 Devops Hazelcast <devops@hazelcast.com> - 4.2020.11

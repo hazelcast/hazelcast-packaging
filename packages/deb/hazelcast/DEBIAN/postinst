@@ -1,5 +1,15 @@
 #!/bin/sh
 echo 'hazelcastDownloadId=CLI_DEB' > "/usr/lib/hazelcast/hazelcast-4.1-BETA-1/bin/download/hazelcast-download.properties"
 
+for filename in /usr/lib/hazelcast/hazelcast-4.1-BETA-1/bin/hz*; do
+  case "$filename" in
+    *bat)
+      ;;
+    *)
+      ln -s "$filename" /usr/bin/"$(basename "$filename")"
+      ;;
+  esac
+done
+
 printf "\n\nHazelcast is successfully installed to '/usr/lib/hazelcast/hazelcast-4.1-BETA-1/'\n"
 hz --help
