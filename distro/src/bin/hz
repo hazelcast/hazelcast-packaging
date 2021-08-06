@@ -41,7 +41,6 @@ JAVA_OPTS_ARRAY=(\
 $JDK_OPTS \
 "-Dhazelcast.logging.type=log4j2" \
 "-Dlog4j.configurationFile=file:$HAZELCAST_HOME/config/log4j2.properties" \
-"-Dhz.home=$HAZELCAST_HOME" \
 "-Dhazelcast.config=$HAZELCAST_HOME/config/hazelcast.xml" \
 "-Djet.custom.lib.dir=$HAZELCAST_HOME/custom-lib" \
 $PROMETHEUS \
@@ -88,6 +87,13 @@ HZ_CMD="${JAVA} -cp ${CLASSPATH} ${JAVA_OPTS_ARRAY[@]} -Dhazelcast.commandline.w
 
 
 if [ "$1" = "start" ]; then
+
+  echo "########################################"
+  echo "# JAVA=$JAVA"
+  echo "# JAVA_OPTS=${JAVA_OPTS_ARRAY[*]}"
+  echo "# CLASSPATH=$CLASSPATH"
+  echo "########################################"
+
   ${HZ_CMD} "$@" "--JAVA_OPTS=$J_OPTS"
 else
   ${HZ_CMD} "$@"
