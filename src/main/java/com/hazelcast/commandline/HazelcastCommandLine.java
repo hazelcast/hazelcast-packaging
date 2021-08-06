@@ -24,6 +24,8 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.hazelcast.instance.BuildInfoProvider.getBuildInfo;
 import static com.hazelcast.internal.util.StringUtil.isNullOrEmpty;
@@ -104,15 +106,33 @@ class HazelcastCommandLine
         if (!isNullOrEmpty(configFilePath)) {
             args.add("-Dhazelcast.config=" + configFilePath);
         }
-        args.add("-Dnetwork.port=" + port);
-        args.add("-Dnetwork.interface=" + hzInterface);
-        if (javaOptions != null && javaOptions.size() > 0) {
-            args.addAll(javaOptions);
+        if (!isNullOrEmpty(port)) {
+            args.add("-Dnetwork.port=" + port);
         }
+        if (!isNullOrEmpty(hzInterface)) {
+            args.add("-Dnetwork.interface=" + hzInterface);
+        }
+
         args.add("-Djava.net.preferIPv4Stack=true");
         addLogging(args, verbose, finestVerbose);
 
+        if (javaOptions != null && javaOptions.size() > 0) {
+            addJavaOptionsToArgs(javaOptions, args);
+        }
+
         buildAndStartJavaProcess(args, additionalClassPath);
+    }
+
+    private void addJavaOptionsToArgs(List<String> javaOptions, List<String> args) {
+        Set<String> userProvidedArgs = args.stream()
+                .map(arg -> arg.split("=")[0])
+                .collect(Collectors.toSet());
+
+        for (String opt : javaOptions) {
+            if (!userProvidedArgs.contains(opt.split("=")[0])) {
+                args.add(opt);
+            }
+        }
     }
 
     private void buildAndStartJavaProcess(List<String> parameters, String[] additionalClassPath)
