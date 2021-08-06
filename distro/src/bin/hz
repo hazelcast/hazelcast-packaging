@@ -20,6 +20,9 @@ PRGDIR=`cd "$PRGDIR"; pwd`
 # set the parent directory as HAZELCAST_HOME.
 export HAZELCAST_HOME=${HAZELCAST_HOME:-$(cd "$PRGDIR/.." >/dev/null; pwd -P)}
 
+# common.sh needs it
+SCRIPT_DIR="$PRGDIR"
+
 . "$PRGDIR"/common.sh
 
 
