@@ -34,7 +34,9 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -66,7 +68,7 @@
     <dependencies>
         <dependency>
             <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-all</artifactId>
+            <artifactId>hazelcast</artifactId>
             <version>${hazelcast.version}</version>
         </dependency>
         <dependency>
