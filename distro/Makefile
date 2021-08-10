@@ -12,6 +12,7 @@ MC_INSTALL_NAME=hazelcast-management-center-${MC_VERSION}
 MC_INSTALL_TAR=${MC_INSTALL_NAME}.tar.gz
 HZ_BIN=${DIST}/${HZ_INSTALL_NAME}/bin
 HZ_LIB=${DIST}/${HZ_INSTALL_NAME}/lib
+HZ_CONFIG=${DIST}/${HZ_INSTALL_NAME}/config
 DIST=build/dist
 
 .PHONY: all clean clean-all clean-dist get-artifacts package
@@ -51,6 +52,7 @@ get-artifacts:
 	cp src/bin/download/hazelcast-download.properties ${HZ_BIN}/download
 	cp src/bin/hazelcast-*-logging.properties ${HZ_BIN}
 	cp src/bin/hz ${HZ_BIN}
+	cp src/config/log4j2.properties ${HZ_CONFIG}
 	sed -i.bak 's+HZ_VERSION+${HZ_VERSION}+g' ${HZ_BIN}/hz
 	sed -i.bak 's+CLI_VERSION+${CLI_VERSION}+g' ${HZ_BIN}/hz
 	rm ${HZ_BIN}/hz.bak
