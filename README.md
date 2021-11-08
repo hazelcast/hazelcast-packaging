@@ -37,8 +37,8 @@ You can install Hazelcast Command Line using [Homebrew](https://brew.sh/), [yum]
 To install with Homebrew, you first need to tap the `hazelcast/hz` repository. Once you’ve tapped the repo, you can use `brew install` to install:
 
 ```
-$ brew tap hazelcast/hz
-$ brew install hazelcast
+brew tap hazelcast/hz
+brew install hazelcast
 ```
 
 ### Install with yum/dnf 
@@ -46,9 +46,9 @@ $ brew install hazelcast
 The RPM packages for Hazelcast Command Line is kept at [Hazelcast's RPM repository](https://repository.hazelcast.com/rpm/). Please run the following commands to install it using yum/dnf:
 
 ```
-$ wget https://repository.hazelcast.com/rpm/hazelcast-rpm.repo -O hazelcast-rpm.repo
-$ sudo mv hazelcast-rpm.repo /etc/yum.repos.d/
-$ sudo yum install hazelcast
+wget https://repository.hazelcast.com/rpm/hazelcast-rpm.repo -O hazelcast-rpm.repo
+sudo mv hazelcast-rpm.repo /etc/yum.repos.d/
+sudo yum install hazelcast
 ```
 
 ### Install with apt 
@@ -56,9 +56,9 @@ $ sudo yum install hazelcast
 You can find the The Debian packages for Hazelcast Command Line at [Hazelcast's Debian repository](https://repository.hazelcast.com/debian). Run the following commands to install it using apt:
 
 ```
-$ wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
-$ echo "deb https://repository.hazelcast.com/debian stable main" | sudo tee -a /etc/apt/sources.list
-$ sudo apt update && sudo apt install hazelcast
+wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
+echo "deb https://repository.hazelcast.com/debian stable main" | sudo tee -a /etc/apt/sources.list
+sudo apt update && sudo apt install hazelcast
 ```
 
 ### Install manually with archive package
@@ -66,10 +66,10 @@ $ sudo apt update && sudo apt install hazelcast
 Please download the latest archive package from this repository's [releases section](https://github.com/hazelcast/hazelcast-command-line/releases). Once you downloaded, you can extract it and start using Hazelcast Command Line as follows:
 
 ```
-$ wget https://github.com/hazelcast/hazelcast-command-line/releases/download/v4.2020.12/hazelcast-4.1.1.tar.gz
-$ tar -xzvf hazelcast-4.1.1.tar.gz
-$ cd hazelcast-4.1.1/bin
-$ ./hz
+wget https://github.com/hazelcast/hazelcast-command-line/releases/download/v4.2020.12/hazelcast-4.1.1.tar.gz
+tar -xzvf hazelcast-4.1.1.tar.gz
+cd hazelcast-4.1.1/bin
+./hz
 ``` 
 
 ## Basic Usages
@@ -79,7 +79,7 @@ $ ./hz
 Please run the following command to start a Hazelcast member with default configuration:
 
 ```
-$ hz start
+hz start
 ``` 
 
 ### How to start a Hazelcast member with custom configuration
@@ -87,7 +87,7 @@ $ hz start
 Please run the following command to start a Hazelcast member with custom configuration:
 
 ```
-$ hz start -c /full/path/to/config-file.yaml
+hz start -c /full/path/to/config-file.yaml
 ``` 
 
 Please note that only XML and YAML configurations are supported and a full path is required. If `-c, --config=<file>` option is not set then the configuration file at `[INSTALLATION_DIR]/config/hazelcast.yaml` is used. You can update this file to configure starting Hazelcast members.
@@ -106,7 +106,7 @@ INFO: Configuring Hazelcast from '/Users/myuser/hazelcast-command-line/distro/bu
 The following command will allow you to start a Hazelcast member with additional Java options:
 
 ```
-$ hz start -J <option1>,<option2>
+hz start -J <option1>,<option2>
 ``` 
 
 You can use `,` to separate multiple options. Please note that class path settings (such as `-cp`, `-jar`) are **not** allowed (See [this section](#how-to-start-a-hazelcast-member-with-additional-classpath) to add classes or JAR files to the classpath).
@@ -116,7 +116,7 @@ You can use `,` to separate multiple options. Please note that class path settin
 You can run the following command to start a Hazelcast member with additional classes or JAR files in the classpath:
 
 ```
-$ hz start -j <path1>,<path2>
+hz start -j <path1>,<path2>
 ```
 
 Please use `,` to separate multiple paths to classes or JAR files. 
@@ -130,7 +130,7 @@ For all other available options, refer to `hz start --help`.
 Please run the following command to start a Hazelcast Management Center with default configuration:
 
 ```
-$ hz mc start
+hz mc start
 ``` 
 
 ### How to start a Hazelcast Management Center with custom context path and port
@@ -138,7 +138,7 @@ $ hz mc start
 To start a Hazelcast Management Center with custom context path and port, please run the following command:
 
 ```
-$ hz mc start -c [new-context-path] -p [port]
+hz mc start -c [new-context-path] -p [port]
 ``` 
 
 For instance, if you run with `hz mc start -c my-management-center -p 9000` Management Center starts at `http://localhost:9000/my-management-center`.
@@ -148,7 +148,7 @@ For instance, if you run with `hz mc start -c my-management-center -p 9000` Mana
 The following command will allow you to start a Hazelcast Management Center with additional Java options:
 
 ```
-$ hz mc start -J <option1>,<option2>
+hz mc start -J <option1>,<option2>
 ``` 
 
 You can use `,` to separate multiple options. Please note that class path settings (such as `-cp`, `-jar`) are **not** allowed. 
