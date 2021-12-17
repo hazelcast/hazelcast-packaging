@@ -1,11 +1,12 @@
-Package: hazelcast
+Package: ${HZ_DISTRIBUTION}
 Source: hazelcast
-Version: 4.2020.10
+Version: ${PACKAGE_VERSION}
 Section: imdg
 Priority: optional
 Architecture: all
+Conflicts: ${CONFLICTS}
 Depends: default-jdk | java8-sdk
-Maintainer: Alparslan Avci <alparslan@hazelcast.com>
-Description: A tool that allows users to install & run Hazelcast and Management Center on the local environment
-Homepage: https://hazelcast.org/
+Maintainer: Hazelcast Platform Team <platform@hazelcast.com>
+Description: A tool that allows users to install & run Hazelcast
+Homepage: https://www.hazelcast.com/
 License: ASL 2.0

@@ -13,6 +13,206 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ '8' ]
+        architecture: [ 'x64' ]
+        distribution: ['hazelcast', 'hazelcast-enterprise']
+    env:
+      HZ_VERSION: ${{ github.event.inputs.HZ_VERSION }}
+      HZ_DISTRIBUTION: ${{ matrix.distribution }}
+      PUBLISH: "true"
+      ARTIFACTORY_SECRET: ${{ secrets.ARTIFACTORY_SECRET }}
+      DEVOPS_PRIVATE_KEY: ${{ secrets.DEVOPS_PRIVATE_KEY }}
+      BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
+    outputs:
+      package_version: ${{ steps.package_version.outputs.package_version }}
     name: CLI Release Automation
     steps:
-      - run: echo "Test"
+      - uses: actions/checkout@v2.3.2
+
+      - name: Setup JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+          architecture: ${{ matrix.architecture }}
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Set HZ_VERSION
+        run: |
+          if [ -z "${{ env.HZ_VERSION }}" ]; then
+            echo "HZ_VERSION=$(grep '<hazelcast.version>' pom.xml | sed "s@.*<hazelcast.version>\(.*\)</hazelcast.version>.*@\1@")" >> $GITHUB_ENV
+          fi
+
+      - name: Set PACKAGE_VERSION
+        id: package_version
+        # If the ref is version (e.g. v5.0.1) tag then use it as package version,
+        # otherwise use HZ_VERSION for package version (e.g 5.1-SNAPSHOT)
+        run: |
+          if [[ "${{ github.ref }}" == "v"* ]]; then
+            PACKAGE_VERSION=$(echo ${{ github.ref }} | cut -c 12-)
+          else
+            PACKAGE_VERSION=${{ env.HZ_VERSION }}
+          fi
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+          echo ::set-output name=package_version::$PACKAGE_VERSION
+
+      - name: Create & Upload DEB package
+        run: |
+          ./build-deb-package.sh
+
+      - name: Create & Sign & Upload RPM package
+        run: |
+          ./build-rpm-package.sh
+
+      - name: Checkout homebrew-hz repo
+        uses: actions/checkout@v2.3.1
+        with:
+          # TODO change to frant-hartm to hazelcast when we finish testing
+          repository: frant-hartm/homebrew-hz
+          ref: master
+          token: ${{ secrets.DEVOPS_SECRET }}
+          path: 'homebrew-hz'
+
+      - name: Install xmllint
+        run: sudo apt-get install -y libxml2-utils
+
+      - name: Change the artifact in homebrew-hz
+        run: |
+          ./build-homebrew-package.sh
+
+      - name: Commit changes & Push to homebrew-hz repo
+        run: |
+          PACKAGE_VERSION=$(echo ${{ env.PACKAGE_VERSION }} | tr '[:upper:]' '[:lower:]' | sed -r -r 's/(-)/\./g')
+          
+          cd homebrew-hz
+          git config --global user.name 'devOpsHazelcast'
+          git config --global user.email 'devops@hazelcast.com'
+          git add Aliases
+          git add ${HZ_DISTRIBUTION}@${PACKAGE_VERSION}.rb
+          if [[ `git status --porcelain --untracked-files=no` ]]; then
+            git commit -am "Hazelcast Command Line ${{ env.PACKAGE_VERSION }} release"
+            git pull --rebase
+            git push
+          else
+            echo "No changes, this is probably a re-run."
+          fi
+
+  verify-deb:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
+    env:
+      HZ_VERSION: ${{ github.event.inputs.HZ_VERSION }}
+      HZ_DISTRIBUTION: ${{ matrix.distribution }}
+      HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
+    needs: build
+    name: CLI Release DEB Verification
+    steps:
+      - uses: actions/checkout@v2.3.2
+
+      # TODO change debian-test-local to debian-local before merge when we finish testing
+      - name: Install CLI from deb
+        run: |
+          source ./common.sh
+          derive_package_repo "${HZ_VERSION}"
+          # await some time for deb metadata to be signed
+          sleep 120
+          wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
+          echo "deb https://repository.hazelcast.com/debian-test-local/ $PACKAGE_REPO main" | sudo tee -a /etc/apt/sources.list
+          sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}=${{ needs.build.outputs.package_version }}
+          HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start &
+
+      - name: Check Hazelcast health
+        run: |
+          attempts=0
+          max_attempts=10
+          until $(curl --silent --fail "127.0.0.1:5701/hazelcast/health/ready"); do
+            if [ ${attempts} -eq ${max_attempts} ];then
+                echo "Hazelcast not responding"
+                exit 1
+            fi
+            printf '.'
+            attempts=$(($attempts+1))
+            sleep 1
+          done
+
+  verify-rpm:
+    runs-on: ubuntu-latest
+    container: centos:latest
+    strategy:
+      matrix:
+        distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
+    env:
+      HZ_VERSION: ${{ github.event.inputs.HZ_VERSION }}
+      HZ_DISTRIBUTION: ${{ matrix.distribution }}
+      HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
+    needs: build
+    name: CLI Release RPM Verification
+    steps:
+      - uses: actions/checkout@v2.3.2
+
+      # TODO change rpm-test-local to rpm-local before merge when we finish testing
+      - name: Install CLI from rpm
+        run: |
+          source ./common.sh
+          derive_package_repo "${HZ_VERSION}"
+          yum install -y wget
+          wget https://repository.hazelcast.com/rpm-test-local/${PACKAGE_REPO}/hazelcast-rpm-snapshot.repo -O hazelcast-rpm-snapshot.repo
+          mv hazelcast-rpm-snapshot.repo /etc/yum.repos.d/
+          PACKAGE_VERSION=$(echo ${{ needs.build.outputs.package_version }} | sed -r -r 's/(-)/\./g')
+          yum install -y ${{ env.HZ_DISTRIBUTION}}-${PACKAGE_VERSION}
+          HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start &
+
+      - name: Check Hazelcast health
+        run: |
+          attempts=0
+          max_attempts=10
+          until $(curl --silent --fail "127.0.0.1:5701/hazelcast/health/ready"); do
+            if [ ${attempts} -eq ${max_attempts} ];then
+                echo "Hazelcast not responding"
+                exit 1
+            fi
+            printf '.'
+            attempts=$(($attempts+1))
+            sleep 1
+          done
+
+  verify-homebrew:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
+    needs: build
+    name: CLI Release Homebrew Verification
+    steps:
+      - uses: actions/checkout@v2.3.2
+
+      - name: Install CLI from homebrew
+        run: |
+          PACKAGE_VERSION=$(echo ${{ needs.build.outputs.package_version }} | tr '[:upper:]' '[:lower:]' | sed -r -r 's/(-)/\./g')
+          brew tap frant-hartm/hz
+          brew install hazelcast@$PACKAGE_VERSION
+
+      - name: Run CLI
+        run: HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start &
+
+      - name: Check Hazelcast health
+        run: |
+          attempts=0
+          max_attempts=10
+          until $(curl --silent --fail "127.0.0.1:5701/hazelcast/health/ready"); do
+            if [ ${attempts} -eq ${max_attempts} ];then
+                echo "Hazelcast not responding"
+                exit 1
+            fi
+            printf '.'
+            attempts=$(($attempts+1))
+            sleep 1
+          done

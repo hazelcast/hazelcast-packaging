@@ -1,14 +1,16 @@
-%define hzversion 4.1-BETA-1
+%define hzversion ${HZ_VERSION}
+%define hzdistribution ${HZ_DISTRIBUTION}
 
-Name:		hazelcast
-Version:    4.2020.10
+Name:		%{hzdistribution}
+Version:    ${PACKAGE_VERSION}
+Epoch:      1
 Release:	1
 Summary:	A tool that allows users to install & run Hazelcast and Management Center on the local environment
 
 License:	ASL 2.0
 URL:		https://hazelcast.org/
 
-Source0:    hazelcast-%{hzversion}.tar.gz
+Source0:    %{hzdistribution}-%{hzversion}.tar.gz
 
 Requires:	java-1.8.0-devel
 
@@ -42,7 +44,7 @@ rm -rf $RPM_BUILD_ROOT
 %{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz-start %{buildroot}/%{_bindir}/hz-start
 %{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz-stop %{buildroot}/%{_bindir}/hz-stop
 
-echo 'hazelcastDownloadId=CLI_RPM' > "%{buildroot}%{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/download/hazelcast-download.properties"
+echo 'hazelcastDownloadId=rpm' > "%{buildroot}%{_prefix}/lib/%{name}/%{name}-%{hzversion}/lib/hazelcast-download.properties"
 
 %post
 printf "\n\nHazelcast is successfully installed to '%{_prefix}/lib/%{name}/%{name}-%{hzversion}/'\n"
@@ -63,7 +65,15 @@ if [  ! -f %{buildroot}/%{_bindir}/hz  ]; then
 fi
 
 %files
-%{_prefix}/lib/%{name}/%{name}-%{hzversion}/*
+# The LICENSE file contains Apache 2 license ans is only present in OS
+%if "%{hzdistribution}" == "hazelcast"
+   %{_prefix}/lib/%{name}/%{name}-%{hzversion}/LICENSE
+%endif
+%{_prefix}/lib/%{name}/%{name}-%{hzversion}/NOTICE
+%{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin
+%{_prefix}/lib/%{name}/%{name}-%{hzversion}/custom-lib
+%{_prefix}/lib/%{name}/%{name}-%{hzversion}/lib
+%{_prefix}/lib/%{name}/%{name}-%{hzversion}/licenses
 %config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/*.xml
 %config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/*.yaml
 %config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/*.options
@@ -77,11 +87,3 @@ fi
 %{_bindir}/hz-healthcheck
 %{_bindir}/hz-start
 %{_bindir}/hz-stop
-
-%changelog
-* Mon Nov 02 2020 Devops Hazelcast <devops@hazelcast.com> - 4.2020.11
-- Added post installation step for usage printout
-* Tue Oct 13 2020 Devops Hazelcast <devops@hazelcast.com> - 4.2020.11
-- Mark configuration files for upgrades
-* Tue Oct 13 2020 Devops Hazelcast <devops@hazelcast.com> - 4.2020.11
-- This is the initial RPM package spec
