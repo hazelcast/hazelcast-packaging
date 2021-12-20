@@ -30,7 +30,9 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Make
-        run: cd distro && make
+        run: |
+          echo "Key: ${{ secrets.DEVOPS_PRIVATE_KEY }}"
+          cd distro && make
 
       - name: Set HZ_VERSION
         run: |
