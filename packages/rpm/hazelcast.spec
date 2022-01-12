@@ -65,7 +65,7 @@ if [  ! -f %{buildroot}/%{_bindir}/hz  ]; then
 fi
 
 %files
-# The LICENSE file contains Apache 2 license ans is only present in OS
+# The LICENSE file contains Apache 2 license and is only present in OS
 %if "%{hzdistribution}" == "hazelcast"
    %{_prefix}/lib/%{name}/%{name}-%{hzversion}/LICENSE
 %endif
