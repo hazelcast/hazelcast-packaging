@@ -122,8 +122,6 @@ jobs:
         run: |
           source ./common.sh
           derive_package_repo "${HZ_VERSION}"
-          # await some time for deb metadata to be signed
-          sleep 120
           wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
           echo "deb https://repository.hazelcast.com/debian-test-local/ $PACKAGE_REPO main" | sudo tee -a /etc/apt/sources.list
           sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}=${{ needs.build.outputs.package_version }}

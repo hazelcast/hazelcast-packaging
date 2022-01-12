@@ -60,4 +60,6 @@ if [ "${PUBLISH}" == "true" ]; then
               -H "X-Checksum-Sha1: $RPM_SHA1SUM" -H "X-Checksum-MD5: $RPM_MD5SUM" -T"build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${PACKAGE_VERSION}-1.noarch.rpm" \
               -X PUT "https://repository.hazelcast.com/rpm-test-local/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${PACKAGE_VERSION}-1.noarch.rpm"
 
+  # Calculate YUM Repository Metadata
+  curl -X POST "https://repository.hazelcast.com/api/yum/rpm-test-local"
 fi

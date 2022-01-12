@@ -69,6 +69,8 @@ if [ "${PUBLISH}" == "true" ]; then
   # TODO change debian-test-local -> debian-local once we are done with reviews/testing
   curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" -H "X-Checksum-Deploy: false" -H "X-Checksum-Sha256: $DEB_SHA256SUM" \
     -H "X-Checksum-Sha1: $DEB_SHA1SUM" -H "X-Checksum-MD5: $DEB_MD5SUM" -T"$DEB_FILE" \
-    -X PUT "https://repository.hazelcast.com/debian-local/$DEB_FILE;deb.distribution=${PACKAGE_REPO};deb.component=main;deb.architecture=all"
+    -X PUT "https://repository.hazelcast.com/debian-test-local/$DEB_FILE;deb.distribution=${PACKAGE_REPO};deb.component=main;deb.architecture=all"
 
+  # Calculate Debian Repository Metadata
+  curl -X POST "https://repository.hazelcast.com/api/deb/reindex/debian-test-local"
 fi
