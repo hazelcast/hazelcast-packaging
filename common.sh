@@ -15,5 +15,8 @@ function derive_package_repo() {
     PACKAGE_REPO=beta
   fi
 
+}
 
+function brew_package_version() {
+    BREW_PACKAGE_VERSION=$(echo $1 | tr '[:upper:]' '[:lower:]' | sed -r -r 's/(-)/\./g')
 }

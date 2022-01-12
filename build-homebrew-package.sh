@@ -2,6 +2,8 @@
 
 set -x
 
+source common.sh
+
 if [ -z "${HZ_DISTRIBUTION}" ]; then
   echo "Variable HZ_DISTRIBUTION is not set. It must be set to 'hazelcast' for OS, 'hazelcast-enterprise' for EE"
   exit 1
@@ -16,10 +18,10 @@ if [ -z "${PACKAGE_VERSION}" ]; then
   echo "Variable PACKAGE_VERSION is not set. This is the version of the built package."
   exit 1
 fi
-export PACKAGE_VERSION=$(echo $PACKAGE_VERSION | tr '[:upper:]' '[:lower:]' | sed -r -r 's/(-)/\./g')
 
 echo "Building Homebrew package $HZ_DISTRIBUTION:${HZ_VERSION} package version ${PACKAGE_VERSION}"
 
+brew_package_version "${PACKAGE_VERSION}"
 
 if [[ "${HZ_VERSION}" == *"SNAPSHOT"* ]]; then
   if [ "${HZ_DISTRIBUTION}" == "hazelcast" ]; then
@@ -62,23 +64,25 @@ else
   cd ../homebrew-hz || exit 1
 fi
 
-cp hazelcast@5.X.rb ${HZ_DISTRIBUTION}@${PACKAGE_VERSION}.rb
-VERSION_NODOTS=$(echo ${PACKAGE_VERSION} | tr '[:upper:]' '[:lower:]' | sed -r 's/(^|\.)(\w)/\U\2/g' | sed 's+\.++g')
+cp hazelcast@5.X.rb ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
+
+# This version is used in `class HazelcastAT${VERSION_NODOTS}`, it must not have dots nor hyphens and must be CamelCased
+VERSION_NODOTS=$(echo ${BREW_PACKAGE_VERSION} | tr '[:upper:]' '[:lower:]' | sed -r 's/(^|\.)(\w)/\U\2/g' | sed 's+\.++g')
 if [ ${HZ_DISTRIBUTION} == "hazelcast" ]; then
-  sed -i "s+class HazelcastAT.* <\(.*$\)+class HazelcastAT${VERSION_NODOTS} <\1+g" ${HZ_DISTRIBUTION}@${PACKAGE_VERSION}.rb
+  sed -i "s+class HazelcastAT.* <\(.*$\)+class HazelcastAT${VERSION_NODOTS} <\1+g" ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
 else
-  sed -i "s+class HazelcastAT.* <\(.*$\)+class HazelcastEnterpriseAT${VERSION_NODOTS} <\1+g" ${HZ_DISTRIBUTION}@${PACKAGE_VERSION}.rb
+  sed -i "s+class HazelcastAT.* <\(.*$\)+class HazelcastEnterpriseAT${VERSION_NODOTS} <\1+g" ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
 fi
-sed -i "s+url.*$+url \"${PACKAGE_URL}\"+g" ${HZ_DISTRIBUTION}@${PACKAGE_VERSION}.rb
-sed -i "s+sha256.*$+sha256 \"${ASSET_SHASUM}\"+g" ${HZ_DISTRIBUTION}@${PACKAGE_VERSION}.rb
-sed -i "s+conflicts_with \".*\"$+conflicts_with \"$CONFLICTS\"+g" ${HZ_DISTRIBUTION}@${PACKAGE_VERSION}.rb
+sed -i "s+url.*$+url \"${PACKAGE_URL}\"+g" ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
+sed -i "s+sha256.*$+sha256 \"${ASSET_SHASUM}\"+g" ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
+sed -i "s+conflicts_with \".*\"$+conflicts_with \"$CONFLICTS\"+g" ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
 
 # Update hazelcast and hazelcast-x.y aliases only if the version is release (not SNAPSHOT/DR/BETA)
 if [[ ${HZ_VERSION} != *+(SNAPSHOT|BETA|DR)* ]]; then
   HZ_MINOR_VERSION=$(echo "${HZ_VERSION}" | cut -c -3)
 
   rm -f Aliases/${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}
-  ln -s ../${HZ_DISTRIBUTION}@${PACKAGE_VERSION}.rb Aliases/${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}
+  ln -s ../${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb Aliases/${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}
 
   # Update 'hazelcast' or 'hazelcast-enterprise' alias
   # only if the version is greater than (new release) or equal to highest version
@@ -95,7 +99,7 @@ if [[ ${HZ_VERSION} != *+(SNAPSHOT|BETA|DR)* ]]; then
 
   if [ "${UPDATE_LATEST}" == "true" ]; then
     rm Aliases/${HZ_DISTRIBUTION}
-    ln -s ../${HZ_DISTRIBUTION}@${PACKAGE_VERSION}.rb Aliases/${HZ_DISTRIBUTION}
+    ln -s ../${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb Aliases/${HZ_DISTRIBUTION}
   fi
 fi
 
