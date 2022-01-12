@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       HZ_VERSION:
-        description: 'Version of Hazelcast to build the image for'
+        description: 'Version of Hazelcast to build the image for, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
         required: true
 
 jobs:
