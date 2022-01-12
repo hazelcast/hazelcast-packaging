@@ -46,7 +46,7 @@ else
   export PACKAGE_URL="$MAVEN_REPO/com/hazelcast/${HZ_DISTRIBUTION}-distribution/${HZ_VERSION}/${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz"
 fi
 
-mvn -U --no-transfer-progress dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz \
+mvn -U --batch-mode dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz \
   -Dmdep.useBaseVersion=true \
   -DoutputDirectory=./
 

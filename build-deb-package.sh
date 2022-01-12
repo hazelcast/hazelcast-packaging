@@ -27,7 +27,7 @@ rm -rf build/deb
 mkdir -p build/deb/hazelcast/DEBIAN
 mkdir -p build/deb/hazelcast/usr/lib/hazelcast
 
-mvn -U --no-transfer-progress clean dependency:unpack \
+mvn -U --batch-mode clean dependency:unpack \
   -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:$HZ_VERSION:tar.gz \
   -DoutputDirectory=build/deb/hazelcast/usr/lib/hazelcast
 

@@ -28,7 +28,7 @@ rm -rf build/rpmbuild
 mkdir -p build/rpmbuild/SOURCES/
 mkdir -p build/rpmbuild/rpm
 
-mvn -U --no-transfer-progress dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz \
+mvn -U --batch-mode dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz \
   -Dmdep.useBaseVersion=true \
   -DoutputDirectory=./
 
