@@ -58,11 +58,7 @@ if [ ${HZ_DISTRIBUTION} == "hazelcast-enterprise" ]; then
   export CONFLICTS=hazelcast
 fi
 
-if [ -d homebrew-hz ]; then
-  cd homebrew-hz || exit 1
-else
-  cd ../homebrew-hz || exit 1
-fi
+cd ../homebrew-hz || exit 1
 
 cp hazelcast@5.X.rb ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
 

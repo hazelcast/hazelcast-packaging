@@ -25,11 +25,17 @@ jobs:
       ARTIFACTORY_SECRET: ${{ secrets.ARTIFACTORY_SECRET }}
       DEVOPS_PRIVATE_KEY: ${{ secrets.DEVOPS_PRIVATE_KEY }}
       BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
+    defaults:
+      run:
+        working-directory: ./hazelcast-command-line
     outputs:
       package_version: ${{ steps.package_version.outputs.package_version }}
     name: CLI Release Automation
     steps:
-      - uses: actions/checkout@v2.3.2
+      - name: Checkout hazelcast-command-line repo
+        uses: actions/checkout@v2.3.2
+        with:
+          path: 'hazelcast-command-line'
 
       - name: Setup JDK
         uses: actions/setup-java@v1
