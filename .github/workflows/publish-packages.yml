@@ -46,7 +46,7 @@ jobs:
       - name: Set HZ_VERSION
         run: |
           if [ -z "${{ env.HZ_VERSION }}" ]; then
-            echo "HZ_VERSION=$(grep '<hazelcast.version>' pom.xml | sed "s@.*<hazelcast.version>\(.*\)</hazelcast.version>.*@\1@")" >> $GITHUB_ENV
+            echo "HZ_VERSION=$(mvn help:evaluate -Dexpression=hazelcast.version -q -DforceStdout)" >> $GITHUB_ENV
           fi
 
       - name: Set PACKAGE_VERSION
