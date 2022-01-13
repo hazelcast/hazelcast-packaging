@@ -113,7 +113,6 @@ jobs:
       - name: Commit changes & Push to homebrew-hz repo
         run: |
           source common.sh
-          brew_package_version "${{ env.PACKAGE_VERSION }}"
           
           cd ../homebrew-hz
           git config --global user.name 'devOpsHazelcast'
