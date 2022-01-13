@@ -205,7 +205,7 @@ jobs:
         run: |
           source ./common.sh
           brew tap ${BREW_REPO_NAME}
-          brew install ${{ env.HZ_DISTRIBUTION}@$BREW_PACKAGE_VERSION
+          brew install ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
 
       - name: Run CLI
         run: HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start &
