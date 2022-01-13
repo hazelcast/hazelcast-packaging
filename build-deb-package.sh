@@ -2,8 +2,6 @@
 
 set -x
 
-source common.sh
-
 if [ -z "${HZ_DISTRIBUTION}" ]; then
   echo "Variable HZ_DISTRIBUTION is not set. It must be set to 'hazelcast' for OS, 'hazelcast-enterprise' for EE"
   exit 1
@@ -18,6 +16,8 @@ if [ -z "${PACKAGE_VERSION}" ]; then
   echo "Variable PACKAGE_VERSION is not set. This is the version of the built package."
   exit 1
 fi
+
+source common.sh
 
 export HZ_DISTRIBUTION_FILE=${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz
 
@@ -76,7 +76,7 @@ if [ "${PUBLISH}" == "true" ]; then
     -H "X-Checksum-Sha1: $DEB_SHA1SUM" -H "X-Checksum-MD5: $DEB_MD5SUM" \
     -T"$DEB_FILE" \
     -X PUT \
-    "https://repository.hazelcast.com/debian-test-local/$DEB_FILE;deb.distribution=${PACKAGE_REPO};deb.component=main;deb.architecture=all"
+    "$DEBIAN_REPO_BASE_URL/$DEB_FILE;deb.distribution=${PACKAGE_REPO};deb.component=main;deb.architecture=all"
 
   # Calculate Debian Repository Metadata
   curl -X POST "https://repository.hazelcast.com/api/deb/reindex/debian-test-local"

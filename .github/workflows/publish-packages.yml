@@ -2,21 +2,31 @@ name: Publish packages
 
 on:
   push:
-    tags:
-      - 'v*' # Push events to matching v*, e.g. v5.0.2
-  pull_request:
+    # Push to master updates the latest snapshot (HZ_VERSION taken from pom.xml)
     branches:
       - master
+    # Push of a matching tag (v*, e.g. v5.0.2) starts build with
+    # - HZ_VERSION extracted from pom.xml
+    # - PACKAGE_VERSION extracted from the tag
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       HZ_VERSION:
         description: 'Version of Hazelcast to build the image for, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
         required: true
 
+env:
+  EVENT_NAME: ${{ github.event_name }}
+
+# Constant for now - should ensure single build, maybe we can limit this to something from github.*
+concurrency: single-build
+
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         java: [ '8' ]
         architecture: [ 'x64' ]
@@ -78,11 +88,15 @@ jobs:
         run: |
           ./build-rpm-package.sh
 
+      - name: Get homebrew repository
+        run: |
+          ./common.sh
+          echo "BREW_GIT_REPO_NAME=$BREW_GIT_REPO_NAME" >> $GITHUB_ENV
+
       - name: Checkout homebrew-hz repo
         uses: actions/checkout@v2.3.1
         with:
-          # TODO change to frant-hartm to hazelcast when we finish testing
-          repository: frant-hartm/homebrew-hz
+          repository: ${{ env.BREW_GIT_REPO_NAME }}
           ref: master
           token: ${{ secrets.DEVOPS_SECRET }}
           path: 'homebrew-hz'
@@ -126,13 +140,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.2
 
-      # TODO change debian-test-local to debian-local before merge when we finish testing
       - name: Install CLI from deb
         run: |
           source ./common.sh
-          derive_package_repo "${HZ_VERSION}"
           wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
-          echo "deb https://repository.hazelcast.com/debian-test-local/ $PACKAGE_REPO main" | sudo tee -a /etc/apt/sources.list
+          echo "deb ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list
           sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}=${{ needs.build.outputs.package_version }}
           HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start &
 
@@ -155,15 +167,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.2
 
-      # TODO change rpm-test-local to rpm-local before merge when we finish testing
       - name: Install CLI from rpm
         run: |
           source ./common.sh
-          rpm_package_version "${{ needs.build.outputs.package_version }}"
-          derive_package_repo "${HZ_VERSION}"
           yum install -y wget
-          wget https://repository.hazelcast.com/rpm-test-local/${PACKAGE_REPO}/hazelcast-rpm-snapshot.repo -O hazelcast-rpm-snapshot.repo
-          mv hazelcast-rpm-snapshot.repo /etc/yum.repos.d/          
+          wget ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo -O hazelcast-rpm-${PACKAGE_REPO}.repo
+          mv hazelcast-rpm-${PACKAGE_REPO}.repo /etc/yum.repos.d/          
           yum install -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
           HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start &
 
@@ -184,8 +193,7 @@ jobs:
       - name: Install CLI from homebrew
         run: |
           source ./common.sh
-          brew_package_version "${{ needs.build.outputs.package_version }}"
-          brew tap frant-hartm/hz
+          brew tap ${BREW_REPO_NAME}
           brew install hazelcast@$BREW_PACKAGE_VERSION
 
       - name: Run CLI
