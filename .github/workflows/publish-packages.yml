@@ -44,6 +44,7 @@ jobs:
       run:
         working-directory: ./hazelcast-command-line
     outputs:
+      hz_version: ${{ steps.hz_version.outputs.hz_version }}
       package_version: ${{ steps.package_version.outputs.package_version }}
     name: CLI Release Automation
     steps:
@@ -59,10 +60,12 @@ jobs:
           architecture: ${{ matrix.architecture }}
 
       - name: Set HZ_VERSION
+        id: hz_version
         run: |
           if [ -z "${{ env.HZ_VERSION }}" ]; then
             echo "HZ_VERSION=$(mvn help:evaluate -Dexpression=hazelcast.version -q -DforceStdout)" >> $GITHUB_ENV
           fi
+          echo ::set-output name=hz_version::$HZ_VERSION
 
       - name: Set PACKAGE_VERSION
         id: package_version
@@ -133,7 +136,7 @@ jobs:
       matrix:
         distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
     env:
-      HZ_VERSION: ${{ github.event.inputs.HZ_VERSION }}
+      HZ_VERSION: ${{ needs.build.outputs.hz_version }}
       HZ_DISTRIBUTION: ${{ matrix.distribution }}
       HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
     needs: build
