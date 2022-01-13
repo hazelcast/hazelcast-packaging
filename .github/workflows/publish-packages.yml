@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*' # Push events to matching v*, e.g. v5.0.2
+  pull_request:
+    types: [opened, synchronize, edited]
   workflow_dispatch:
     inputs:
       HZ_VERSION:
