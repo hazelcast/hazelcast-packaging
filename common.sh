@@ -25,7 +25,7 @@ if [ "${EVENT_NAME}" == "pull_request" ]; then
 
   # TODO change when the access is setup
   export BREW_GIT_REPO_NAME="frant-hartm/homebrew-hz"
-  export BREW_REPO_NAME="hazelcast/hz-test"
+  export BREW_REPO_NAME="frant-hartm/hz"
 else
   export DEBIAN_REPO_BASE_URL="https://repository.hazelcast.com/debian-local"
   export RPM_REPO_BASE_URL="https://repository.hazelcast.com/rpm-local"

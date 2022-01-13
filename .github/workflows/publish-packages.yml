@@ -164,7 +164,8 @@ jobs:
       matrix:
         distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
     env:
-      HZ_VERSION: ${{ github.event.inputs.HZ_VERSION }}
+      HZ_VERSION: ${{ needs.build.outputs.hz_version }}
+      PACKAGE_VERSION: ${{ needs.build.outputs.package_version }}
       HZ_DISTRIBUTION: ${{ matrix.distribution }}
       HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
     needs: build
@@ -190,6 +191,11 @@ jobs:
     strategy:
       matrix:
         distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
+    env:
+      HZ_VERSION: ${{ needs.build.outputs.hz_version }}
+      PACKAGE_VERSION: ${{ needs.build.outputs.package_version }}
+      HZ_DISTRIBUTION: ${{ matrix.distribution }}
+      HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
     needs: build
     name: CLI Release Homebrew Verification
     steps:
@@ -199,7 +205,7 @@ jobs:
         run: |
           source ./common.sh
           brew tap ${BREW_REPO_NAME}
-          brew install hazelcast@$BREW_PACKAGE_VERSION
+          brew install ${{ env.HZ_DISTRIBUTION}@$BREW_PACKAGE_VERSION
 
       - name: Run CLI
         run: HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start &
