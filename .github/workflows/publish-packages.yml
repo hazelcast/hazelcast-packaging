@@ -1,0 +1,18 @@
+name: Publish packages
+
+on:
+  push:
+    tags:
+      - 'v*' # Push events to matching v*, e.g. v5.0.2
+  workflow_dispatch:
+    inputs:
+      HZ_VERSION:
+        description: 'Version of Hazelcast to build the image for'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: CLI Release Automation
+    steps:
+      - run: echo "Test"
