@@ -3,20 +3,20 @@
 set -x
 
 export PACKAGE_REPO=stable
-if [[ "$1" == *"SNAPSHOT"* ]]; then
+if [[ "$HZ_VERSION" == *"SNAPSHOT"* ]]; then
   export PACKAGE_REPO=snapshot
 fi
-if [[ "$1" == *"DR"* ]]; then
+if [[ "$HZ_VERSION" == *"DR"* ]]; then
   export PACKAGE_REPO=devel
 fi
-if [[ "$1" == *"BETA"* ]]; then
+if [[ "$HZ_VERSION" == *"BETA"* ]]; then
   export PACKAGE_REPO=beta
 fi
 
-BREW_PACKAGE_VERSION=$(echo $1 | tr '[:upper:]' '[:lower:]' | sed -r -r 's/(-)/\./g')
+BREW_PACKAGE_VERSION=$(echo $PACKAGE_VERSION | tr '[:upper:]' '[:lower:]' | sed -r -r 's/(-)/\./g')
 export BREW_PACKAGE_VERSION
 
-RPM_PACKAGE_VERSION=$(echo $1 | sed -r -r 's/(-)/\./g')
+RPM_PACKAGE_VERSION=$(echo $PACKAGE_VERSION | sed -r -r 's/(-)/\./g')
 export RPM_PACKAGE_VERSION
 
 if [ "${EVENT_NAME}" == "pull_request" ]; then

@@ -92,8 +92,8 @@ jobs:
 
       - name: Get homebrew repository
         run: |
-          ./common.sh
-          echo "BREW_GIT_REPO_NAME=$BREW_GIT_REPO_NAME" >> $GITHUB_ENV
+          source ./common.sh
+          echo "BREW_GIT_REPO_NAME=${BREW_GIT_REPO_NAME}" >> $GITHUB_ENV
 
       - name: Checkout homebrew-hz repo
         uses: actions/checkout@v2.3.1
