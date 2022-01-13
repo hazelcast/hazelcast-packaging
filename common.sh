@@ -20,3 +20,7 @@ function derive_package_repo() {
 function brew_package_version() {
     BREW_PACKAGE_VERSION=$(echo $1 | tr '[:upper:]' '[:lower:]' | sed -r -r 's/(-)/\./g')
 }
+
+function rpm_package_version() {
+  export RPM_PACKAGE_VERSION=$(echo $1 | sed -r -r 's/(-)/\./g')
+}

@@ -19,6 +19,13 @@ if [ -z "${PACKAGE_VERSION}" ]; then
   exit 1
 fi
 
+export HZ_DISTRIBUTION_FILE=${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz
+
+if [ ! -f "${HZ_DISTRIBUTION_FILE}" ]; then
+  echo "File ${HZ_DISTRIBUTION_FILE} doesn't exits in current directory."
+  exit 1;
+fi
+
 echo "Building DEB package $HZ_DISTRIBUTION:${HZ_VERSION} package version ${PACKAGE_VERSION}"
 
 # Remove previous build, useful on local
@@ -27,9 +34,7 @@ rm -rf build/deb
 mkdir -p build/deb/hazelcast/DEBIAN
 mkdir -p build/deb/hazelcast/usr/lib/hazelcast
 
-mvn -U --batch-mode clean dependency:unpack \
-  -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:$HZ_VERSION:tar.gz \
-  -DoutputDirectory=build/deb/hazelcast/usr/lib/hazelcast
+tar -xf ${HZ_DISTRIBUTION_FILE} -C build/deb/hazelcast/usr/lib/hazelcast
 
 # If this is 'hazelcast' package it conflicts with 'hazelcast-enterprise' and vice versa
 export CONFLICTS=hazelcast-enterprise
@@ -68,8 +73,10 @@ if [ "${PUBLISH}" == "true" ]; then
 
   # TODO change debian-test-local -> debian-local once we are done with reviews/testing
   curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" -H "X-Checksum-Deploy: false" -H "X-Checksum-Sha256: $DEB_SHA256SUM" \
-    -H "X-Checksum-Sha1: $DEB_SHA1SUM" -H "X-Checksum-MD5: $DEB_MD5SUM" -T"$DEB_FILE" \
-    -X PUT "https://repository.hazelcast.com/debian-test-local/$DEB_FILE;deb.distribution=${PACKAGE_REPO};deb.component=main;deb.architecture=all"
+    -H "X-Checksum-Sha1: $DEB_SHA1SUM" -H "X-Checksum-MD5: $DEB_MD5SUM" \
+    -T"$DEB_FILE" \
+    -X PUT \
+    "https://repository.hazelcast.com/debian-test-local/$DEB_FILE;deb.distribution=${PACKAGE_REPO};deb.component=main;deb.architecture=all"
 
   # Calculate Debian Repository Metadata
   curl -X POST "https://repository.hazelcast.com/api/deb/reindex/debian-test-local"

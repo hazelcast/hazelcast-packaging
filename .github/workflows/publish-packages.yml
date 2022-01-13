@@ -43,12 +43,6 @@ jobs:
           java-version: ${{ matrix.java }}
           architecture: ${{ matrix.architecture }}
 
-      - uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-
       - name: Set HZ_VERSION
         run: |
           if [ -z "${{ env.HZ_VERSION }}" ]; then
@@ -67,6 +61,11 @@ jobs:
           fi
           echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
           echo ::set-output name=package_version::$PACKAGE_VERSION
+
+      - name: Download the distribution tar.gz file
+        run: |
+          HZ_PACKAGE_URL=$(mvn --batch-mode dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz -DoutputDirectory=./ -Dmdep.useBaseVersion=true | grep 'Downloaded from.*hazelcast.*' | grep -v 'maven-metadata.xml' | grep -Eo 'https://[^ >]+' | tail -1)
+          echo "HZ_PACKAGE_URL=$HZ_PACKAGE_URL" >> $GITHUB_ENV
 
       - name: Create & Upload DEB package
         run: |
@@ -94,13 +93,14 @@ jobs:
 
       - name: Commit changes & Push to homebrew-hz repo
         run: |
-          PACKAGE_VERSION=$(echo ${{ env.PACKAGE_VERSION }} | tr '[:upper:]' '[:lower:]' | sed -r -r 's/(-)/\./g')
+          source common.sh
+          brew_package_version "${{ env.PACKAGE_VERSION }}"
           
-          cd homebrew-hz
+          cd ../homebrew-hz
           git config --global user.name 'devOpsHazelcast'
           git config --global user.email 'devops@hazelcast.com'
           git add Aliases
-          git add ${HZ_DISTRIBUTION}@${PACKAGE_VERSION}.rb
+          git add ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
           if [[ `git status --porcelain --untracked-files=no` ]]; then
             git commit -am "Hazelcast Command Line ${{ env.PACKAGE_VERSION }} release"
             git pull --rebase
@@ -156,12 +156,12 @@ jobs:
       - name: Install CLI from rpm
         run: |
           source ./common.sh
+          rpm_package_version "${{ needs.build.outputs.package_version }}"
           derive_package_repo "${HZ_VERSION}"
           yum install -y wget
           wget https://repository.hazelcast.com/rpm-test-local/${PACKAGE_REPO}/hazelcast-rpm-snapshot.repo -O hazelcast-rpm-snapshot.repo
-          mv hazelcast-rpm-snapshot.repo /etc/yum.repos.d/
-          PACKAGE_VERSION=$(echo ${{ needs.build.outputs.package_version }} | sed -r -r 's/(-)/\./g')
-          yum install -y ${{ env.HZ_DISTRIBUTION}}-${PACKAGE_VERSION}
+          mv hazelcast-rpm-snapshot.repo /etc/yum.repos.d/          
+          yum install -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
           HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start &
 
       - name: Check Hazelcast health
@@ -180,9 +180,10 @@ jobs:
 
       - name: Install CLI from homebrew
         run: |
-          PACKAGE_VERSION=$(echo ${{ needs.build.outputs.package_version }} | tr '[:upper:]' '[:lower:]' | sed -r -r 's/(-)/\./g')
+          source ./common.sh
+          brew_package_version "${{ needs.build.outputs.package_version }}"
           brew tap frant-hartm/hz
-          brew install hazelcast@$PACKAGE_VERSION
+          brew install hazelcast@$BREW_PACKAGE_VERSION
 
       - name: Run CLI
         run: HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start &

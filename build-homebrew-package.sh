@@ -19,38 +19,26 @@ if [ -z "${PACKAGE_VERSION}" ]; then
   exit 1
 fi
 
+export HZ_DISTRIBUTION_FILE=${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz
+
+if [ ! -f "${HZ_DISTRIBUTION_FILE}" ]; then
+  echo "File ${HZ_DISTRIBUTION_FILE} doesn't exits in current directory."
+  exit 1;
+fi
+
+# With Homebrew we actually don't upload the artifact anywhere, but use the base tar.gz artifact url.
+# The package manager then downloads it from there.
+# The HZ_DISTRIBUTION_FILE is required to compute the hash.
+if [ -z "${HZ_PACKAGE_URL}" ]; then
+  echo "Variable HZ_PACKAGE_URL is not set. This is url pointing to hazelcast distribution tar.gz file"
+  exit 1;
+fi
+
 echo "Building Homebrew package $HZ_DISTRIBUTION:${HZ_VERSION} package version ${PACKAGE_VERSION}"
 
 brew_package_version "${PACKAGE_VERSION}"
 
-if [[ "${HZ_VERSION}" == *"SNAPSHOT"* ]]; then
-  if [ "${HZ_DISTRIBUTION}" == "hazelcast" ]; then
-    export MAVEN_REPO="https://oss.sonatype.org/content/repositories/snapshots"
-  else
-    export MAVEN_REPO="https://repository.hazelcast.com/snapshot"
-  fi
-
-  curl -O -fsSL "$MAVEN_REPO/com/hazelcast/${HZ_DISTRIBUTION}-distribution/${HZ_VERSION}/maven-metadata.xml"
-  TIMESTAMP=$(xmllint --xpath "/metadata/versioning/snapshotVersions/snapshotVersion[1]/value/text()" maven-metadata.xml)
-
-  export PACKAGE_URL="$MAVEN_REPO/com/hazelcast/${HZ_DISTRIBUTION}-distribution/${HZ_VERSION}/${HZ_DISTRIBUTION}-distribution-${TIMESTAMP}.tar.gz"
-elif [[ "${HZ_VERSION}" == *"DR"* ]]; then
-  export MAVEN_REPO="https://repository.hazelcast.com/devel"
-  export PACKAGE_URL="$MAVEN_REPO/com/hazelcast/${HZ_DISTRIBUTION}-distribution/${HZ_VERSION}/${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz"
-else
-  if [ "${HZ_DISTRIBUTION}" == "hazelcast" ]; then
-    export MAVEN_REPO="https://repo1.maven.org/maven2"
-  else
-    export MAVEN_REPO="https://repository.hazelcast.com/release"
-  fi
-  export PACKAGE_URL="$MAVEN_REPO/com/hazelcast/${HZ_DISTRIBUTION}-distribution/${HZ_VERSION}/${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz"
-fi
-
-mvn -U --batch-mode dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz \
-  -Dmdep.useBaseVersion=true \
-  -DoutputDirectory=./
-
-ASSET_SHASUM=$(sha256sum ${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz | cut -d ' ' -f 1)
+ASSET_SHASUM=$(sha256sum ${HZ_DISTRIBUTION_FILE} | cut -d ' ' -f 1)
 
 # If this is 'hazelcast' package it conflicts with 'hazelcast-enterprise' and vice versa
 export CONFLICTS=hazelcast-enterprise
@@ -69,7 +57,7 @@ if [ ${HZ_DISTRIBUTION} == "hazelcast" ]; then
 else
   sed -i "s+class HazelcastAT.* <\(.*$\)+class HazelcastEnterpriseAT${VERSION_NODOTS} <\1+g" ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
 fi
-sed -i "s+url.*$+url \"${PACKAGE_URL}\"+g" ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
+sed -i "s+url.*$+url \"${HZ_PACKAGE_URL}\"+g" ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
 sed -i "s+sha256.*$+sha256 \"${ASSET_SHASUM}\"+g" ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
 sed -i "s+conflicts_with \".*\"$+conflicts_with \"$CONFLICTS\"+g" ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
 
