@@ -10,6 +10,8 @@ on:
     # - PACKAGE_VERSION extracted from the tag
     tags:
       - 'v*'
+  pull_request:
+    types: [ opened, synchronize, edited ]
   workflow_dispatch:
     inputs:
       HZ_VERSION:
