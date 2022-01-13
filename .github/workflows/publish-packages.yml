@@ -63,7 +63,7 @@ jobs:
         id: hz_version
         run: |
           if [ -z "${{ env.HZ_VERSION }}" ]; then
-            HZ_VERSION=$(mvn help:evaluate -Dexpression=hazelcast.version -q -DforceStdout)"
+            HZ_VERSION=$(mvn help:evaluate -Dexpression=hazelcast.version -q -DforceStdout)
           fi
           echo "HZ_VERSION=$HZ_VERSION" >> $GITHUB_ENV
           echo ::set-output name=hz_version::$HZ_VERSION
