@@ -215,7 +215,7 @@ jobs:
       - name: Install CLI from homebrew
         run: |
           source ./common.sh
-          brew tap ${BREW_REPO_NAME}
+          brew tap ${BREW_TAP_NAME}
           brew install ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
 
       - name: Run CLI

@@ -24,11 +24,11 @@ if [ "${EVENT_NAME}" == "pull_request" ]; then
   export RPM_REPO_BASE_URL="https://repository.hazelcast.com/rpm-test-local"
 
   export BREW_GIT_REPO_NAME="hazelcast/homebrew-hz-test"
-  export BREW_REPO_NAME="hazelcast/hz-test"
+  export BREW_TAP_NAME="hazelcast/hz-test"
 else
   export DEBIAN_REPO_BASE_URL="https://repository.hazelcast.com/debian-local"
   export RPM_REPO_BASE_URL="https://repository.hazelcast.com/rpm-local"
 
   export BREW_GIT_REPO_NAME="hazelcast/homebrew-hz"
-  export BREW_REPO_NAME="hazelcast/hz"
+  export BREW_TAP_NAME="hazelcast/hz"
 fi
