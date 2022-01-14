@@ -79,7 +79,4 @@ if [ "${PUBLISH}" == "true" ]; then
     -X PUT \
     "$DEBIAN_REPO_BASE_URL/$DEB_FILE;deb.distribution=${PACKAGE_REPO};deb.component=main;deb.architecture=all"
 
-  # Calculate Debian Repository Metadata
-  curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" \
-    -X POST "https://repository.hazelcast.com/api/deb/reindex/${DEBIAN_REPO}"
 fi

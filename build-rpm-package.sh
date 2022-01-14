@@ -67,7 +67,4 @@ if [ "${PUBLISH}" == "true" ]; then
     -X PUT \
     "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}-1.noarch.rpm"
 
-  # Calculate YUM Repository Metadata
-  curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" \
-    -X POST "https://repository.hazelcast.com/api/yum/${RPM_REPO}"
 fi
