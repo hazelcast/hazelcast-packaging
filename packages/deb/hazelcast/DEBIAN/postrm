@@ -1,8 +1,13 @@
 #!/bin/sh
 
-rm /usr/bin/hz-cli
-rm /usr/bin/hz-cluster-admin
-rm /usr/bin/hz-cluster-cp-admin
-rm /usr/bin/hz-healthcheck
-rm /usr/bin/hz-start
-rm /usr/bin/hz-stop
+echo "Removing symlinks from /usr/bin"
+
+for FILENAME in /usr/lib/hazelcast/${HZ_DISTRIBUTION}-${HZ_VERSION}/bin/hz*; do
+  case "${FILENAME}" in
+    *bat)
+      ;;
+    *)
+      rm "$(basename "${FILENAME}")"
+      ;;
+  esac
+done
