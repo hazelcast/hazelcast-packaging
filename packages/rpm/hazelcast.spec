@@ -1,13 +1,13 @@
 %define hzversion ${HZ_VERSION}
 %define hzdistribution ${HZ_DISTRIBUTION}
 
-Name:		%{hzdistribution}
+Name:       %{hzdistribution}
 Version:    ${PACKAGE_VERSION}
 Epoch:      1
-Release:	1
-Summary:	A tool that allows users to install & run Hazelcast and Management Center on the local environment
+Release:    1
+Summary:    A tool that allows users to install & run Hazelcast and Management Center on the local environment
 
-License:	ASL 2.0
+License:    ASL 2.0
 URL:		https://hazelcast.org/
 
 Source0:    %{hzdistribution}-%{hzversion}.tar.gz
@@ -20,7 +20,7 @@ BuildArch:  noarch
 A tool that allows users to install & run Hazelcast and Management Center on the local environment
 
 %prep
-%setup -c %{name}-%{hzversion}
+%setup -q
 
 %build
 true
@@ -54,6 +54,18 @@ hz --help
 rm -rf $RPM_BUILD_ROOT
 
 %postun
+echo "Removing symlinks from /usr/bin"
+
+for FILENAME in /usr/lib/hazelcast/${HZ_DISTRIBUTION}-${HZ_VERSION}/bin/hz*; do
+  case "${FILENAME}" in
+    *bat)
+      ;;
+    *)
+      rm "$(basename "${FILENAME}")"
+      ;;
+  esac
+done
+
 if [  ! -f %{buildroot}/%{_bindir}/hz  ]; then
     rm %{buildroot}/%{_bindir}/hz
     rm %{buildroot}/%{_bindir}/hz-cli
