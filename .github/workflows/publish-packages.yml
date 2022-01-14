@@ -157,6 +157,11 @@ jobs:
         run: |
           ./check-hazelcast-health.sh
 
+      - name: Uninstall CLI from deb
+        run: |
+          source ./common.sh
+          sudo apt remove ${{ env.HZ_DISTRIBUTION}}
+
   verify-rpm:
     runs-on: ubuntu-latest
     container: centos:latest
@@ -186,6 +191,11 @@ jobs:
         run: |
           ./check-hazelcast-health.sh
 
+      - name: Uninstall CLI from rpm
+        run: |
+          source ./common.sh
+          yum remove -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
+
   verify-homebrew:
     runs-on: macos-latest
     strategy:
@@ -214,3 +224,7 @@ jobs:
         run: |
           ./check-hazelcast-health.sh
 
+      - name: Uninstall CLI from homebrew
+        run: |
+          source ./common.sh          
+          brew uninstall ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
