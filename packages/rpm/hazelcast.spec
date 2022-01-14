@@ -2,7 +2,7 @@
 %define hzdistribution ${HZ_DISTRIBUTION}
 
 Name:       %{hzdistribution}
-Version:    ${PACKAGE_VERSION}
+Version:    ${RPM_PACKAGE_VERSION}
 Epoch:      1
 Release:    1
 Summary:    A tool that allows users to install & run Hazelcast and Management Center on the local environment
