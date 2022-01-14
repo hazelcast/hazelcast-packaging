@@ -167,7 +167,7 @@ jobs:
       PACKAGE_VERSION: ${{ needs.build.outputs.package_version }}
       HZ_DISTRIBUTION: ${{ matrix.distribution }}
       HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
-    needs: [ update-deb, update-rpm ]
+    needs: [ build, update-deb, update-rpm ]
     name: CLI Release DEB Verification
     steps:
       - uses: actions/checkout@v2.3.2
@@ -200,7 +200,7 @@ jobs:
       PACKAGE_VERSION: ${{ needs.build.outputs.package_version }}
       HZ_DISTRIBUTION: ${{ matrix.distribution }}
       HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
-    needs: build
+    needs: [ build, update-deb, update-rpm ]
     name: CLI Release RPM Verification
     steps:
       - uses: actions/checkout@v2.3.2
@@ -233,7 +233,7 @@ jobs:
       PACKAGE_VERSION: ${{ needs.build.outputs.package_version }}
       HZ_DISTRIBUTION: ${{ matrix.distribution }}
       HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
-    needs: build
+    needs: [ build, update-deb, update-rpm ]
     name: CLI Release Homebrew Verification
     steps:
       - uses: actions/checkout@v2.3.2
