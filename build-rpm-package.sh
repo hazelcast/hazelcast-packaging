@@ -69,5 +69,5 @@ if [ "${PUBLISH}" == "true" ]; then
 
   # Calculate YUM Repository Metadata
   curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" \
-    -X POST "https://repository.hazelcast.com/api/yum/rpm-test-local"
+    -X POST "https://repository.hazelcast.com/api/yum/${RPM_REPO}"
 fi

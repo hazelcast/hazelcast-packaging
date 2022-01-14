@@ -81,5 +81,5 @@ if [ "${PUBLISH}" == "true" ]; then
 
   # Calculate Debian Repository Metadata
   curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" \
-    -X POST "https://repository.hazelcast.com/api/deb/reindex/debian-test-local"
+    -X POST "https://repository.hazelcast.com/api/deb/reindex/${DEBIAN_REPO}"
 fi
