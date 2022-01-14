@@ -20,7 +20,7 @@ BuildArch:  noarch
 A tool that allows users to install & run Hazelcast and Management Center on the local environment
 
 %prep
-%setup -q
+%setup -c %{name}-%{hzversion}
 
 %build
 true
