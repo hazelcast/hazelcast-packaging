@@ -7,7 +7,7 @@ for FILENAME in /usr/lib/hazelcast/${HZ_DISTRIBUTION}-${HZ_VERSION}/bin/hz*; do
     *bat)
       ;;
     *)
-      rm "$(basename "${FILENAME}")"
+      rm /usr/bin/"$(basename "${FILENAME}")"
       ;;
   esac
 done
