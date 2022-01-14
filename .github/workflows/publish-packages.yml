@@ -141,7 +141,7 @@ jobs:
         run: |
           source common.sh
 
-          curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" \
+          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
             -X POST "https://repository.hazelcast.com/api/deb/reindex/${DEBIAN_REPO}"
 
   update-rpm:
