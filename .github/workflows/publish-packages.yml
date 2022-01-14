@@ -138,6 +138,7 @@ jobs:
         distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
     env:
       HZ_VERSION: ${{ needs.build.outputs.hz_version }}
+      PACKAGE_VERSION: ${{ needs.build.outputs.package_version }}
       HZ_DISTRIBUTION: ${{ matrix.distribution }}
       HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
     needs: build
@@ -150,7 +151,7 @@ jobs:
           source ./common.sh
           wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
           echo "deb ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list
-          sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}=${{ needs.build.outputs.package_version }}
+          sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}=${{ env.PACKAGE_VERSION }}
           HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start &
 
       - name: Check Hazelcast health
