@@ -186,7 +186,7 @@ jobs:
           wget ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo -O hazelcast-rpm-${PACKAGE_REPO}.repo
           mv hazelcast-rpm-${PACKAGE_REPO}.repo /etc/yum.repos.d/          
           yum install -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
-          HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" > hz.log 2>&1 &
+          HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
         run: |
@@ -219,7 +219,7 @@ jobs:
           brew install ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
 
       - name: Run CLI
-        run: HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" > hz.log 2>&1 &
+        run: HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
         run: |

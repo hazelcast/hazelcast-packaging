@@ -11,5 +11,5 @@ until $(curl --silent --fail "127.0.0.1:5701/hazelcast/health/ready"); do
   fi
   printf '.'
   attempts=$(($attempts+1))
-  sleep 1
+  sleep 2
 done
