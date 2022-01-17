@@ -5,7 +5,7 @@ Name:       %{hzdistribution}
 Version:    ${RPM_PACKAGE_VERSION}
 Epoch:      1
 Release:    1
-Summary:    A tool that allows users to install & run Hazelcast and Management Center on the local environment
+Summary:    A tool that allows users to install & run Hazelcast
 
 License:    ASL 2.0
 URL:		https://hazelcast.org/
@@ -17,7 +17,7 @@ Requires:	java-1.8.0-devel
 BuildArch:  noarch
 
 %description
-A tool that allows users to install & run Hazelcast and Management Center on the local environment
+A tool that allows users to install & run Hazelcast
 
 %prep
 %setup -c %{name}-%{hzversion}
