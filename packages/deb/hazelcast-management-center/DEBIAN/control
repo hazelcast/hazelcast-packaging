@@ -1,0 +1,11 @@
+Package: hazelcast-management-center
+Source: hazelcast
+Version: ${PACKAGE_VERSION}
+Section: imdg
+Priority: optional
+Architecture: all
+Depends: default-jdk | java8-sdk
+Maintainer: Hazelcast Platform Team <platform@hazelcast.com>
+Description: A tool that allows users to install & run Hazelcast Management Center
+Homepage: https://www.hazelcast.com/
+License: Hazelcast Enterprise Edition License

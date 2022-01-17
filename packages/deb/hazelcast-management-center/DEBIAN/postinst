@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "TODO"
+
+printf "\n\nHazelcast Management Center is successfully installed to '/usr/lib/hazelcast-management-center/'\n"
