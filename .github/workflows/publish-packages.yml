@@ -1,4 +1,4 @@
-name: Publish packages
+name: Publish Hazelcast OS & EE packages
 
 on:
   push:
