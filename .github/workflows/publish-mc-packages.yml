@@ -86,8 +86,9 @@ jobs:
           else
             VERSION=latest-snapshot
           fi
-          HZ_PACKAGE_URL="https://repository.hazelcast.com/download/management-center/hazelcast-management-center-${MC_VERSION}.tar.gz"
-          echo "HZ_PACKAGE_URL=$HZ_PACKAGE_URL" >> $GITHUB_ENV
+          MC_PACKAGE_URL="https://repository.hazelcast.com/download/management-center/hazelcast-management-center-${VERSION}.tar.gz"
+          echo "MC_PACKAGE_URL=$MC_PACKAGE_URL" >> $GITHUB_ENV
+          curl --silent --fail --location "${MC_PACKAGE_URL}" --output hazelcast-management-center-${MC_VERSION}.tar.gz 
 
       - name: Create & Upload DEB package
         run: |
