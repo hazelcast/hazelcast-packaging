@@ -2,6 +2,10 @@
 
 set -x
 
+if [ -z "${HZ_VERSION}" ]; then
+  HZ_VERSION="${MC_VERSION}"
+fi
+
 export PACKAGE_REPO=stable
 if [[ "$HZ_VERSION" == *"SNAPSHOT"* ]]; then
   export PACKAGE_REPO=snapshot
