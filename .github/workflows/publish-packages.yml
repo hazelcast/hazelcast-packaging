@@ -42,16 +42,16 @@ jobs:
       BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
     defaults:
       run:
-        working-directory: ./hazelcast-command-line
+        working-directory: ./hazelcast-packaging
     outputs:
       hz_version: ${{ steps.hz_version.outputs.hz_version }}
       package_version: ${{ steps.package_version.outputs.package_version }}
-    name: CLI Release Automation
+    name: Hazelcast Packages Release Automation
     steps:
-      - name: Checkout hazelcast-command-line repo
+      - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v2.3.2
         with:
-          path: 'hazelcast-command-line'
+          path: 'hazelcast-packaging'
 
       - name: Setup JDK
         uses: actions/setup-java@v1
@@ -88,11 +88,11 @@ jobs:
 
       - name: Create & Upload DEB package
         run: |
-          ./build-deb-package.sh
+          ./build-hazelcast-deb-package.sh
 
       - name: Create & Sign & Upload RPM package
         run: |
-          ./build-rpm-package.sh
+          ./build-hazelcast-rpm-package.sh
 
       - name: Get homebrew repository
         run: |
@@ -107,12 +107,9 @@ jobs:
           token: ${{ secrets.DEVOPS_SECRET }}
           path: 'homebrew-hz'
 
-      - name: Install xmllint
-        run: sudo apt-get install -y libxml2-utils
-
       - name: Change the artifact in homebrew-hz
         run: |
-          ./build-homebrew-package.sh
+          ./build-hazelcast-homebrew-package.sh
 
       - name: Commit changes & Push to homebrew-hz repo
         run: |
@@ -168,11 +165,11 @@ jobs:
       HZ_DISTRIBUTION: ${{ matrix.distribution }}
       HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
     needs: [ build, update-deb, update-rpm ]
-    name: CLI Release DEB Verification
+    name: Hazelcast DEB Package Verification
     steps:
       - uses: actions/checkout@v2.3.2
 
-      - name: Install CLI from deb
+      - name: Install Hazelcast from deb
         run: |
           source ./common.sh
           wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
@@ -184,7 +181,7 @@ jobs:
         run: |
           ./check-hazelcast-health.sh
 
-      - name: Uninstall CLI from deb
+      - name: Uninstall Hazelcast from deb
         run: |
           source ./common.sh
           sudo apt remove ${{ env.HZ_DISTRIBUTION}}
@@ -201,11 +198,11 @@ jobs:
       HZ_DISTRIBUTION: ${{ matrix.distribution }}
       HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
     needs: [ build, update-deb, update-rpm ]
-    name: CLI Release RPM Verification
+    name: Hazelcast RPM Package Verification
     steps:
       - uses: actions/checkout@v2.3.2
 
-      - name: Install CLI from rpm
+      - name: Install Hazelcast from rpm
         run: |
           source ./common.sh
           yum install -y wget
@@ -218,7 +215,7 @@ jobs:
         run: |
           ./check-hazelcast-health.sh
 
-      - name: Uninstall CLI from rpm
+      - name: Uninstall Hazelcast from rpm
         run: |
           source ./common.sh
           yum remove -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
@@ -234,24 +231,24 @@ jobs:
       HZ_DISTRIBUTION: ${{ matrix.distribution }}
       HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
     needs: [ build, update-deb, update-rpm ]
-    name: CLI Release Homebrew Verification
+    name: Hazelcast Homebrew Homebrew Verification
     steps:
       - uses: actions/checkout@v2.3.2
 
-      - name: Install CLI from homebrew
+      - name: Install Hazelcast from Homebrew
         run: |
           source ./common.sh
           brew tap ${BREW_TAP_NAME}
           brew install ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
 
-      - name: Run CLI
+      - name: Run Hazelcast
         run: HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
         run: |
           ./check-hazelcast-health.sh
 
-      - name: Uninstall CLI from homebrew
+      - name: Uninstall Hazelcast from homebrew
         run: |
           source ./common.sh          
           brew uninstall ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION

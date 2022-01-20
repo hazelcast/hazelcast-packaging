@@ -49,10 +49,10 @@ export FILENAME='${FILENAME}'
 envsubst <packages/deb/hazelcast/DEBIAN/conffiles >build/deb/hazelcast/DEBIAN/conffiles
 envsubst <packages/deb/hazelcast/DEBIAN/control >build/deb/hazelcast/DEBIAN/control
 envsubst <packages/deb/hazelcast/DEBIAN/postinst >build/deb/hazelcast/DEBIAN/postinst
-envsubst <packages/deb/hazelcast/DEBIAN/postrm >build/deb/hazelcast/DEBIAN/postrm
+envsubst <packages/deb/hazelcast/DEBIAN/prerm >build/deb/hazelcast/DEBIAN/prerm
 
-# postinst and postrm must be executable
-chmod 775 build/deb/hazelcast/DEBIAN/postinst build/deb/hazelcast/DEBIAN/postrm
+# postinst and prerm must be executable
+chmod 775 build/deb/hazelcast/DEBIAN/postinst build/deb/hazelcast/DEBIAN/prerm
 
 cp -RT packages/deb/hazelcast/usr/lib/hazelcast/hazelcast build/deb/hazelcast/usr/lib/hazelcast/${HZ_DISTRIBUTION}-$HZ_VERSION
 
@@ -71,7 +71,7 @@ if [ "${PUBLISH}" == "true" ]; then
   # Delete any package that exists - previous version of the same package
   curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" \
     -X DELETE \
-    "$DEB_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}-1.noarch.rpm"
+    "$DEBIAN_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${PACKAGE_VERSION}-1.noarch.rpm"
 
   curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" -H "X-Checksum-Deploy: false" -H "X-Checksum-Sha256: $DEB_SHA256SUM" \
     -H "X-Checksum-Sha1: $DEB_SHA1SUM" -H "X-Checksum-MD5: $DEB_MD5SUM" \
