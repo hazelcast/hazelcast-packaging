@@ -20,9 +20,9 @@ You can find the Debian packages for Hazelcast at
 Run the following commands to install the package using apt:
 
 ```
-$ wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
-$ echo "deb https://repository.hazelcast.com/debian stable main" | sudo tee -a /etc/apt/sources.list
-$ sudo apt update && sudo apt install hazelcast
+wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
+echo "deb https://repository.hazelcast.com/debian stable main" | sudo tee -a /etc/apt/sources.list
+sudo apt update && sudo apt install hazelcast
 ```
 
 ### Install with yum/dnf
@@ -73,7 +73,6 @@ version `5.0.1`:
 
 ```
 sudo yum -y install yum-versionlock
-
 ```
 
 To keep the particular version during `yum update` hold the package at
@@ -139,5 +138,11 @@ After successful installation all commands from Hazelcast distribution
 Run the following command to start a Hazelcast server with the default configuration:
 
 ```
-$ hz start
+hz start
 ``` 
+
+To see additional options, run the following:
+
+```
+hz start --help
+```

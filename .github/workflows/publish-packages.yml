@@ -121,7 +121,7 @@ jobs:
           git add Aliases
           git add ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
           if [[ `git status --porcelain --untracked-files=no` ]]; then
-            git commit -am "Hazelcast Command Line ${{ env.PACKAGE_VERSION }} release"
+            git commit -am "Hazelcast Homebrew Package ${{ env.PACKAGE_VERSION }} release"
             git pull --rebase
             git push
           else
