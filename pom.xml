@@ -6,13 +6,13 @@
 
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-packaging</artifactId>
-    <version>5.0</version>
+    <version>5.0.1</version>
 
     <description>A pom.xml file with repository definitions so we can use maven to fetch tar artifacts.</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hazelcast.version>5.0</hazelcast.version>
+        <hazelcast.version>5.0.1</hazelcast.version>
     </properties>
 
     <repositories>
