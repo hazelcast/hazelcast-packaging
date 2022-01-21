@@ -72,13 +72,14 @@ After adding the repository run the following to install e.g.
 version `5.0.1`: 
 
 ```
-sudo yum -y install yum-versionlock
+sudo yum install hazelcast
 ```
 
 To keep the particular version during `yum update` hold the package at
 the installed version by running the following:
 
 ```
+sudo yum -y install yum-versionlock
 sudo yum versionlock hazelcast
 ```
 
@@ -90,12 +91,12 @@ Run the following to install e.g. version `5.0.1`:
 brew install hazelcast@5.0.1
 ```
 
-## Installing a snapshot version
+## Installing a SNAPSHOT/BETA/DR version
 
-### Install a snapshot version with apt
+### Install a SNAPSHOT/BETA/DR version with apt
 
-You need to replace `stable` with `snapshot` in the repository
-definition to use Hazelcast snapshots.
+You need to replace `stable` with `snapshot`/`beta`/`devel` in the 
+repository definition to use Hazelcast snapshots.
 
 Run the following to install the latest snapshot version:
 
@@ -105,10 +106,10 @@ echo "deb https://repository.hazelcast.com/debian snapshot main" | sudo tee -a /
 sudo apt update && sudo apt install hazelcast
 ```
 
-### Install a snapshot version with yum
+### Install a SNAPSHOT/BETA/DR version with yum
 
-You need to replace `stable` with `snapshot` in the repository
-definition to use Hazelcast snapshots.
+You need to replace `stable` with `snapshot`/`beta`/`devel` in the 
+repository definition to use Hazelcast snapshots.
 
 Run the following to install the latest snapshot version:
 
@@ -118,16 +119,22 @@ sudo mv hazelcast-snapshot-rpm.repo /etc/yum.repos.d/
 sudo yum install hazelcast
 ```
 
-### Install a snapshot version with Homebrew
+### Install a SNAPSHOT/BETA/DR version with Homebrew
 
-You need to add `.snapshot` suffix to the package version when 
-installing a snapshot. 
+You need to add `snapshot`/`beta`/`dr` suffix to the package version when 
+installing a snapshot.
 
 Run the following to install the latest `5.1-SNAPSHOT` version:
 
 ```
 brew tap hazelcast/hz
 brew install hazelcast@5.1.snapshot
+```
+
+Search for available versions using the following command:
+
+```
+brew search hazelcast
 ```
 
 ## Running Hazelcast
@@ -146,3 +153,5 @@ To see additional options, run the following:
 ```
 hz start --help
 ```
+
+NOTE: `hz` command is not available in versions 5.0, 5.0.1, 5.0.2
