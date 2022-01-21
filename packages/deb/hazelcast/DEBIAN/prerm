@@ -1,0 +1,13 @@
+#!/bin/sh
+
+echo "Removing symlinks from /usr/bin"
+
+for FILENAME in /usr/lib/hazelcast/${HZ_DISTRIBUTION}-${HZ_VERSION}/bin/hz*; do
+  case "${FILENAME}" in
+    *bat)
+      ;;
+    *)
+      rm /usr/bin/"$(basename "${FILENAME}")"
+      ;;
+  esac
+done

@@ -1,0 +1,7 @@
+[Hazelcast-Devel-RPM]
+name=Hazelcast RPM Development Repository
+baseurl=https://repository.hazelcast.com/rpm/devel
+enabled=1
+gpgcheck=1
+gpgkey=https://repository.hazelcast.com/rpm/devel/repodata/repomd.xml.key
+repo_gpgcheck=1

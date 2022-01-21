@@ -1,0 +1,7 @@
+[Hazelcast-Stable-RPM]
+name=Hazelcast RPM Stable Repository
+baseurl=https://repository.hazelcast.com/rpm/stable
+enabled=1
+gpgcheck=1
+gpgkey=https://repository.hazelcast.com/rpm/stable/repodata/repomd.xml.key
+repo_gpgcheck=1
