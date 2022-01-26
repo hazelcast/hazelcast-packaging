@@ -6,6 +6,7 @@ Priority: optional
 Architecture: all
 Conflicts: ${CONFLICTS}
 Depends: default-jdk | java8-sdk
+Build-Depends: debhelper-compat (= 12)
 Maintainer: Hazelcast Platform Team <platform@hazelcast.com>
 Description: A tool that allows users to install & run Hazelcast
 Homepage: https://www.hazelcast.com/

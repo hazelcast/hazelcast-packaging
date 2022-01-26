@@ -50,6 +50,8 @@ envsubst <packages/deb/hazelcast/DEBIAN/conffiles >build/deb/hazelcast/DEBIAN/co
 envsubst <packages/deb/hazelcast/DEBIAN/control >build/deb/hazelcast/DEBIAN/control
 envsubst <packages/deb/hazelcast/DEBIAN/postinst >build/deb/hazelcast/DEBIAN/postinst
 envsubst <packages/deb/hazelcast/DEBIAN/prerm >build/deb/hazelcast/DEBIAN/prerm
+envsubst <packages/deb/hazelcast/DEBIAN/hazelcast.service >build/deb/hazelcast/DEBIAN/hazelcast.service
+envsubst <packages/deb/hazelcast/DEBIAN/rules >build/deb/hazelcast/DEBIAN/rules
 
 # postinst and prerm must be executable
 chmod 775 build/deb/hazelcast/DEBIAN/postinst build/deb/hazelcast/DEBIAN/prerm
