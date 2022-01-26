@@ -32,9 +32,9 @@ echo "Building DEB package $HZ_DISTRIBUTION:${HZ_VERSION} package version ${PACK
 rm -rf build/deb
 
 mkdir -p build/deb/hazelcast/DEBIAN
-mkdir -p build/deb/hazelcast/usr/lib/hazelcast
+mkdir -p build/deb/hazelcast/usr/lib/$HZ_DISTRIBUTION
 
-tar -xf "${HZ_DISTRIBUTION_FILE}" -C build/deb/hazelcast/usr/lib/hazelcast --strip-components=1
+tar -xf "${HZ_DISTRIBUTION_FILE}" -C build/deb/hazelcast/usr/lib/$HZ_DISTRIBUTION --strip-components=1
 
 # If this is 'hazelcast' package it conflicts with 'hazelcast-enterprise' and vice versa
 export CONFLICTS=hazelcast-enterprise
