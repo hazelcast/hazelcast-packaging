@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for FILENAME in /usr/lib/${HZ_DISTRIBUTION}/bin/hz*; do
+for FILENAME in /usr/lib/hazelcast/bin/hz*; do
   case "${FILENAME}" in
     *bat)
       ;;
@@ -10,4 +10,4 @@ for FILENAME in /usr/lib/${HZ_DISTRIBUTION}/bin/hz*; do
   esac
 done
 
-printf "\n\nHazelcast is successfully installed to '/usr/lib/${HZ_DISTRIBUTION}/'\n"
+printf "\n\nHazelcast is successfully installed to '/usr/lib/hazelcast/'\n"

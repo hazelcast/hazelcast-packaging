@@ -32,9 +32,9 @@ echo "Building DEB package $HZ_DISTRIBUTION:${HZ_VERSION} package version ${PACK
 rm -rf build/deb
 
 mkdir -p build/deb/hazelcast/DEBIAN
-mkdir -p build/deb/hazelcast/usr/lib/$HZ_DISTRIBUTION
+mkdir -p build/deb/hazelcast/usr/lib/hazelcast
 
-tar -xf "${HZ_DISTRIBUTION_FILE}" -C build/deb/hazelcast/usr/lib/$HZ_DISTRIBUTION --strip-components=1
+tar -xf "${HZ_DISTRIBUTION_FILE}" -C build/deb/hazelcast/usr/lib/hazelcast --strip-components=1
 
 # If this is 'hazelcast' package it conflicts with 'hazelcast-enterprise' and vice versa
 export CONFLICTS=hazelcast-enterprise
@@ -54,7 +54,7 @@ envsubst <packages/deb/hazelcast/DEBIAN/prerm >build/deb/hazelcast/DEBIAN/prerm
 # postinst and prerm must be executable
 chmod 775 build/deb/hazelcast/DEBIAN/postinst build/deb/hazelcast/DEBIAN/prerm
 
-cp -RT packages/deb/hazelcast/usr/lib/hazelcast build/deb/hazelcast/usr/lib/${HZ_DISTRIBUTION}
+cp -RT packages/deb/hazelcast/usr/lib/hazelcast build/deb/hazelcast/usr/lib/hazelcast
 
 dpkg-deb --build build/deb/hazelcast
 

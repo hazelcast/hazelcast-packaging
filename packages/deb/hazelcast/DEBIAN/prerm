@@ -2,7 +2,7 @@
 
 echo "Removing symlinks from /usr/bin"
 
-for FILENAME in /usr/lib/${HZ_DISTRIBUTION}/bin/hz*; do
+for FILENAME in /usr/lib/hazelcast/bin/hz*; do
   case "${FILENAME}" in
     *bat)
       ;;
