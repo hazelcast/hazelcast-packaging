@@ -71,7 +71,7 @@ if [ "${PUBLISH}" == "true" ]; then
   # Delete any package that exists - previous version of the same package
   curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" \
     -X DELETE \
-    "$DEBIAN_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${PACKAGE_VERSION}-1.noarch.rpm"
+    "$DEBIAN_REPO_BASE_URL/${PACKAGE_REPO}/${DEB_FILE}"
 
   curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" -H "X-Checksum-Deploy: false" -H "X-Checksum-Sha256: $DEB_SHA256SUM" \
     -H "X-Checksum-Sha1: $DEB_SHA1SUM" -H "X-Checksum-MD5: $DEB_MD5SUM" \
