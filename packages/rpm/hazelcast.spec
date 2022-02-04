@@ -31,23 +31,23 @@ echo "Installing Hazelcast..."
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%{__mkdir} -p %{buildroot}%{_prefix}/lib/%{name}/%{name}-%{hzversion}
-%{__cp} -vrf %{name}-%{hzversion}/* %{buildroot}%{_prefix}/lib/%{name}/%{name}-%{hzversion}
-%{__chmod} 755 %{buildroot}%{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz*
+%{__mkdir} -p %{buildroot}%{_prefix}/lib/hazelcast
+%{__cp} -vrf %{name}-%{hzversion}/* %{buildroot}%{_prefix}/lib/hazelcast
+%{__chmod} 755 %{buildroot}%{_prefix}/lib/hazelcast/bin/hz*
 %{__mkdir} -p %{buildroot}/%{_bindir}
 
-%{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz %{buildroot}/%{_bindir}/hz
-%{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz-cli %{buildroot}/%{_bindir}/hz-cli
-%{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz-cluster-admin %{buildroot}/%{_bindir}/hz-cluster-admin
-%{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz-cluster-cp-admin %{buildroot}/%{_bindir}/hz-cluster-cp-admin
-%{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz-healthcheck %{buildroot}/%{_bindir}/hz-healthcheck
-%{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz-start %{buildroot}/%{_bindir}/hz-start
-%{__ln_s} %{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin/hz-stop %{buildroot}/%{_bindir}/hz-stop
+%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz %{buildroot}/%{_bindir}/hz
+%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-cli %{buildroot}/%{_bindir}/hz-cli
+%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-cluster-admin %{buildroot}/%{_bindir}/hz-cluster-admin
+%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-cluster-cp-admin %{buildroot}/%{_bindir}/hz-cluster-cp-admin
+%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-healthcheck %{buildroot}/%{_bindir}/hz-healthcheck
+%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-start %{buildroot}/%{_bindir}/hz-start
+%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-stop %{buildroot}/%{_bindir}/hz-stop
 
-echo 'hazelcastDownloadId=rpm' > "%{buildroot}%{_prefix}/lib/%{name}/%{name}-%{hzversion}/lib/hazelcast-download.properties"
+echo 'hazelcastDownloadId=rpm' > "%{buildroot}%{_prefix}/lib/hazelcast/lib/hazelcast-download.properties"
 
 %post
-printf "\n\nHazelcast is successfully installed to '%{_prefix}/lib/%{name}/%{name}-%{hzversion}/'\n"
+printf "\n\nHazelcast is successfully installed to '%{_prefix}/lib/hazelcast/'\n"
 hz --help
 
 %clean
@@ -79,19 +79,19 @@ fi
 %files
 # The LICENSE file contains Apache 2 license and is only present in OS
 %if "%{hzdistribution}" == "hazelcast"
-   %{_prefix}/lib/%{name}/%{name}-%{hzversion}/LICENSE
+   %{_prefix}/lib/hazelcast/LICENSE
 %endif
-%{_prefix}/lib/%{name}/%{name}-%{hzversion}/NOTICE
-%{_prefix}/lib/%{name}/%{name}-%{hzversion}/bin
-%{_prefix}/lib/%{name}/%{name}-%{hzversion}/custom-lib
-%{_prefix}/lib/%{name}/%{name}-%{hzversion}/lib
-%{_prefix}/lib/%{name}/%{name}-%{hzversion}/licenses
-%config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/*.xml
-%config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/*.yaml
-%config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/*.options
-%config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/*.properties
-%config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/examples/*.yaml
-%config(noreplace) %{_prefix}/lib/%{name}/%{name}-%{hzversion}/config/examples/*.xml
+%{_prefix}/lib/hazelcast/NOTICE
+%{_prefix}/lib/hazelcast/bin
+%{_prefix}/lib/hazelcast/custom-lib
+%{_prefix}/lib/hazelcast/lib
+%{_prefix}/lib/hazelcast/licenses
+%config(noreplace) %{_prefix}/lib/hazelcast/config/*.xml
+%config(noreplace) %{_prefix}/lib/hazelcast/config/*.yaml
+%config(noreplace) %{_prefix}/lib/hazelcast/config/*.options
+%config(noreplace) %{_prefix}/lib/hazelcast/config/*.properties
+%config(noreplace) %{_prefix}/lib/hazelcast/config/examples/*.yaml
+%config(noreplace) %{_prefix}/lib/hazelcast/config/examples/*.xml
 %{_bindir}/hz
 %{_bindir}/hz-cli
 %{_bindir}/hz-cluster-admin
