@@ -188,7 +188,7 @@ jobs:
 
   verify-rpm:
     runs-on: ubuntu-latest
-    container: centos:latest
+    container: rockylinux:latest
     strategy:
       matrix:
         distribution: [ 'hazelcast', 'hazelcast-enterprise' ]

@@ -154,4 +154,5 @@ To see additional options, run the following:
 hz start --help
 ```
 
-NOTE: `hz` command is not available in versions 5.0, 5.0.1, 5.0.2
+NOTE: `hz` command is not available in versions 5.0, 5.0.1, 5.0.2, 
+use `hz-start` instead.
