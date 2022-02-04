@@ -32,9 +32,9 @@ echo "Building DEB package $HZ_DISTRIBUTION:${HZ_VERSION} package version ${PACK
 rm -rf build/deb
 
 mkdir -p build/deb/hazelcast/DEBIAN
-mkdir -p build/deb/hazelcast/usr/lib/hazelcast
+mkdir -p build/deb/hazelcast/usr/lib/$HZ_DISTRIBUTION
 
-tar -xf "${HZ_DISTRIBUTION_FILE}" -C build/deb/hazelcast/usr/lib/hazelcast
+tar -xf "${HZ_DISTRIBUTION_FILE}" -C build/deb/hazelcast/usr/lib/$HZ_DISTRIBUTION --strip-components=1
 
 # If this is 'hazelcast' package it conflicts with 'hazelcast-enterprise' and vice versa
 export CONFLICTS=hazelcast-enterprise
@@ -54,7 +54,7 @@ envsubst <packages/deb/hazelcast/DEBIAN/prerm >build/deb/hazelcast/DEBIAN/prerm
 # postinst and prerm must be executable
 chmod 775 build/deb/hazelcast/DEBIAN/postinst build/deb/hazelcast/DEBIAN/prerm
 
-cp -RT packages/deb/hazelcast/usr/lib/hazelcast/hazelcast build/deb/hazelcast/usr/lib/hazelcast/${HZ_DISTRIBUTION}-$HZ_VERSION
+cp -RT packages/deb/hazelcast/usr/lib/hazelcast build/deb/hazelcast/usr/lib/${HZ_DISTRIBUTION}
 
 dpkg-deb --build build/deb/hazelcast
 
@@ -71,7 +71,7 @@ if [ "${PUBLISH}" == "true" ]; then
   # Delete any package that exists - previous version of the same package
   curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" \
     -X DELETE \
-    "$DEBIAN_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${PACKAGE_VERSION}-1.noarch.rpm"
+    "$DEBIAN_REPO_BASE_URL/${PACKAGE_REPO}/${DEB_FILE}"
 
   curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" -H "X-Checksum-Deploy: false" -H "X-Checksum-Sha256: $DEB_SHA256SUM" \
     -H "X-Checksum-Sha1: $DEB_SHA1SUM" -H "X-Checksum-MD5: $DEB_MD5SUM" \

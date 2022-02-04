@@ -18,4 +18,4 @@ atlassian-ide-plugin.xml
 diagnostics-*.log
 distro/build/
 distro/lib/
-
+build/
