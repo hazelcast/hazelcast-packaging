@@ -66,16 +66,6 @@ for FILENAME in %{_prefix}/lib/hazelcast/bin/hz*; do
   esac
 done
 
-if [  ! -f %{buildroot}/%{_bindir}/hz  ]; then
-    rm %{buildroot}/%{_bindir}/hz
-    rm %{buildroot}/%{_bindir}/hz-cli
-    rm %{buildroot}/%{_bindir}/hz-cluster-admin
-    rm %{buildroot}/%{_bindir}/hz-cluster-cp-admin
-    rm %{buildroot}/%{_bindir}/hz-healthcheck
-    rm %{buildroot}/%{_bindir}/hz-start
-    rm %{buildroot}/%{_bindir}/hz-stop
-fi
-
 %files
 # The LICENSE file contains Apache 2 license and is only present in OS
 %if "%{hzdistribution}" == "hazelcast"
