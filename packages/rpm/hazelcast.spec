@@ -56,7 +56,7 @@ rm -rf $RPM_BUILD_ROOT
 %postun
 echo "Removing symlinks from /usr/bin"
 
-for FILENAME in /usr/lib/hazelcast/${HZ_DISTRIBUTION}-${HZ_VERSION}/bin/hz*; do
+for FILENAME in %{_prefix}/lib/hazelcast/bin/hz*; do
   case "${FILENAME}" in
     *bat)
       ;;
