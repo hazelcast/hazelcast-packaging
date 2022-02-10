@@ -39,6 +39,7 @@ mkdir -p build/rpmbuild/rpm
 cp "${HZ_DISTRIBUTION_FILE}" build/rpmbuild/SOURCES/"${HZ_DISTRIBUTION}"-"${HZ_VERSION}".tar.gz
 
 export RPM_BUILD_ROOT='$RPM_BUILD_ROOT'
+export FILENAME='${FILENAME}'
 envsubst <packages/rpm/hazelcast.spec >build/rpmbuild/rpm/hazelcast.spec
 
 echo "${DEVOPS_PRIVATE_KEY}" > private.key

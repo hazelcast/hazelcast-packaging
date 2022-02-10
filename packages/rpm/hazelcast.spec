@@ -56,15 +56,12 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 echo "Removing symlinks from %{_bindir}"
 
-ls %{_prefix}/lib/hazelcast/bin/
-
-for FILENAME in %{_prefix}/lib/hazelcast/bin/hz*; do
+for FILENAME
+ in %{_prefix}/lib/hazelcast/bin/hz*; do
   case "${FILENAME}" in
     *bat)
       ;;
     *)
-      echo "Remove ${FILENAME}"
-      export FILENAME
       rm %{_bindir}/"$(basename "${FILENAME}")"
       ;;
   esac
