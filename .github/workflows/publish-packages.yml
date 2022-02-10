@@ -92,8 +92,9 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: ${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz
-          path: ${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz
+          name: ${{ env.HZ_DISTRIBUTION }}-distribution-${{ env.HZ_VERSION }}.tar.gz
+          path: ${{ env.HZ_DISTRIBUTION }}-distribution-${{ env.HZ_VERSION }}.tar.gz
+          if-no-files-found: error
 
   deb:
     runs-on: ubuntu-latest
@@ -115,7 +116,7 @@ jobs:
       - name: Download tar.gz archive
         uses: actions/download-artifact@v2
         with:
-          name: ${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz
+          name: ${{ env.HZ_DISTRIBUTION }}-distribution-${{ env.HZ_VERSION }}.tar.gz
 
       - name: Setup JDK
         uses: actions/setup-java@v1
@@ -172,7 +173,7 @@ jobs:
       - name: Download tar.gz archive
         uses: actions/download-artifact@v2
         with:
-          name: ${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz
+          name: ${{ env.HZ_DISTRIBUTION }}-distribution-${{ env.HZ_VERSION }}.tar.gz
 
       - name: Setup JDK
         uses: actions/setup-java@v1
@@ -229,7 +230,7 @@ jobs:
       - name: Download tar.gz archive
         uses: actions/download-artifact@v2
         with:
-          name: ${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz
+          name: ${{ env.HZ_DISTRIBUTION }}-distribution-${{ env.HZ_VERSION }}.tar.gz
 
       - name: Setup JDK
         uses: actions/setup-java@v1
