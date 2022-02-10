@@ -93,7 +93,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: ${{ env.HZ_DISTRIBUTION }}-distribution-${{ env.HZ_VERSION }}.tar.gz
-          path: ${{ env.HZ_DISTRIBUTION }}-distribution-${{ env.HZ_VERSION }}.tar.gz
+          path: hazelcast-packaging/${{ env.HZ_DISTRIBUTION }}-distribution-${{ env.HZ_VERSION }}.tar.gz
           if-no-files-found: error
 
   deb:
