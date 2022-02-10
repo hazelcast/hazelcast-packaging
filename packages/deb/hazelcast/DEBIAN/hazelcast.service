@@ -1,0 +1,17 @@
+[Unit]
+Description=Hazelcast - a streaming and memory-first application platform
+After=syslog.target network.target
+
+[Service]
+User=hazelcast
+Group=hazelcast
+
+SuccessExitStatus=143
+
+Type=simple
+
+ExecStart=hz start
+ExecStop=hz-stop
+
+[Install]
+WantedBy=multi-user.target

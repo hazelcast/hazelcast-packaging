@@ -10,4 +10,10 @@ for FILENAME in /usr/lib/hazelcast/bin/hz*; do
   esac
 done
 
+groupadd -r hazelcast
+useradd -r -g hazelcast -d /usr/lib/hazelcast -s /sbin/nologin hazelcast
+chown -R hazelcast:hazelcast /usr/lib/hazelcast
+
+systemctl daemon-reload
+
 printf "\n\nHazelcast is successfully installed to '/usr/lib/hazelcast/'\n"

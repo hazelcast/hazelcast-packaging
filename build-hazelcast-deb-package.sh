@@ -33,6 +33,7 @@ rm -rf build/deb
 
 mkdir -p build/deb/hazelcast/DEBIAN
 mkdir -p build/deb/hazelcast/usr/lib/hazelcast
+mkdir -p build/deb/hazelcast/lib/systemd/system
 
 tar -xf "${HZ_DISTRIBUTION_FILE}" -C build/deb/hazelcast/usr/lib/hazelcast --strip-components=1
 
@@ -50,6 +51,7 @@ envsubst <packages/deb/hazelcast/DEBIAN/conffiles >build/deb/hazelcast/DEBIAN/co
 envsubst <packages/deb/hazelcast/DEBIAN/control >build/deb/hazelcast/DEBIAN/control
 envsubst <packages/deb/hazelcast/DEBIAN/postinst >build/deb/hazelcast/DEBIAN/postinst
 envsubst <packages/deb/hazelcast/DEBIAN/prerm >build/deb/hazelcast/DEBIAN/prerm
+envsubst <packages/deb/hazelcast/DEBIAN/hazelcast.service >build/deb/hazelcast/lib/systemd/system/hazelcast.service
 
 # postinst and prerm must be executable
 chmod 775 build/deb/hazelcast/DEBIAN/postinst build/deb/hazelcast/DEBIAN/prerm
