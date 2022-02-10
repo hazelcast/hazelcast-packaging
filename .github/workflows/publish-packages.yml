@@ -170,7 +170,7 @@ jobs:
 
       - name: Install Required tools
         run: |
-          yum install -y maven rpm-sign rpm-build
+          yum install -y maven rpm-sign rpm-build wget
 
       - name: Download the distribution tar.gz file
         run: |
@@ -193,7 +193,6 @@ jobs:
       - name: Install Hazelcast from rpm
         run: |
           source ./common.sh
-          yum install -y wget
           wget ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo -O hazelcast-rpm-${PACKAGE_REPO}.repo
           mv hazelcast-rpm-${PACKAGE_REPO}.repo /etc/yum.repos.d/          
           yum install -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
