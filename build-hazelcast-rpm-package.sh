@@ -43,10 +43,20 @@ envsubst <packages/rpm/hazelcast.spec >build/rpmbuild/rpm/hazelcast.spec
 
 echo "${DEVOPS_PRIVATE_KEY}" > private.key
 
+# Location on Debian based systems
+if [  -f "/usr/lib/gnupg2/gpg-preset-passphrase" ]; then
+  GPG_PRESET_PASSPHRASE="/usr/lib/gnupg2/gpg-preset-passphrase"
+fi
+
+# Location on Redhat based systems
+if [  -f "/usr/libexec/gpg-preset-passphrase" ]; then
+  GPG_PRESET_PASSPHRASE="/usr/libexec/gpg-preset-passphrase"
+fi
+
 gpg --batch --import private.key
-sudo printf 'allow-preset-passphrase' > /home/runner/.gnupg/gpg-agent.conf # TODO sudo redirect?
+echo 'allow-preset-passphrase' | tee ~/.gnupg/gpg-agent.conf
 gpg-connect-agent reloadagent /bye
-/usr/lib/gnupg2/gpg-preset-passphrase --passphrase ${BINTRAY_PASSPHRASE} --preset 50907674C38F9E099C35345E246EBBA203D8E107
+$GPG_PRESET_PASSPHRASE --passphrase ${BINTRAY_PASSPHRASE} --preset 50907674C38F9E099C35345E246EBBA203D8E107
 rpmbuild --define "_topdir $(realpath build/rpmbuild)" -bb build/rpmbuild/rpm/hazelcast.spec
 
 rpm --define "_gpg_name deploy@hazelcast.com" --addsign build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}-1.noarch.rpm
