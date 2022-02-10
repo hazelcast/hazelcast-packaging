@@ -56,6 +56,8 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 echo "Removing symlinks from %{_bindir}"
 
+ls %{_prefix}/lib/hazelcast/bin/
+
 for FILENAME in %{_prefix}/lib/hazelcast/bin/hz*; do
   case "${FILENAME}" in
     *bat)
@@ -67,6 +69,8 @@ for FILENAME in %{_prefix}/lib/hazelcast/bin/hz*; do
       ;;
   esac
 done
+
+echo "preun done"
 
 %files
 # The LICENSE file contains Apache 2 license and is only present in OS
