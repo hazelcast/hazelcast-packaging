@@ -61,7 +61,7 @@ for FILENAME in %{_prefix}/lib/hazelcast/bin/hz*; do
     *bat)
       ;;
     *)
-      export FILENAME
+      echo "Remove ${filename}"
       rm %{_bindir}/"$(basename "${FILENAME}")"
       ;;
   esac
