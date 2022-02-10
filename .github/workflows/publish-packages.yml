@@ -233,9 +233,10 @@ jobs:
           brew install bash
           brew install gnu-sed
           brew install coreutils
-          
+
+          export PATH="/usr/local/opt/gnu-tar/libexec/gnubin:$PATH"
           sed --version
-          sha256sum --version(
+          sha256sum --version
 
       - name: Setup JDK
         uses: actions/setup-java@v1
