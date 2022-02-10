@@ -234,8 +234,9 @@ jobs:
           brew install gnu-sed
           brew install coreutils
 
-          export PATH="/usr/local/opt/gnu-tar/libexec/gnubin:$PATH"
+          PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
           sed --version
+          PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
           sha256sum --version
 
       - name: Setup JDK
@@ -264,7 +265,8 @@ jobs:
 
       - name: Change the artifact in homebrew-hz
         run: |
-          export PATH="/usr/local/opt/gnu-tar/libexec/gnubin:$PATH"
+          export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+          export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
           ./build-hazelcast-homebrew-package.sh
 
       - name: Commit changes & Push to homebrew-hz repo
