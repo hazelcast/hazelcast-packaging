@@ -130,7 +130,7 @@ jobs:
           wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
           echo "deb ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list
           sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}=${{ env.PACKAGE_VERSION }}
-          HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
+          HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
         run: |
@@ -191,7 +191,7 @@ jobs:
           wget ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo -O hazelcast-rpm-${PACKAGE_REPO}.repo
           mv hazelcast-rpm-${PACKAGE_REPO}.repo /etc/yum.repos.d/          
           yum install -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
-          HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
+          HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
         run: |
@@ -274,7 +274,7 @@ jobs:
           brew install ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
 
       - name: Run Hazelcast
-        run: HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
+        run: HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
         run: |
