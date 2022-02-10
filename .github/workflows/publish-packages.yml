@@ -106,6 +106,9 @@ jobs:
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       PACKAGE_VERSION: ${{ needs.prepare.outputs.package_version }}
       HZ_DISTRIBUTION: ${{ matrix.distribution }}
+    defaults:
+      run:
+        working-directory: ./hazelcast-packaging
     needs: [prepare]
     steps:
       - name: Checkout hazelcast-packaging repo
@@ -163,6 +166,9 @@ jobs:
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       PACKAGE_VERSION: ${{ needs.prepare.outputs.package_version }}
       HZ_DISTRIBUTION: ${{ matrix.distribution }}
+    defaults:
+      run:
+        working-directory: ./hazelcast-packaging
     needs: [prepare]
     steps:
       - name: Checkout hazelcast-packaging repo
@@ -220,6 +226,9 @@ jobs:
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       PACKAGE_VERSION: ${{ needs.prepare.outputs.package_version }}
       HZ_DISTRIBUTION: ${{ matrix.distribution }}
+    defaults:
+      run:
+        working-directory: ./hazelcast-packaging
     needs: [prepare]
     steps:
       - name: Checkout hazelcast-packaging repo
