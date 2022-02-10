@@ -53,16 +53,18 @@ hz --help
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%postun
+%preun
 echo "Removing symlinks from %{_bindir}"
 
-rm %{_bindir}/hz
-rm %{_bindir}/hz-cli
-rm %{_bindir}/hz-cluster-admin
-rm %{_bindir}/hz-cluster-cp-admin
-rm %{_bindir}/hz-healthcheck
-rm %{_bindir}/hz-start
-rm %{_bindir}/hz-stop
+for FILENAME in %{_prefix}/lib/hazelcast/bin/hz*; do
+  case "${FILENAME}" in
+    *bat)
+      ;;
+    *)
+      rm %{bindir}/"$(basename "${FILENAME}")"
+      ;;
+  esac
+done
 
 %files
 # The LICENSE file contains Apache 2 license and is only present in OS
