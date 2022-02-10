@@ -61,7 +61,7 @@ for FILENAME in %{_prefix}/lib/hazelcast/bin/hz*; do
     *bat)
       ;;
     *)
-      rm %{bindir}/"$(basename "${FILENAME}")"
+      rm %{_bindir}/"$(basename "${FILENAME}")"
       ;;
   esac
 done
