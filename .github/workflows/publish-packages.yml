@@ -222,6 +222,11 @@ jobs:
         with:
           path: 'hazelcast-packaging'
 
+      - name: Install up-to-date tools
+        run: |
+          brew install bash
+          brew install gnu-sed --with-default-names
+
       - name: Setup JDK
         uses: actions/setup-java@v1
         with:
