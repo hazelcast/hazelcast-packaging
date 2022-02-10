@@ -183,7 +183,9 @@ jobs:
 
       - name: Calculate YUM Repository Metadata
         run: |
-          source common.sh
+          pwd
+          ls -lah
+          source ./common.sh
 
           curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
             -X POST "https://repository.hazelcast.com/api/yum/${RPM_REPO}"
