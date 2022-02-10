@@ -232,6 +232,10 @@ jobs:
         run: |
           brew install bash
           brew install gnu-sed
+          brew install coreutils
+          
+          sed --version
+          sha256sum --version(
 
       - name: Setup JDK
         uses: actions/setup-java@v1
