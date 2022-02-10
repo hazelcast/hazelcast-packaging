@@ -168,9 +168,9 @@ jobs:
           java-version: '8'
           architecture: 'x64'
 
-      - name: Install Maven
+      - name: Install Required tools
         run: |
-          yum install -y maven
+          yum install -y maven rpm-sign rpm-build
 
       - name: Download the distribution tar.gz file
         run: |
@@ -229,7 +229,7 @@ jobs:
       - name: Install up-to-date tools
         run: |
           brew install bash
-          brew install gnu-sed --with-default-names
+          brew install gnu-sed
 
       - name: Setup JDK
         uses: actions/setup-java@v1
@@ -257,6 +257,7 @@ jobs:
 
       - name: Change the artifact in homebrew-hz
         run: |
+          export PATH="/usr/local/opt/gnu-tar/libexec/gnubin:$PATH"
           ./build-hazelcast-homebrew-package.sh
 
       - name: Commit changes & Push to homebrew-hz repo
