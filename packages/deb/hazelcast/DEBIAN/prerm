@@ -1,5 +1,11 @@
 #!/bin/sh
 
+if command -v systemctl > /dev/null; then
+  systemctl stop hazelcast
+  systemctl disable hazelcast
+  systemctl daemon-reload
+fi
+
 echo "Removing symlinks from /usr/bin"
 
 for FILENAME in /usr/lib/hazelcast/bin/hz*; do

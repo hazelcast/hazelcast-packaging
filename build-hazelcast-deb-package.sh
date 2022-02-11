@@ -33,6 +33,7 @@ rm -rf build/deb
 
 mkdir -p build/deb/hazelcast/DEBIAN
 mkdir -p build/deb/hazelcast/usr/lib/hazelcast
+mkdir -p build/deb/hazelcast/lib/systemd/system
 
 tar -xf "${HZ_DISTRIBUTION_FILE}" -C build/deb/hazelcast/usr/lib/hazelcast --strip-components=1
 
@@ -42,14 +43,13 @@ if [ "${HZ_DISTRIBUTION}" == "hazelcast-enterprise" ]; then
   export CONFLICTS=hazelcast
 fi
 
-# Replace HZ_DISTRIBUTION and HZ_VERSION in the following files
-
-# The postinst script uses variable FILENAME, with this value it is kind of no-op
-export FILENAME='${FILENAME}'
-envsubst <packages/deb/hazelcast/DEBIAN/conffiles >build/deb/hazelcast/DEBIAN/conffiles
+# Replace variable placeholders in the following files with the values from the environment
 envsubst <packages/deb/hazelcast/DEBIAN/control >build/deb/hazelcast/DEBIAN/control
-envsubst <packages/deb/hazelcast/DEBIAN/postinst >build/deb/hazelcast/DEBIAN/postinst
-envsubst <packages/deb/hazelcast/DEBIAN/prerm >build/deb/hazelcast/DEBIAN/prerm
+
+cp packages/deb/hazelcast/DEBIAN/conffiles build/deb/hazelcast/DEBIAN/conffiles
+cp packages/deb/hazelcast/DEBIAN/postinst build/deb/hazelcast/DEBIAN/postinst
+cp packages/deb/hazelcast/DEBIAN/prerm build/deb/hazelcast/DEBIAN/prerm
+cp packages/common/hazelcast.service build/deb/hazelcast/lib/systemd/system/hazelcast.service
 
 # postinst and prerm must be executable
 chmod 775 build/deb/hazelcast/DEBIAN/postinst build/deb/hazelcast/DEBIAN/prerm
