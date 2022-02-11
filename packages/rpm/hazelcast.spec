@@ -6,7 +6,7 @@ Name:       %{hzdistribution}
 Version:    ${RPM_PACKAGE_VERSION}
 Epoch:      1
 Release:    1
-Summary:    A tool that allows users to install & run Hazelcast
+Summary:    Hazelcast is a streaming and memory-first application platform.
 
 License:    ASL 2.0
 URL:		https://hazelcast.org/
@@ -14,13 +14,16 @@ URL:		https://hazelcast.org/
 Source0:    %{hzdistribution}-%{hzversion}.tar.gz
 Source1:    hazelcast.service
 
+Requires(pre): shadow-utils
+
 Requires:	java-1.8.0-devel
 
 BuildArch:  noarch
 BuildRequires: systemd-rpm-macros
 
 %description
-A tool that allows users to install & run Hazelcast
+Hazelcast is a streaming and memory-first application platform for fast, stateful, data-intensive workloads
+on-premises, at the edge or as a fully managed cloud service.
 
 %prep
 %setup -c %{name}-%{hzversion}
@@ -30,6 +33,12 @@ true
 
 %pre
 echo "Installing Hazelcast..."
+
+# See https://fedoraproject.org/wiki/Packaging%3aUsersAndGroups#Dynamic_allocation
+getent group hazelcast >/dev/null || groupadd -r hazelcast
+getent passwd hazelcast >/dev/null || \
+    useradd -r -g hazelcast -d %{_prefix}/lib/hazelcast -s /sbin/nologin \
+    -c "User to run server process of Hazelcast" hazelcast
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -56,6 +65,7 @@ echo 'hazelcastDownloadId=rpm' > "%{buildroot}%{_prefix}/lib/hazelcast/lib/hazel
 rm -rf $RPM_BUILD_ROOT
 
 %post
+chown -R hazelcast:hazelcast %{_prefix}/lib/hazelcast/
 %systemd_post %{name}.service
 printf "\n\nHazelcast is successfully installed to '%{_prefix}/lib/hazelcast/'\n"
 hz --help
