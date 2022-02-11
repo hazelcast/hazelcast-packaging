@@ -10,7 +10,7 @@ SuccessExitStatus=143
 
 Type=simple
 
-ExecStart=hz start
+ExecStart=hz-start
 ExecStop=/bin/kill -15 $MAINPID
 
 [Install]
