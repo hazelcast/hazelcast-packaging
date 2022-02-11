@@ -1,6 +1,6 @@
 # Hazelcast Packaging
 
-Automation scripts to package Hazelcast as DEB, RPM or Homebrew package.
+Automation scripts to package and publish Hazelcast as DEB, RPM or Homebrew package.
 
 ## Requirements
 
@@ -25,7 +25,7 @@ echo "deb https://repository.hazelcast.com/debian stable main" | sudo tee -a /et
 sudo apt update && sudo apt install hazelcast
 ```
 
-### Install with yum/dnf
+### Install with yum/dnf/microdnf
 
 The RPM packages for Hazelcast are kept at 
 [Hazelcast's RPM repository](https://repository.hazelcast.com/rpm/).
@@ -66,13 +66,13 @@ the installed version by running the following:
 sudo apt-mark hold hazelcast
 ```
 
-### Install an older version with yum
+### Install an older version with yum/dnf/microdnf
 
 After adding the repository run the following to install e.g. 
 version `5.0.1`: 
 
 ```
-sudo yum install hazelcast
+sudo yum install hazelcast-5.0.1
 ```
 
 To keep the particular version during `yum update` hold the package at
@@ -95,8 +95,8 @@ brew install hazelcast@5.0.1
 
 ### Install a SNAPSHOT/BETA/DR version with apt
 
-You need to replace `stable` with `snapshot`/`beta`/`devel` in the 
-repository definition to use Hazelcast snapshots.
+You need to replace `stable` with `snapshot`/`beta`/`devel` (for DR) in
+the repository definition to use Hazelcast snapshots.
 
 Run the following to install the latest snapshot version:
 
@@ -108,13 +108,13 @@ sudo apt update && sudo apt install hazelcast
 
 ### Install a SNAPSHOT/BETA/DR version with yum
 
-You need to replace `stable` with `snapshot`/`beta`/`devel` in the 
-repository definition to use Hazelcast snapshots.
+You need to replace `stable` with `snapshot`/`beta`/`devel` (for DR) in 
+the repository definition to use Hazelcast snapshots.
 
 Run the following to install the latest snapshot version:
 
 ```
-wget https://repository.hazelcast.com/rpm/snapshot/hazelcast-rpm.repo -O hazelcast-snapshot-rpm.repo
+wget https://repository.hazelcast.com/rpm/snapshot/hazelcast-snapshot-rpm.repo -O hazelcast-snapshot-rpm.repo
 sudo mv hazelcast-snapshot-rpm.repo /etc/yum.repos.d/
 sudo yum install hazelcast
 ```
