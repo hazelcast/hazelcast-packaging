@@ -68,7 +68,7 @@ rm -rf $RPM_BUILD_ROOT
 chown -R hazelcast:hazelcast %{_prefix}/lib/hazelcast/
 %systemd_post %{name}.service
 printf "\n\nHazelcast is successfully installed to '%{_prefix}/lib/hazelcast/'\n"
-hz --help
+printf "\n\nUse 'hz start' or 'systemctl start hazelcast' to start the Hazelcast server\n"
 
 %preun
 %systemd_preun %{name}.service
