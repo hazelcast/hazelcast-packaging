@@ -47,7 +47,6 @@ jobs:
       # executions
       hz_version: ${{ steps.hz_version.outputs.hz_version }}
       package_version: ${{ steps.package_version.outputs.package_version }}
-    name: Hazelcast Packages Release Automation
     steps:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v2.3.2
