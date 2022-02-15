@@ -1,23 +1,29 @@
 %define hzversion ${HZ_VERSION}
 %define hzdistribution ${HZ_DISTRIBUTION}
+%define debug_package %{nil}
 
 Name:       %{hzdistribution}
 Version:    ${RPM_PACKAGE_VERSION}
 Epoch:      1
 Release:    1
-Summary:    A tool that allows users to install & run Hazelcast
+Summary:    Hazelcast is a streaming and memory-first application platform.
 
 License:    ASL 2.0
 URL:		https://hazelcast.org/
 
 Source0:    %{hzdistribution}-%{hzversion}.tar.gz
+Source1:    hazelcast.service
+
+Requires(pre): shadow-utils
 
 Requires:	java-1.8.0-devel
 
 BuildArch:  noarch
+BuildRequires: systemd-rpm-macros
 
 %description
-A tool that allows users to install & run Hazelcast
+Hazelcast is a streaming and memory-first application platform for fast, stateful, data-intensive workloads
+on-premises, at the edge or as a fully managed cloud service.
 
 %prep
 %setup -c %{name}-%{hzversion}
@@ -28,32 +34,49 @@ true
 %pre
 echo "Installing Hazelcast..."
 
+# See https://fedoraproject.org/wiki/Packaging%3aUsersAndGroups#Dynamic_allocation
+getent group hazelcast >/dev/null || groupadd -r hazelcast
+getent passwd hazelcast >/dev/null || \
+    useradd -r -g hazelcast -d %{_prefix}/lib/hazelcast -s /sbin/nologin \
+    -c "User to run server process of Hazelcast" hazelcast
+
 %install
 rm -rf $RPM_BUILD_ROOT
 
 %{__mkdir} -p %{buildroot}%{_prefix}/lib/hazelcast
 %{__cp} -vrf %{name}-%{hzversion}/* %{buildroot}%{_prefix}/lib/hazelcast
 %{__chmod} 755 %{buildroot}%{_prefix}/lib/hazelcast/bin/hz*
-%{__mkdir} -p %{buildroot}/%{_bindir}
+%{__mkdir} -p %{buildroot}%{_bindir}
 
-%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz %{buildroot}/%{_bindir}/hz
-%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-cli %{buildroot}/%{_bindir}/hz-cli
-%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-cluster-admin %{buildroot}/%{_bindir}/hz-cluster-admin
-%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-cluster-cp-admin %{buildroot}/%{_bindir}/hz-cluster-cp-admin
-%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-healthcheck %{buildroot}/%{_bindir}/hz-healthcheck
-%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-start %{buildroot}/%{_bindir}/hz-start
-%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-stop %{buildroot}/%{_bindir}/hz-stop
+%{__mkdir} -p %{buildroot}%{_unitdir}
+%{__cp} %{SOURCE1} %{buildroot}%{_unitdir}/hazelcast.service
+
+%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz %{buildroot}%{_bindir}/hz
+%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-cli %{buildroot}%{_bindir}/hz-cli
+%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-cluster-admin %{buildroot}%{_bindir}/hz-cluster-admin
+%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-cluster-cp-admin %{buildroot}%{_bindir}/hz-cluster-cp-admin
+%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-healthcheck %{buildroot}%{_bindir}/hz-healthcheck
+%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-start %{buildroot}%{_bindir}/hz-start
+%{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-stop %{buildroot}%{_bindir}/hz-stop
 
 echo 'hazelcastDownloadId=rpm' > "%{buildroot}%{_prefix}/lib/hazelcast/lib/hazelcast-download.properties"
-
-%post
-printf "\n\nHazelcast is successfully installed to '%{_prefix}/lib/hazelcast/'\n"
-hz --help
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post
+chown -R hazelcast:hazelcast %{_prefix}/lib/hazelcast/
+%systemd_post %{name}.service
+printf "\n\nHazelcast is successfully installed to '%{_prefix}/lib/hazelcast/'\n"
+printf "\n\nUse 'hz start' or 'systemctl start hazelcast' to start the Hazelcast server\n"
+
 %preun
+%systemd_preun %{name}.service
+
+
+%postun
+%systemd_postun %{name}.service
+
 echo "Removing symlinks from %{_bindir}"
 
 for FILENAME
@@ -66,8 +89,6 @@ for FILENAME
       ;;
   esac
 done
-
-echo "preun done"
 
 %files
 # The LICENSE file contains Apache 2 license and is only present in OS
@@ -92,3 +113,4 @@ echo "preun done"
 %{_bindir}/hz-healthcheck
 %{_bindir}/hz-start
 %{_bindir}/hz-stop
+%{_unitdir}/hazelcast.service
