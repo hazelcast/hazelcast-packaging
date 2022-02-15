@@ -74,7 +74,7 @@ hz --help
 %systemd_preun %{name}.service
 
 
-%preun
+%postun
 %systemd_postun %{name}.service
 
 echo "Removing symlinks from %{_bindir}"
