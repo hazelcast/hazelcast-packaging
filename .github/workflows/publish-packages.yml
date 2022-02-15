@@ -20,33 +20,33 @@ on:
 
 env:
   EVENT_NAME: ${{ github.event_name }}
+  PUBLISH: "true"
+  ARTIFACTORY_SECRET: ${{ secrets.ARTIFACTORY_SECRET }}
+  DEVOPS_PRIVATE_KEY: ${{ secrets.DEVOPS_PRIVATE_KEY }}
+  BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
+  HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
 
 # Constant for now - should ensure single build, maybe we can limit this to something from github.*
 concurrency: single-build
 
 jobs:
-  build:
+  prepare:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        java: [ '8' ]
-        architecture: [ 'x64' ]
         distribution: ['hazelcast', 'hazelcast-enterprise']
     env:
       HZ_VERSION: ${{ github.event.inputs.HZ_VERSION }}
       HZ_DISTRIBUTION: ${{ matrix.distribution }}
-      PUBLISH: "true"
-      ARTIFACTORY_SECRET: ${{ secrets.ARTIFACTORY_SECRET }}
-      DEVOPS_PRIVATE_KEY: ${{ secrets.DEVOPS_PRIVATE_KEY }}
-      BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
     defaults:
       run:
         working-directory: ./hazelcast-packaging
     outputs:
+      # Beware that these should not be matrix specific - last matrix combination to finish overwrites previous
+      # executions
       hz_version: ${{ steps.hz_version.outputs.hz_version }}
       package_version: ${{ steps.package_version.outputs.package_version }}
-    name: Hazelcast Packages Release Automation
     steps:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v2.3.2
@@ -56,8 +56,8 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v1
         with:
-          java-version: ${{ matrix.java }}
-          architecture: ${{ matrix.architecture }}
+          java-version: '8'
+          architecture: 'x64'
 
       - name: Set HZ_VERSION
         id: hz_version
@@ -81,6 +81,32 @@ jobs:
           echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
           echo ::set-output name=package_version::$PACKAGE_VERSION
 
+  deb:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
+    env:
+      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
+      PACKAGE_VERSION: ${{ needs.prepare.outputs.package_version }}
+      HZ_DISTRIBUTION: ${{ matrix.distribution }}
+    defaults:
+      run:
+        working-directory: ./hazelcast-packaging
+    needs: [prepare]
+    steps:
+      - name: Checkout hazelcast-packaging repo
+        uses: actions/checkout@v2.3.2
+        with:
+          path: 'hazelcast-packaging'
+
+      - name: Setup JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '8'
+          architecture: 'x64'
+
       - name: Download the distribution tar.gz file
         run: |
           HZ_PACKAGE_URL=$(mvn --batch-mode dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz -DoutputDirectory=./ -Dmdep.useBaseVersion=true | grep 'Downloaded from' | grep -Eo "https://[^ >]+${HZ_DISTRIBUTION}-distribution-.*.tar.gz")
@@ -90,9 +116,137 @@ jobs:
         run: |
           ./build-hazelcast-deb-package.sh
 
+      - name: Calculate Debian Repository Metadata
+        run: |
+          source common.sh
+
+          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
+            -X POST "https://repository.hazelcast.com/api/deb/reindex/${DEBIAN_REPO}"
+
+      - name: Install Hazelcast from deb
+        run: |
+          source ./common.sh
+          wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
+          echo "deb ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list
+          sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}=${{ env.PACKAGE_VERSION }}
+          HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
+
+      - name: Check Hazelcast health
+        run: |
+          ./check-hazelcast-health.sh
+
+      - name: Uninstall Hazelcast from deb
+        run: |
+          source ./common.sh
+          sudo apt remove ${{ env.HZ_DISTRIBUTION}}
+
+  rpm:
+    runs-on: ubuntu-latest
+    container: rockylinux:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
+    env:
+      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
+      PACKAGE_VERSION: ${{ needs.prepare.outputs.package_version }}
+      HZ_DISTRIBUTION: ${{ matrix.distribution }}
+    defaults:
+      run:
+        working-directory: ./hazelcast-packaging
+    needs: [prepare]
+    steps:
+      - name: Checkout hazelcast-packaging repo
+        uses: actions/checkout@v2.3.2
+        with:
+          path: 'hazelcast-packaging'
+
+      - name: Setup JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '8'
+          architecture: 'x64'
+
+      - name: Install Required tools
+        run: |
+          yum install -y maven rpm-sign rpm-build wget
+
+      - name: Download the distribution tar.gz file
+        run: |
+          HZ_PACKAGE_URL=$(mvn --batch-mode dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz -DoutputDirectory=./ -Dmdep.useBaseVersion=true | grep 'Downloaded from' | grep -Eo "https://[^ >]+${HZ_DISTRIBUTION}-distribution-.*.tar.gz")
+          echo "HZ_PACKAGE_URL=$HZ_PACKAGE_URL" >> $GITHUB_ENV
+
       - name: Create & Sign & Upload RPM package
         run: |
           ./build-hazelcast-rpm-package.sh
+
+      - name: Calculate YUM Repository Metadata
+        run: |
+          pwd
+          ls -lah
+          source ./common.sh
+
+          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
+            -X POST "https://repository.hazelcast.com/api/yum/${RPM_REPO}"
+
+      - name: Install Hazelcast from rpm
+        run: |
+          source ./common.sh
+          wget ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo -O hazelcast-rpm-${PACKAGE_REPO}.repo
+          mv hazelcast-rpm-${PACKAGE_REPO}.repo /etc/yum.repos.d/          
+          yum install -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
+          HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
+
+      - name: Check Hazelcast health
+        run: |
+          ./check-hazelcast-health.sh
+
+      - name: Uninstall Hazelcast from rpm
+        run: |
+          source ./common.sh
+          yum remove -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
+
+  homebrew:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
+    env:
+      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
+      PACKAGE_VERSION: ${{ needs.prepare.outputs.package_version }}
+      HZ_DISTRIBUTION: ${{ matrix.distribution }}
+    defaults:
+      run:
+        working-directory: ./hazelcast-packaging
+    needs: [prepare]
+    steps:
+      - name: Checkout hazelcast-packaging repo
+        uses: actions/checkout@v2.3.2
+        with:
+          path: 'hazelcast-packaging'
+
+      - name: Install up-to-date tools
+        run: |
+          brew install bash
+          brew install gnu-sed
+          brew install coreutils
+
+          PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+          sed --version
+          PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+          sha256sum --version
+
+      - name: Setup JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '8'
+          architecture: 'x64'
+
+      - name: Download the distribution tar.gz file
+        run: |
+          HZ_PACKAGE_URL=$(mvn --batch-mode dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz -DoutputDirectory=./ -Dmdep.useBaseVersion=true | grep 'Downloaded from' | grep -Eo "https://[^ >]+${HZ_DISTRIBUTION}-distribution-.*.tar.gz")
+          echo "HZ_PACKAGE_URL=$HZ_PACKAGE_URL" >> $GITHUB_ENV
 
       - name: Get homebrew repository
         run: |
@@ -109,12 +263,14 @@ jobs:
 
       - name: Change the artifact in homebrew-hz
         run: |
+          export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+          export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
           ./build-hazelcast-homebrew-package.sh
 
       - name: Commit changes & Push to homebrew-hz repo
         run: |
           source common.sh
-          
+
           cd ../homebrew-hz
           git config --global user.name 'devOpsHazelcast'
           git config --global user.email 'devops@hazelcast.com'
@@ -128,113 +284,6 @@ jobs:
             echo "No changes, this is probably a re-run."
           fi
 
-  update-deb:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v2.3.2
-
-      - name: Calculate Debian Repository Metadata
-        run: |
-          source common.sh
-
-          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
-            -X POST "https://repository.hazelcast.com/api/deb/reindex/${DEBIAN_REPO}"
-
-  update-rpm:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v2.3.2
-
-      - name: Calculate YUM Repository Metadata
-        run: |
-          source common.sh
-
-          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
-            -X POST "https://repository.hazelcast.com/api/yum/${RPM_REPO}"
-
-  verify-deb:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
-    env:
-      HZ_VERSION: ${{ needs.build.outputs.hz_version }}
-      PACKAGE_VERSION: ${{ needs.build.outputs.package_version }}
-      HZ_DISTRIBUTION: ${{ matrix.distribution }}
-      HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
-    needs: [ build, update-deb, update-rpm ]
-    name: Hazelcast DEB Package Verification
-    steps:
-      - uses: actions/checkout@v2.3.2
-
-      - name: Install Hazelcast from deb
-        run: |
-          source ./common.sh
-          wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
-          echo "deb ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list
-          sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}=${{ env.PACKAGE_VERSION }}
-          HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
-
-      - name: Check Hazelcast health
-        run: |
-          ./check-hazelcast-health.sh
-
-      - name: Uninstall Hazelcast from deb
-        run: |
-          source ./common.sh
-          sudo apt remove ${{ env.HZ_DISTRIBUTION}}
-
-  verify-rpm:
-    runs-on: ubuntu-latest
-    container: rockylinux:latest
-    strategy:
-      matrix:
-        distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
-    env:
-      HZ_VERSION: ${{ needs.build.outputs.hz_version }}
-      PACKAGE_VERSION: ${{ needs.build.outputs.package_version }}
-      HZ_DISTRIBUTION: ${{ matrix.distribution }}
-      HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
-    needs: [ build, update-deb, update-rpm ]
-    name: Hazelcast RPM Package Verification
-    steps:
-      - uses: actions/checkout@v2.3.2
-
-      - name: Install Hazelcast from rpm
-        run: |
-          source ./common.sh
-          yum install -y wget
-          wget ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo -O hazelcast-rpm-${PACKAGE_REPO}.repo
-          mv hazelcast-rpm-${PACKAGE_REPO}.repo /etc/yum.repos.d/          
-          yum install -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
-          HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
-
-      - name: Check Hazelcast health
-        run: |
-          ./check-hazelcast-health.sh
-
-      - name: Uninstall Hazelcast from rpm
-        run: |
-          source ./common.sh
-          yum remove -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
-
-  verify-homebrew:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
-    env:
-      HZ_VERSION: ${{ needs.build.outputs.hz_version }}
-      PACKAGE_VERSION: ${{ needs.build.outputs.package_version }}
-      HZ_DISTRIBUTION: ${{ matrix.distribution }}
-      HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
-    needs: [ build, update-deb, update-rpm ]
-    name: Hazelcast Homebrew Homebrew Verification
-    steps:
-      - uses: actions/checkout@v2.3.2
-
       - name: Install Hazelcast from Homebrew
         run: |
           source ./common.sh
@@ -242,7 +291,7 @@ jobs:
           brew install ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
 
       - name: Run Hazelcast
-        run: HAZELCAST_CONFIG="${GITHUB_WORKSPACE}/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
+        run: HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
         run: |

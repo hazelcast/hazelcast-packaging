@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 
 set -x
 
@@ -60,7 +60,7 @@ sed -i "s+sha256.*$+sha256 \"${ASSET_SHASUM}\"+g" "${HZ_DISTRIBUTION}@${BREW_PAC
 sed -i "s+conflicts_with \".*\"$+conflicts_with \"$CONFLICTS\"+g" "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb"
 
 # Update hazelcast and hazelcast-x.y aliases only if the version is release (not SNAPSHOT/DR/BETA)
-if [[ ${HZ_VERSION} != *+(SNAPSHOT|BETA|DR)* ]]; then
+if [[ ! ( ${HZ_VERSION} =~ ^.*+(SNAPSHOT|BETA|DR).*^ ) ]]; then
   HZ_MINOR_VERSION=$(echo "${HZ_VERSION}" | cut -c -3)
 
   rm -f "Aliases/${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}"
