@@ -37,7 +37,7 @@ mkdir -p build/rpmbuild/SOURCES/
 mkdir -p build/rpmbuild/rpm
 
 cp "${HZ_DISTRIBUTION_FILE}" build/rpmbuild/SOURCES/"${HZ_DISTRIBUTION}"-"${HZ_VERSION}".tar.gz
-cp hazelcast.service build/rpmbuild/SOURCES/hazelcast.service
+cp packages/common/hazelcast.service build/rpmbuild/SOURCES/hazelcast.service
 
 export RPM_BUILD_ROOT='$RPM_BUILD_ROOT'
 export FILENAME='${FILENAME}'
