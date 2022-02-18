@@ -63,25 +63,24 @@ sed -i "s+conflicts_with \".*\"$+conflicts_with \"$CONFLICTS\"+g" "${HZ_DISTRIBU
 if [[ ! ( ${HZ_VERSION} =~ ^.*+(SNAPSHOT|BETA|DR).*^ ) ]]; then
   HZ_MINOR_VERSION=$(echo "${HZ_VERSION}" | cut -c -3)
 
-  rm -f "Aliases/${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}"
-  ln -s "../${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb" "Aliases/${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}"
+  rm -f "${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}.rb"
+  cp "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb" "${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}.rb"
 
   # Update 'hazelcast' or 'hazelcast-enterprise' alias
   # only if the version is greater than (new release) or equal to highest version
   UPDATE_LATEST="true"
-  cd Aliases || exit
-  versions=("${HZ_DISTRIBUTION}"-[0-9]*)
+  versions=("${HZ_DISTRIBUTION}"-[0-9]*\.rb)
   cd ..
   for version in "${versions[@]}"
   do
-    if [[ "$version" > "${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}" ]]; then
+    if [[ "$version" > "${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}.rb" ]]; then
       UPDATE_LATEST="false"
     fi
   done
 
   if [ "${UPDATE_LATEST}" == "true" ]; then
-    rm "Aliases/${HZ_DISTRIBUTION}"
-    ln -s "../${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb" "Aliases/${HZ_DISTRIBUTION}"
+    rm -f "${HZ_DISTRIBUTION}.rb"
+    cp "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb" "${HZ_DISTRIBUTION}.rb"
   fi
 fi
 
