@@ -69,7 +69,6 @@ if [[ ! ( ${HZ_VERSION} =~ ^.*+(SNAPSHOT|BETA|DR).*^ ) ]]; then
   # only if the version is greater than (new release) or equal to highest version
   UPDATE_LATEST="true"
   versions=("${HZ_DISTRIBUTION}"-[0-9]*\.rb)
-  cd ..
   for version in "${versions[@]}"
   do
     if [[ "$version" > "${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}.rb" ]]; then
