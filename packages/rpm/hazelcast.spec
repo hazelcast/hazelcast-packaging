@@ -16,7 +16,7 @@ Source1:    hazelcast.service
 
 Requires(pre): shadow-utils
 
-Requires:	java-1.8.0-devel
+Requires:	java
 
 BuildArch:  noarch
 BuildRequires: systemd-rpm-macros
