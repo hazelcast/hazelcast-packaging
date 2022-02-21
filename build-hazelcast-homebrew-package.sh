@@ -44,9 +44,11 @@ if [ ${HZ_DISTRIBUTION} == "hazelcast-enterprise" ]; then
   export CONFLICTS=hazelcast
 fi
 
-cd ../homebrew-hz || exit 1
+BREW_REPO_DIRECTORY=../homebrew-hz
 
-cp hazelcast@5.X.rb "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb"
+cp packages/brew/hazelcast-template.rb "${BREW_REPO_DIRECTORY}/${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb"
+
+cd $BREW_REPO_DIRECTORY || exit 1
 
 # This version is used in `class HazelcastAT${VERSION_NODOTS}`, it must not have dots nor hyphens and must be CamelCased
 VERSION_NODOTS=$(echo "${BREW_PACKAGE_VERSION}" | tr '[:upper:]' '[:lower:]' | sed -r 's/(^|\.)(\w)/\U\2/g' | sed 's+\.++g')
