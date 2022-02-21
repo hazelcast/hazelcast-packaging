@@ -65,6 +65,7 @@ sed -i "s+conflicts_with \".*\"$+conflicts_with \"$CONFLICTS\"+g" "${HZ_DISTRIBU
 if [[ ! ( ${HZ_VERSION} =~ ^.*+(SNAPSHOT|BETA|DR).*^ ) ]]; then
   HZ_MINOR_VERSION=$(echo "${HZ_VERSION}" | cut -c -3)
 
+  rm -f "Aliases/${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}" #migrate incrementally from symlinks to regular files
   cp "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb" "${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}.rb"
 
   # Update 'hazelcast' or 'hazelcast-enterprise' alias
@@ -79,6 +80,7 @@ if [[ ! ( ${HZ_VERSION} =~ ^.*+(SNAPSHOT|BETA|DR).*^ ) ]]; then
   done
 
   if [ "${UPDATE_LATEST}" == "true" ]; then
+    rm -f "Aliases/${HZ_DISTRIBUTION}" #migrate incrementally from symlinks to regular files
     cp "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb" "${HZ_DISTRIBUTION}.rb"
   fi
 fi
