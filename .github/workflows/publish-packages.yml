@@ -32,19 +32,12 @@ concurrency: single-build
 jobs:
   prepare:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        distribution: ['hazelcast', 'hazelcast-enterprise']
     env:
       HZ_VERSION: ${{ github.event.inputs.HZ_VERSION }}
-      HZ_DISTRIBUTION: ${{ matrix.distribution }}
     defaults:
       run:
         working-directory: ./hazelcast-packaging
     outputs:
-      # Beware that these should not be matrix specific - last matrix combination to finish overwrites previous
-      # executions
       hz_version: ${{ steps.hz_version.outputs.hz_version }}
       package_version: ${{ steps.package_version.outputs.package_version }}
     steps:
