@@ -141,7 +141,7 @@ jobs:
           sudo apt remove ${{ env.HZ_DISTRIBUTION}}
 
       - name: Remove deb package from test repo
-        if: always()
+        if: github.event_name == 'pull_request'
         run: |
           source ./common.sh
           curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
@@ -215,7 +215,7 @@ jobs:
           yum remove -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
 
       - name: Remove rpm package from test repo
-        if: always()
+        if: github.event_name == 'pull_request'
         run: |
           source ./common.sh
           curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
