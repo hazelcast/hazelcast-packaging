@@ -16,10 +16,10 @@ function test_versions() {
 }
 
 #             HZ_VERSION     PACKAGE_VERSION DEB_PACKAGE_VERSION RPM_PACKAGE_VERSION
-test_versions "5.0.2"        "5.0.2"         "5.0.2-0"           "5.0.2-0"
+test_versions "5.0.2"        "5.0.2"         "5.0.2-1"           "5.0.2-1"
 test_versions "5.0.2"        "5.0.2-1"       "5.0.2-1"           "5.0.2-1"
-test_versions "5.1"          "5.1"           "5.1-0"             "5.1-0"
+test_versions "5.1"          "5.1"           "5.1-1"             "5.1-1"
 test_versions "5.1"          "5.1-1"         "5.1-1"             "5.1-1"
-test_versions "5.1-SNAPSHOT" "5.1-SNAPSHOT"  "5.1-SNAPSHOT-0"    "5.1.SNAPSHOT-0"
-test_versions "5.1-BETA-1"   "5.1-BETA-1"    "5.1-BETA-1-0"      "5.1.BETA.1-0"
+test_versions "5.1-SNAPSHOT" "5.1-SNAPSHOT"  "5.1-SNAPSHOT-1"    "5.1.SNAPSHOT-1"
+test_versions "5.1-BETA-1"   "5.1-BETA-1"    "5.1-BETA-1-1"      "5.1.BETA.1-1"
 test_versions "5.1-BETA-1"   "5.1-BETA-1-2"  "5.1-BETA-1-2"      "5.1.BETA.1-2"

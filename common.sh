@@ -23,15 +23,15 @@ RELEASE_VERSION=${PACKAGE_VERSION#"$HZ_VERSION"}
 RELEASE_VERSION=${RELEASE_VERSION#-}
 
 if [ -z "$RELEASE_VERSION" ]; then
-  # Default to 0 if not set
-  RELEASE_VERSION=0
+  # Default to 1 if not set
+  RELEASE_VERSION=1
 fi
 export RELEASE_VERSION
 
 # See https://www.debian.org/doc/debian-policy/ch-controlfields.html#version
 # "if it (= debian revision) isn’t present then the upstream_version must not contain a hyphen"
 # So if our upstream version contains hyphen, e.g. 5.2-DR8, the deb package version should be 5.2-DR8-1
-# For simplicity we add it in all cases, default to 0 when not specified in PACKAGE_VERSION
+# For simplicity we add it in all cases, default to 1 when not specified in PACKAGE_VERSION
 DEB_PACKAGE_VERSION="$HZ_VERSION"-$RELEASE_VERSION
 export DEB_PACKAGE_VERSION
 
