@@ -267,8 +267,7 @@ jobs:
           cd ../homebrew-hz
           git config --global user.name 'devOpsHazelcast'
           git config --global user.email 'devops@hazelcast.com'
-          git add Aliases
-          git add ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
+          git add *.rb
           if [[ `git status --porcelain --untracked-files=no` ]]; then
             git commit -am "Hazelcast Homebrew Package ${{ env.PACKAGE_VERSION }} release"
             git pull --rebase
