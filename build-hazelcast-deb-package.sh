@@ -26,7 +26,7 @@ fi
 
 source common.sh
 
-echo "Building DEB package $HZ_DISTRIBUTION:${HZ_VERSION} package version ${PACKAGE_VERSION}"
+echo "Building DEB package $HZ_DISTRIBUTION:${HZ_VERSION} package version ${DEB_PACKAGE_VERSION}"
 
 # Remove previous build, useful on local
 rm -rf build/deb
@@ -58,7 +58,7 @@ cp -RT packages/deb/hazelcast/usr/lib/hazelcast build/deb/hazelcast/usr/lib/haze
 
 dpkg-deb --build build/deb/hazelcast
 
-DEB_FILE=${HZ_DISTRIBUTION}-${PACKAGE_VERSION}-all.deb
+DEB_FILE=${HZ_DISTRIBUTION}-${DEB_PACKAGE_VERSION}-all.deb
 mv build/deb/hazelcast.deb "$DEB_FILE"
 
 if [ "${PUBLISH}" == "true" ]; then

@@ -128,7 +128,7 @@ jobs:
           source ./common.sh
           wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
           echo "deb ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list
-          sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}=${{ env.PACKAGE_VERSION }}
+          sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}=${DEB_PACKAGE_VERSION}
           HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health

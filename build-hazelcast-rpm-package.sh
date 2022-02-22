@@ -28,7 +28,7 @@ fi
 
 source common.sh
 
-echo "Building RPM package $HZ_DISTRIBUTION:${HZ_VERSION} package version ${PACKAGE_VERSION}"
+echo "Building RPM package $HZ_DISTRIBUTION:${HZ_VERSION} package version ${RPM_PACKAGE_VERSION}"
 
 # Remove previous build, useful on local
 rm -rf build/rpmbuild
@@ -61,22 +61,22 @@ gpg-connect-agent reloadagent /bye
 $GPG_PRESET_PASSPHRASE --passphrase ${BINTRAY_PASSPHRASE} --preset 50907674C38F9E099C35345E246EBBA203D8E107
 rpmbuild --define "_topdir $(realpath build/rpmbuild)" -bb build/rpmbuild/rpm/hazelcast.spec
 
-rpm --define "_gpg_name deploy@hazelcast.com" --addsign build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}-1.noarch.rpm
+rpm --define "_gpg_name deploy@hazelcast.com" --addsign build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm
 
 if [ "${PUBLISH}" == "true" ]; then
-  RPM_SHA256SUM=$(sha256sum "build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}-1.noarch.rpm" | cut -d ' ' -f 1)
-  RPM_SHA1SUM=$(sha1sum "build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}-1.noarch.rpm" | cut -d ' ' -f 1)
-  RPM_MD5SUM=$(md5sum "build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}-1.noarch.rpm" | cut -d ' ' -f 1)
+  RPM_SHA256SUM=$(sha256sum "build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" | cut -d ' ' -f 1)
+  RPM_SHA1SUM=$(sha1sum "build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" | cut -d ' ' -f 1)
+  RPM_MD5SUM=$(md5sum "build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" | cut -d ' ' -f 1)
 
   # Delete any package that exists - previous version of the same package
   curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" \
     -X DELETE \
-    "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}-1.noarch.rpm"
+    "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
 
   curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" -H "X-Checksum-Deploy: false" -H "X-Checksum-Sha256: $RPM_SHA256SUM" \
     -H "X-Checksum-Sha1: $RPM_SHA1SUM" -H "X-Checksum-MD5: $RPM_MD5SUM" \
-    -T"build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}-1.noarch.rpm" \
+    -T"build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" \
     -X PUT \
-    "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}-1.noarch.rpm"
+    "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
 
 fi
