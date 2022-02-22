@@ -44,29 +44,49 @@ if [ ${HZ_DISTRIBUTION} == "hazelcast-enterprise" ]; then
   export CONFLICTS=hazelcast
 fi
 
-BREW_REPO_DIRECTORY=../homebrew-hz
+TEMPLATE_FILE="$(pwd)/packages/brew/hazelcast-template.rb"
+cd ../homebrew-hz || exit 1
 
-cp packages/brew/hazelcast-template.rb "${BREW_REPO_DIRECTORY}/${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb"
+function camelCase {
+  echo "$1"|  sed -r 's/(-)/\./g' | sed -r 's/(^|\.)(\w)/\U\2/g' | sed 's+\.++g'
+}
 
-cd $BREW_REPO_DIRECTORY || exit 1
+# The class name used in formula must not have dots nor hyphens and must be CamelCased
+function brewClass {
+  basename=$1
+  version=$2
+  if [ -n "${version}" ]; then
+    version="AT${version}"
+  fi
+  echo "$(camelCase $basename)$(camelCase $version)"
+}
 
-# This version is used in `class HazelcastAT${VERSION_NODOTS}`, it must not have dots nor hyphens and must be CamelCased
-VERSION_NODOTS=$(echo "${BREW_PACKAGE_VERSION}" | tr '[:upper:]' '[:lower:]' | sed -r 's/(^|\.)(\w)/\U\2/g' | sed 's+\.++g')
-if [ "${HZ_DISTRIBUTION}" == "hazelcast" ]; then
-  sed -i "s+class HazelcastAT.* <\(.*$\)+class HazelcastAT${VERSION_NODOTS} <\1+g" ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
-else
-  sed -i "s+class HazelcastAT.* <\(.*$\)+class HazelcastEnterpriseAT${VERSION_NODOTS} <\1+g" ${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb
-fi
-sed -i "s+url.*$+url \"${HZ_PACKAGE_URL}\"+g" "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb"
-sed -i "s+sha256.*$+sha256 \"${ASSET_SHASUM}\"+g" "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb"
-sed -i "s+conflicts_with \".*\"$+conflicts_with \"$CONFLICTS\"+g" "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb"
+function updateClassName {
+  class=$1
+  file=$2
+  sed -i "s+class HazelcastAT5X <\(.*$\)+class $class <\1+g" "$file"
+}
+
+function generateFormula {
+  class=$1
+  file=$2
+  cp "$TEMPLATE_FILE" "$file"
+  updateClassName "$class" "$file"
+  sed -i "s+url.*$+url \"${HZ_PACKAGE_URL}\"+g" "$file"
+  sed -i "s+sha256.*$+sha256 \"${ASSET_SHASUM}\"+g" "$file"
+  sed -i "s+conflicts_with \".*\"$+conflicts_with \"$CONFLICTS\"+g" "$file"
+}
+
+BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}" "${BREW_PACKAGE_VERSION}")
+generateFormula "$BREW_CLASS" "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb"
 
 # Update hazelcast and hazelcast-x.y aliases only if the version is release (not SNAPSHOT/DR/BETA)
 if [[ ! ( ${HZ_VERSION} =~ ^.*+(SNAPSHOT|BETA|DR).*^ ) ]]; then
   HZ_MINOR_VERSION=$(echo "${HZ_VERSION}" | cut -c -3)
 
   rm -f "Aliases/${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}" #migrate incrementally from symlinks to regular files
-  cp "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb" "${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}.rb"
+  BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}${HZ_MINOR_VERSION}")
+  generateFormula "$BREW_CLASS" "${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}.rb"
 
   # Update 'hazelcast' or 'hazelcast-enterprise' alias
   # only if the version is greater than (new release) or equal to highest version
@@ -81,7 +101,7 @@ if [[ ! ( ${HZ_VERSION} =~ ^.*+(SNAPSHOT|BETA|DR).*^ ) ]]; then
 
   if [ "${UPDATE_LATEST}" == "true" ]; then
     rm -f "Aliases/${HZ_DISTRIBUTION}" #migrate incrementally from symlinks to regular files
-    cp "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb" "${HZ_DISTRIBUTION}.rb"
+    generateFormula "$(camelCase ${HZ_DISTRIBUTION})" "${HZ_DISTRIBUTION}.rb"
   fi
 fi
 
