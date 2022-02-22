@@ -36,7 +36,9 @@ DEB_PACKAGE_VERSION="$HZ_VERSION"-$RELEASE_VERSION
 export DEB_PACKAGE_VERSION
 
 # For RPM the upstream version part must not contain -, use `.` instead of `-`
-RPM_PACKAGE_VERSION=$(echo $HZ_VERSION | sed -r -r 's/(-)/\./g')-$RELEASE_VERSION
+RPM_HZ_VERSION=$(echo $HZ_VERSION | sed -r -r 's/(-)/\./g')
+export RPM_HZ_VERSION
+RPM_PACKAGE_VERSION=$RPM_HZ_VERSION-$RELEASE_VERSION
 export RPM_PACKAGE_VERSION
 
 # For brew the version is lowercase and with `.` instead of `-`
