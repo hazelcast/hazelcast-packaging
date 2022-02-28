@@ -1,11 +1,13 @@
 %define hzversion ${HZ_VERSION}
+%define rpmhzversion ${RPM_HZ_VERSION}
+%define releaseversion ${RELEASE_VERSION}
 %define hzdistribution ${HZ_DISTRIBUTION}
 %define debug_package %{nil}
 
 Name:       %{hzdistribution}
-Version:    ${RPM_PACKAGE_VERSION}
+Version:    %{rpmhzversion}
 Epoch:      1
-Release:    1
+Release:    %{releaseversion}
 Summary:    Hazelcast is a streaming and memory-first application platform.
 
 License:    ASL 2.0

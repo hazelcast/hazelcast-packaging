@@ -121,7 +121,7 @@ jobs:
           source ./common.sh
           wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
           echo "deb ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list
-          sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}=${{ env.PACKAGE_VERSION }}
+          sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}=${HZ_VERSION}
           HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
@@ -132,6 +132,14 @@ jobs:
         run: |
           source ./common.sh
           sudo apt remove ${{ env.HZ_DISTRIBUTION}}
+
+      - name: Remove deb package from test repo
+        if: github.event_name == 'pull_request'
+        run: |
+          source ./common.sh
+          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
+            -X DELETE \
+            "$DEBIAN_REPO_BASE_URL/${HZ_DISTRIBUTION}-${DEB_PACKAGE_VERSION}-all.deb"
 
   rpm:
     runs-on: ubuntu-latest
@@ -187,7 +195,7 @@ jobs:
           source ./common.sh
           wget ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo -O hazelcast-rpm-${PACKAGE_REPO}.repo
           mv hazelcast-rpm-${PACKAGE_REPO}.repo /etc/yum.repos.d/          
-          yum install -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
+          yum install -y ${{ env.HZ_DISTRIBUTION}}-${RPM_HZ_VERSION}
           HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
@@ -198,6 +206,14 @@ jobs:
         run: |
           source ./common.sh
           yum remove -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
+
+      - name: Remove rpm package from test repo
+        if: github.event_name == 'pull_request'
+        run: |
+          source ./common.sh
+          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
+            -X DELETE \
+            "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
 
   homebrew:
     runs-on: macos-latest
