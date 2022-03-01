@@ -61,4 +61,18 @@ assertAlphanumCamelCase "5.1-DR8" "51DR8"
 assertAlphanumCamelCase "5.2" "52"
 assertAlphanumCamelCase "" ""
 
+function assertBrewClass {
+  local distribution=$1
+  local version=$2
+  local expected=$3
+  local actual=$(brewClass "$distribution" "$version")
+  assert_eq "$expected" "$actual" "Brew class of $distribution $version should be equal to $expected " || TESTS_RESULT=$?
+}
+
+log_header "Tests for brewClass"
+assertBrewClass "hazelcast" "5.2-SNAPSHOT" "HazelcastAT52SNAPSHOT"
+assertBrewClass "hazelcast-enterprise" "5.2-BETA-1" "HazelcastEnterpriseAT52BETA1"
+assertBrewClass "hazelcast" "" "Hazelcast"
+assertBrewClass "hazelcast-enterprise" "" "HazelcastEnterprise"
+
 assert_eq 0 "$TESTS_RESULT" "All tests should pass"

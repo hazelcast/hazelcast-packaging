@@ -48,17 +48,6 @@ fi
 TEMPLATE_FILE="$(pwd)/packages/brew/hazelcast-template.rb"
 cd ../homebrew-hz || exit 1
 
-
-# The class name used in formula must not have dots nor hyphens and must be alphanumCamelCased
-function brewClass {
-  basename=$1
-  version=$2
-  if [ -n "${version}" ]; then
-    version="AT${version}"
-  fi
-  echo "$(alphanumCamelCase $basename)$(alphanumCamelCase $version)"
-}
-
 function updateClassName {
   class=$1
   file=$2
