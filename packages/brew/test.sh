@@ -40,11 +40,25 @@ function assertReleaseVersion {
   assert_eq 0 "$?" "Version $version should be a release version" || TESTS_RESULT=$?
 }
 
-# TESTS for isReleaseVersion
+log_header "Tests for isReleaseVersion"
 assertNotReleaseVersion "5.2-SNAPSHOT"
 assertNotReleaseVersion "5.2-BETA-1"
 assertNotReleaseVersion "5.1-DR8"
 assertReleaseVersion "5.0"
 assertReleaseVersion "5.1"
+
+function assertAlphanumCamelCase {
+  local testValue=$1
+  local expected=$2
+  local actual=$(alphanumCamelCase "$testValue")
+  assert_eq "$expected" "$actual" "Alphanumeric camel case of $testValue should be equal to $expected " || TESTS_RESULT=$?
+}
+
+log_header "Tests for alphanumCamelCase"
+assertAlphanumCamelCase "5.2-SNAPSHOT" "52SNAPSHOT"
+assertAlphanumCamelCase "5.2-BETA-1" "52BETA1"
+assertAlphanumCamelCase "5.1-DR8" "51DR8"
+assertAlphanumCamelCase "5.2" "52"
+assertAlphanumCamelCase "" ""
 
 assert_eq 0 "$TESTS_RESULT" "All tests should pass"

@@ -48,18 +48,15 @@ fi
 TEMPLATE_FILE="$(pwd)/packages/brew/hazelcast-template.rb"
 cd ../homebrew-hz || exit 1
 
-function camelCase {
-  echo "$1"|  sed -r 's/(-)/\./g' | sed -r 's/(^|\.)(\w)/\U\2/g' | sed 's+\.++g'
-}
 
-# The class name used in formula must not have dots nor hyphens and must be CamelCased
+# The class name used in formula must not have dots nor hyphens and must be alphanumCamelCased
 function brewClass {
   basename=$1
   version=$2
   if [ -n "${version}" ]; then
     version="AT${version}"
   fi
-  echo "$(camelCase $basename)$(camelCase $version)"
+  echo "$(alphanumCamelCase $basename)$(alphanumCamelCase $version)"
 }
 
 function updateClassName {
@@ -102,7 +99,7 @@ if isReleaseVersion "$HZ_VERSION"; then
 
   if [ "${UPDATE_LATEST}" == "true" ]; then
     rm -f "Aliases/${HZ_DISTRIBUTION}" #migrate incrementally from symlinks to regular files
-    generateFormula "$(camelCase ${HZ_DISTRIBUTION})" "${HZ_DISTRIBUTION}.rb"
+    generateFormula "$(alphanumCamelCase ${HZ_DISTRIBUTION})" "${HZ_DISTRIBUTION}.rb"
   fi
 fi
 
