@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/usr/bin/env bash
 
 set -x
 
@@ -33,6 +33,7 @@ if [ -z "${HZ_PACKAGE_URL}" ]; then
 fi
 
 source common.sh
+source packages/brew/functions.sh
 
 echo "Building Homebrew package $HZ_DISTRIBUTION:${HZ_VERSION} package version ${PACKAGE_VERSION}"
 
@@ -46,20 +47,6 @@ fi
 
 TEMPLATE_FILE="$(pwd)/packages/brew/hazelcast-template.rb"
 cd ../homebrew-hz || exit 1
-
-function camelCase {
-  echo "$1"|  sed -r 's/(-)/\./g' | sed -r 's/(^|\.)(\w)/\U\2/g' | sed 's+\.++g'
-}
-
-# The class name used in formula must not have dots nor hyphens and must be CamelCased
-function brewClass {
-  basename=$1
-  version=$2
-  if [ -n "${version}" ]; then
-    version="AT${version}"
-  fi
-  echo "$(camelCase $basename)$(camelCase $version)"
-}
 
 function updateClassName {
   class=$1
@@ -81,7 +68,7 @@ BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}" "${BREW_PACKAGE_VERSION}")
 generateFormula "$BREW_CLASS" "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb"
 
 # Update hazelcast and hazelcast-x.y aliases only if the version is release (not SNAPSHOT/DR/BETA)
-if [[ ! ( ${HZ_VERSION} =~ ^.*+(SNAPSHOT|BETA|DR).*^ ) ]]; then
+if isReleaseVersion "$HZ_VERSION"; then
   HZ_MINOR_VERSION=$(echo "${HZ_VERSION}" | cut -c -3)
 
   rm -f "Aliases/${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}" #migrate incrementally from symlinks to regular files
@@ -101,7 +88,7 @@ if [[ ! ( ${HZ_VERSION} =~ ^.*+(SNAPSHOT|BETA|DR).*^ ) ]]; then
 
   if [ "${UPDATE_LATEST}" == "true" ]; then
     rm -f "Aliases/${HZ_DISTRIBUTION}" #migrate incrementally from symlinks to regular files
-    generateFormula "$(camelCase ${HZ_DISTRIBUTION})" "${HZ_DISTRIBUTION}.rb"
+    generateFormula "$(alphanumCamelCase ${HZ_DISTRIBUTION})" "${HZ_DISTRIBUTION}.rb"
   fi
 fi
 
