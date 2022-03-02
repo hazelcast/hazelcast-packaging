@@ -32,7 +32,7 @@ function assertReleaseType {
   export HZ_VERSION=$1
   local expected=$2
   . "$SCRIPT_DIR"/common.sh
-  assert_eq $expected $RELEASE_TYPE "Version $HZ_VERSION should not a $expected release" || TESTS_RESULT=$?
+  assert_eq $expected $RELEASE_TYPE "Version $HZ_VERSION should be a $expected release" || TESTS_RESULT=$?
 }
 
 log_header "Tests for RELEASE_TYPE"
