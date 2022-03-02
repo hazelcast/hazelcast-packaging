@@ -237,7 +237,6 @@ jobs:
 
       - name: Install up-to-date tools
         run: |
-          brew install bash
           brew install gnu-sed
           brew install coreutils
 
