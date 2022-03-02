@@ -57,6 +57,7 @@ function updateClassName {
 function generateFormula {
   class=$1
   file=$2
+  echo "Generating $file formula"
   cp "$TEMPLATE_FILE" "$file"
   updateClassName "$class" "$file"
   sed -i "s+url.*$+url \"${HZ_PACKAGE_URL}\"+g" "$file"
@@ -67,29 +68,45 @@ function generateFormula {
 BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}" "${BREW_PACKAGE_VERSION}")
 generateFormula "$BREW_CLASS" "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb"
 
-# Update hazelcast and hazelcast-x.y aliases only if the version is release (not SNAPSHOT/DR/BETA)
-if isReleaseVersion "$HZ_VERSION"; then
-  HZ_MINOR_VERSION=$(echo "${HZ_VERSION}" | cut -c -3)
+HZ_MINOR_VERSION=$(echo "${HZ_VERSION}" | cut -c -3)
 
-  rm -f "Aliases/${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}" #migrate incrementally from symlinks to regular files
-  BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}${HZ_MINOR_VERSION}")
-  generateFormula "$BREW_CLASS" "${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}.rb"
+# Update hazelcast and hazelcast-x.y aliases only if the version is a stable release (not SNAPSHOT/DR/BETA)
+if [[ "$RELEASE_TYPE" = "stable" ]]; then
+    rm -f "Aliases/${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}" #migrate incrementally from symlinks to regular files
+    BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}${HZ_MINOR_VERSION}")
+    generateFormula "$BREW_CLASS" "${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}.rb"
 
-  # Update 'hazelcast' or 'hazelcast-enterprise' alias
-  # only if the version is greater than (new release) or equal to highest version
-  UPDATE_LATEST="true"
-  versions=("${HZ_DISTRIBUTION}"-[0-9]*\.rb)
-  for version in "${versions[@]}"
-  do
-    if [[ "$version" > "${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}.rb" ]]; then
-      UPDATE_LATEST="false"
+    # Update 'hazelcast' or 'hazelcast-enterprise' alias
+    # only if the version is greater than (new release) or equal to highest version
+    UPDATE_LATEST="true"
+    versions=("${HZ_DISTRIBUTION}"-[0-9]*\.rb)
+    for version in "${versions[@]}"
+    do
+      if [[ "$version" > "${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}.rb" ]]; then
+        UPDATE_LATEST="false"
+      fi
+    done
+
+    if [ "${UPDATE_LATEST}" == "true" ]; then
+      rm -f "Aliases/${HZ_DISTRIBUTION}" #migrate incrementally from symlinks to regular files
+      generateFormula "$(alphanumCamelCase "${HZ_DISTRIBUTION}")" "${HZ_DISTRIBUTION}.rb"
     fi
-  done
+else
+    # Update 'hazelcast-snapshot/beta/dr'
+    # only if the version is greater than (new release) or equal to highest version
+    UPDATE_LATEST="true"
+    versions=("${HZ_DISTRIBUTION}"-[0-9]*\.rb)
+    for version in "${versions[@]}"
+    do
+      if [[ "$version" > "${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}.rb" ]]; then
+        UPDATE_LATEST="false"
+      fi
+    done
 
-  if [ "${UPDATE_LATEST}" == "true" ]; then
-    rm -f "Aliases/${HZ_DISTRIBUTION}" #migrate incrementally from symlinks to regular files
-    generateFormula "$(alphanumCamelCase ${HZ_DISTRIBUTION})" "${HZ_DISTRIBUTION}.rb"
-  fi
+    if [ "${UPDATE_LATEST}" == "true" ]; then
+      BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}-$RELEASE_TYPE")
+      generateFormula "$BREW_CLASS" "${HZ_DISTRIBUTION}-${RELEASE_TYPE}.rb"
+    fi
 fi
 
 echo "Homebrew repository updated"

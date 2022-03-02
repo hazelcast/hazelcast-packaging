@@ -28,26 +28,6 @@ findScriptDir
 
 TESTS_RESULT=0
 
-function assertNotReleaseVersion {
-  local version=$1
-  isReleaseVersion "$version"
-  assert_eq 1 $? "Version $version should not be a release version" || TESTS_RESULT=$?
-}
-
-function assertReleaseVersion {
-  local version=$1
-  isReleaseVersion "$version"
-  assert_eq 0 "$?" "Version $version should be a release version" || TESTS_RESULT=$?
-}
-
-log_header "Tests for isReleaseVersion"
-assertNotReleaseVersion "5.2-SNAPSHOT"
-assertNotReleaseVersion "5.2-BETA-1"
-assertNotReleaseVersion "5.1-DR8"
-assertReleaseVersion "5.0"
-assertReleaseVersion "5.1"
-assertReleaseVersion "5.1.1"
-
 function assertAlphanumCamelCase {
   local testValue=$1
   local expected=$2
@@ -62,6 +42,9 @@ assertAlphanumCamelCase "5.1-DR8" "51Dr8"
 assertAlphanumCamelCase "5.2" "52"
 assertAlphanumCamelCase "5.2.1" "521"
 assertAlphanumCamelCase "" ""
+assertAlphanumCamelCase "snapshot" "Snapshot"
+assertAlphanumCamelCase "beta" "Beta"
+assertAlphanumCamelCase "dr" "Dr"
 
 function assertBrewClass {
   local distribution=$1
