@@ -46,6 +46,7 @@ assertNotReleaseVersion "5.2-BETA-1"
 assertNotReleaseVersion "5.1-DR8"
 assertReleaseVersion "5.0"
 assertReleaseVersion "5.1"
+assertReleaseVersion "5.1.1"
 
 function assertAlphanumCamelCase {
   local testValue=$1
