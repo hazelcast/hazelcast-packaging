@@ -60,6 +60,7 @@ assertAlphanumCamelCase "5.2-SNAPSHOT" "52Snapshot"
 assertAlphanumCamelCase "5.2-BETA-1" "52Beta1"
 assertAlphanumCamelCase "5.1-DR8" "51Dr8"
 assertAlphanumCamelCase "5.2" "52"
+assertAlphanumCamelCase "5.2.1" "521"
 assertAlphanumCamelCase "" ""
 
 function assertBrewClass {
@@ -73,6 +74,7 @@ function assertBrewClass {
 log_header "Tests for brewClass"
 assertBrewClass "hazelcast" "5.2-SNAPSHOT" "HazelcastAT52Snapshot"
 assertBrewClass "hazelcast-enterprise" "5.2-BETA-1" "HazelcastEnterpriseAT52Beta1"
+assertBrewClass "hazelcast" "5.2" "HazelcastAT52"
 assertBrewClass "hazelcast" "" "Hazelcast"
 assertBrewClass "hazelcast-enterprise" "" "HazelcastEnterprise"
 
