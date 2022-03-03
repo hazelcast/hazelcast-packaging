@@ -17,7 +17,7 @@ on:
       HZ_VERSION:
         description: 'Version of Hazelcast to build the image for, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
         required: true
-      package_types:
+      PACKAGE_TYPES:
         description: 'Packages to build'
         required: true
         default: 'all'
@@ -35,6 +35,7 @@ env:
   DEVOPS_PRIVATE_KEY: ${{ secrets.DEVOPS_PRIVATE_KEY }}
   BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
   HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
+  PACKAGE_TYPES: ${{ github.event.inputs.package_types || 'all' }}
 
 # Constant for now - should ensure single build, maybe we can limit this to something from github.*
 concurrency: single-build
@@ -86,7 +87,7 @@ jobs:
 
   deb:
     runs-on: ubuntu-latest
-    if: github.event.inputs.package_types == 'all' || github.event.inputs.package_types == 'deb'
+    if: env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'deb'
     strategy:
       fail-fast: false
       matrix:
@@ -154,7 +155,7 @@ jobs:
 
   rpm:
     runs-on: ubuntu-latest
-    if: github.event.inputs.package_types == 'all' || github.event.inputs.package_types == 'rpm'
+    if: env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'rpm'
     container: rockylinux:latest
     strategy:
       fail-fast: false
@@ -229,7 +230,7 @@ jobs:
 
   homebrew:
     runs-on: macos-latest
-    if: github.event.inputs.package_types == 'all' || github.event.inputs.package_types == 'homebrew'
+    if: env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew'
     strategy:
       fail-fast: false
       matrix:
