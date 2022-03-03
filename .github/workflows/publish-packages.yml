@@ -87,7 +87,7 @@ jobs:
 
   deb:
     runs-on: ubuntu-latest
-    if: env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'deb'
+    if: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'deb' }}
     strategy:
       fail-fast: false
       matrix:
@@ -155,7 +155,7 @@ jobs:
 
   rpm:
     runs-on: ubuntu-latest
-    if: env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'rpm'
+    if: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'rpm' }}
     container: rockylinux:latest
     strategy:
       fail-fast: false
@@ -230,7 +230,7 @@ jobs:
 
   homebrew:
     runs-on: macos-latest
-    if: env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew'
+    if: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew' }}
     strategy:
       fail-fast: false
       matrix:
