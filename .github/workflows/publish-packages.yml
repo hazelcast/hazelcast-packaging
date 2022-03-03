@@ -17,16 +17,16 @@ on:
       HZ_VERSION:
         description: 'Version of Hazelcast to build the image for, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
         required: true
-       package_types:
-         description: 'Packages to build'
-         required: true
-         default: 'all'
-         type: choice
-         options:
-         - all
-         - deb
-         - rpm
-         - homebrew
+      package_types:
+        description: 'Packages to build'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - deb
+        - rpm
+        - homebrew
 
 env:
   EVENT_NAME: ${{ github.event_name }}
