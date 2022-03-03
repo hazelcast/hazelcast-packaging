@@ -35,7 +35,6 @@ env:
   DEVOPS_PRIVATE_KEY: ${{ secrets.DEVOPS_PRIVATE_KEY }}
   BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
   HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
-  PACKAGE_TYPES: ${{ github.event.inputs.package_types || 'all' }}
 
 # Constant for now - should ensure single build, maybe we can limit this to something from github.*
 concurrency: single-build
@@ -51,6 +50,7 @@ jobs:
     outputs:
       hz_version: ${{ steps.hz_version.outputs.hz_version }}
       package_version: ${{ steps.package_version.outputs.package_version }}
+      package_types: ${{ github.event.inputs.package_types || 'all' }}
     steps:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v2.3.2
@@ -87,7 +87,7 @@ jobs:
 
   deb:
     runs-on: ubuntu-latest
-    if: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'deb' }}
+    if: ${{ needs.prepare.outputs.package_types == 'all' || needs.prepare.outputs.package_types == 'deb' }}
     strategy:
       fail-fast: false
       matrix:
@@ -155,7 +155,7 @@ jobs:
 
   rpm:
     runs-on: ubuntu-latest
-    if: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'rpm' }}
+    if: ${{ needs.prepare.outputs.package_types == 'all' || needs.prepare.outputs.package_types == 'rpm' }}
     container: rockylinux:latest
     strategy:
       fail-fast: false
@@ -230,7 +230,7 @@ jobs:
 
   homebrew:
     runs-on: macos-latest
-    if: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew' }}
+    if: ${{ needs.prepare.outputs.package_types == 'all' || needs.prepare.outputs.package_types == 'homebrew' }}
     strategy:
       fail-fast: false
       matrix:
