@@ -1,17 +1,16 @@
 #!/bin/bash
 
-set -x
-
-export PACKAGE_REPO=stable
+export RELEASE_TYPE=stable
 if [[ "$HZ_VERSION" == *"SNAPSHOT"* ]]; then
-  export PACKAGE_REPO=snapshot
+  export RELEASE_TYPE=snapshot
 fi
 if [[ "$HZ_VERSION" == *"DR"* ]]; then
-  export PACKAGE_REPO=devel
+  export RELEASE_TYPE=devel
 fi
 if [[ "$HZ_VERSION" == *"BETA"* ]]; then
-  export PACKAGE_REPO=beta
+  export RELEASE_TYPE=beta
 fi
+export PACKAGE_REPO=$RELEASE_TYPE
 
 # Extract release version from package version - release version is the version part specific to the package
 
