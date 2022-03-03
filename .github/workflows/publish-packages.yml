@@ -17,6 +17,16 @@ on:
       HZ_VERSION:
         description: 'Version of Hazelcast to build the image for, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
         required: true
+      PACKAGE_TYPES:
+        description: 'Packages to build'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - deb
+        - rpm
+        - homebrew
 
 env:
   EVENT_NAME: ${{ github.event_name }}
@@ -40,6 +50,7 @@ jobs:
     outputs:
       hz_version: ${{ steps.hz_version.outputs.hz_version }}
       package_version: ${{ steps.package_version.outputs.package_version }}
+      package_types: ${{ github.event.inputs.package_types || 'all' }}
     steps:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v2.3.2
@@ -76,6 +87,7 @@ jobs:
 
   deb:
     runs-on: ubuntu-latest
+    if: ${{ needs.prepare.outputs.package_types == 'all' || needs.prepare.outputs.package_types == 'deb' }}
     strategy:
       fail-fast: false
       matrix:
@@ -143,6 +155,7 @@ jobs:
 
   rpm:
     runs-on: ubuntu-latest
+    if: ${{ needs.prepare.outputs.package_types == 'all' || needs.prepare.outputs.package_types == 'rpm' }}
     container: rockylinux:latest
     strategy:
       fail-fast: false
@@ -217,6 +230,7 @@ jobs:
 
   homebrew:
     runs-on: macos-latest
+    if: ${{ needs.prepare.outputs.package_types == 'all' || needs.prepare.outputs.package_types == 'homebrew' }}
     strategy:
       fail-fast: false
       matrix:
