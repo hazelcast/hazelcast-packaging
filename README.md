@@ -114,8 +114,8 @@ the repository definition to use Hazelcast snapshots.
 Run the following to install the latest snapshot version:
 
 ```
-wget https://repository.hazelcast.com/rpm/snapshot/hazelcast-snapshot-rpm.repo -O hazelcast-snapshot-rpm.repo
-sudo mv hazelcast-snapshot-rpm.repo /etc/yum.repos.d/
+wget https://repository.hazelcast.com/rpm/snapshot/hazelcast-rpm-snapshot.repo -O hazelcast-rpm-snapshot.repo
+sudo mv hazelcast-rpm-snapshot.repo /etc/yum.repos.d/
 sudo yum install hazelcast
 ```
 
