@@ -39,12 +39,6 @@ echo "Building Homebrew package $HZ_DISTRIBUTION:${HZ_VERSION} package version $
 
 ASSET_SHASUM=$(sha256sum "${HZ_DISTRIBUTION_FILE}" | cut -d ' ' -f 1)
 
-# If this is 'hazelcast' package it conflicts with 'hazelcast-enterprise' and vice versa
-export CONFLICTS=hazelcast-enterprise
-if [ ${HZ_DISTRIBUTION} == "hazelcast-enterprise" ]; then
-  export CONFLICTS=hazelcast
-fi
-
 TEMPLATE_FILE="$(pwd)/packages/brew/hazelcast-template.rb"
 cd ../homebrew-hz || exit 1
 
@@ -62,7 +56,13 @@ function generateFormula {
   updateClassName "$class" "$file"
   sed -i "s+url.*$+url \"${HZ_PACKAGE_URL}\"+g" "$file"
   sed -i "s+sha256.*$+sha256 \"${ASSET_SHASUM}\"+g" "$file"
-  sed -i "s+conflicts_with \".*\"$+conflicts_with \"$CONFLICTS\"+g" "$file"
+  all_hz_versions=({hazelcast.rb,hazelcast-devel.rb,hazelcast-snapshot.rb,hazelcast?[0-9]*\.rb,hazelcast-enterprise*\.rb})
+  for version in "${all_hz_versions[@]}"
+  do
+    if [[ "$version" != "$file" ]] && [[ ! "$version" =~ .*(beta|dr).* ]] ; then
+      sed -i "/sha256.*$/a \ \ \ \ conflicts_with \"${version%.rb}\", because: \"you can install only a single hazelcast or hazelcast-enterprise package\"" "$file"
+    fi
+  done
 }
 
 BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}" "${BREW_PACKAGE_VERSION}")
