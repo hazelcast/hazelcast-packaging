@@ -13,6 +13,8 @@ done
 groupadd -r hazelcast
 useradd -r -g hazelcast -d /usr/lib/hazelcast -s /sbin/nologin hazelcast
 chown -R hazelcast:hazelcast /usr/lib/hazelcast
+mkdir -p /usr/lib/hazelcast/logs
+chmod 777 /usr/lib/hazelcast/logs
 
 if command -v systemctl > /dev/null; then
   systemctl daemon-reload
