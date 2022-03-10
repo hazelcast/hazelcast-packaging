@@ -56,7 +56,7 @@ function generateFormula {
   updateClassName "$class" "$file"
   sed -i "s+url.*$+url \"${HZ_PACKAGE_URL}\"+g" "$file"
   sed -i "s+sha256.*$+sha256 \"${ASSET_SHASUM}\"+g" "$file"
-  all_hz_versions=(hazelcast*\.rb)
+  all_hz_versions=({hazelcast.rb,hazelcast-devel.rb,hazelcast-snapshot.rb,hazelcast?[0-9]*\.rb,hazelcast-enterprise*\.rb})
   for version in "${all_hz_versions[@]}"
   do
     if [[ "$version" != "$file" ]] && [[ ! "$version" =~ .*(beta|dr).* ]] ; then
