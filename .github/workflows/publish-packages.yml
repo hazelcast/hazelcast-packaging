@@ -77,7 +77,7 @@ jobs:
         # If the ref is version (e.g. v5.0.1) tag then use it as package version,
         # otherwise use HZ_VERSION for package version (e.g 5.1-SNAPSHOT)
         run: |
-          if [[ "${{ github.ref }}" == "v"* ]]; then
+          if [[ "${{ github.ref }}" == "refs/tags/v"* ]]; then
             PACKAGE_VERSION=$(echo ${{ github.ref }} | cut -c 12-)
           else
             PACKAGE_VERSION=${{ env.HZ_VERSION }}
