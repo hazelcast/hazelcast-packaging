@@ -38,7 +38,7 @@ function assertReleaseType {
 log_header "Tests for RELEASE_TYPE"
 assertReleaseType "5.2-SNAPSHOT" "snapshot"
 assertReleaseType "5.2-BETA-1" "beta"
-assertReleaseType "5.1-DR8" "devel"
+assertReleaseType "5.1-DEVEL-8" "devel"
 assertReleaseType "5.0" "stable"
 assertReleaseType "5.1" "stable"
 assertReleaseType "5.1.1" "stable"
@@ -59,6 +59,7 @@ assertPackageVersions "5.0.2"        "5.0.2-1"       "5.0.2-1"           "5.0.2-
 assertPackageVersions "5.1"          "5.1"           "5.1-1"             "5.1-1"
 assertPackageVersions "5.1"          "5.1-1"         "5.1-1"             "5.1-1"
 assertPackageVersions "5.1-SNAPSHOT" "5.1-SNAPSHOT"  "5.1-SNAPSHOT-1"    "5.1.SNAPSHOT-1"
+assertPackageVersions "5.1-DEVEL"    "5.1-DEVEL"     "5.1-DEVEL-1"       "5.1.DEVEL-1"
 assertPackageVersions "5.1-BETA-1"   "5.1-BETA-1"    "5.1-BETA-1-1"      "5.1.BETA.1-1"
 assertPackageVersions "5.1-BETA-1"   "5.1-BETA-1-2"  "5.1-BETA-1-2"      "5.1.BETA.1-2"
 
