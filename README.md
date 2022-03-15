@@ -91,11 +91,11 @@ Run the following to install e.g. version `5.0.1`:
 brew install hazelcast@5.0.1
 ```
 
-## Installing a SNAPSHOT/BETA/DR version
+## Installing a SNAPSHOT/DEVEL/BETA version
 
-### Install a SNAPSHOT/BETA/DR version with apt
+### Install a SNAPSHOT/DEVEL/BETA version with apt
 
-You need to replace `stable` with `snapshot`/`beta`/`devel` (for DR) in
+You need to replace `stable` with `snapshot`/`devel`/`beta` in
 the repository definition to use Hazelcast snapshots.
 
 Run the following to install the latest snapshot version:
@@ -106,9 +106,9 @@ echo "deb https://repository.hazelcast.com/debian snapshot main" | sudo tee -a /
 sudo apt update && sudo apt install hazelcast
 ```
 
-### Install a SNAPSHOT/BETA/DR version with yum
+### Install a SNAPSHOT/DEVEL/BETA version with yum
 
-You need to replace `stable` with `snapshot`/`beta`/`devel` (for DR) in 
+You need to replace `stable` with `snapshot`/`devel`/`beta` in 
 the repository definition to use Hazelcast snapshots.
 
 Run the following to install the latest snapshot version:
@@ -119,9 +119,9 @@ sudo mv hazelcast-rpm-snapshot.repo /etc/yum.repos.d/
 sudo yum install hazelcast
 ```
 
-### Install a SNAPSHOT/BETA/DR version with Homebrew
+### Install a SNAPSHOT/DEVEL/BETA version with Homebrew
 
-You need to add `snapshot`/`beta`/`dr` suffix to the package version when 
+You need to add `snapshot`/`devel`/`beta` suffix to the package version when 
 installing a snapshot.
 
 Run the following to install the latest `5.1-SNAPSHOT` version:
