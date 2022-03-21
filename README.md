@@ -35,7 +35,7 @@ sudo apt install hazelcast
 
 or Hazelcast Enterprise (license required)
 ```shell
-sudo apt install hazelcast-hazelcast
+sudo apt install hazelcast-enterprise
 ```
 
 ### Install with yum/dnf/microdnf
