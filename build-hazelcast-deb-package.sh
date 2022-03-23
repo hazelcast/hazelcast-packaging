@@ -77,6 +77,6 @@ if [ "${PUBLISH}" == "true" ]; then
     -H "X-Checksum-Sha1: $DEB_SHA1SUM" -H "X-Checksum-MD5: $DEB_MD5SUM" \
     -T"$DEB_FILE" \
     -X PUT \
-    "$DEBIAN_REPO_BASE_URL/$DEB_FILE;deb.distribution=${PACKAGE_REPO};deb.component=main;deb.architecture=all"
+    "$DEBIAN_REPO_BASE_URL/$DEB_FILE;deb.distribution=${PACKAGE_REPO};deb.component=main;deb.component=${HZ_MINOR_VERSION};deb.architecture=all"
 
 fi

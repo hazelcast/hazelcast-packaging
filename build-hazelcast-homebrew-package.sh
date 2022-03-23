@@ -68,8 +68,6 @@ function generateFormula {
 BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}" "${BREW_PACKAGE_VERSION}")
 generateFormula "$BREW_CLASS" "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb"
 
-HZ_MINOR_VERSION=$(echo "${HZ_VERSION}" | cut -c -3)
-
 # Update hazelcast and hazelcast-x.y aliases only if the version is a stable release (not SNAPSHOT/DEVEL/BETA)
 if [[ "$RELEASE_TYPE" = "stable" ]]; then
     rm -f "Aliases/${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}" #migrate incrementally from symlinks to regular files
