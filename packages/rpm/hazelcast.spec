@@ -77,22 +77,8 @@ printf "\n\nUse 'hz start' or 'systemctl start hazelcast' to start the Hazelcast
 %preun
 %systemd_preun %{name}.service
 
-
 %postun
 %systemd_postun %{name}.service
-
-echo "Removing symlinks from %{_bindir}"
-
-for FILENAME
- in %{_prefix}/lib/hazelcast/bin/hz*; do
-  case "${FILENAME}" in
-    *bat)
-      ;;
-    *)
-      rm %{_bindir}/"$(basename "${FILENAME}")"
-      ;;
-  esac
-done
 
 %files
 # The LICENSE file contains Apache 2 license and is only present in OS
