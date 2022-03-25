@@ -28,6 +28,15 @@ echo "deb https://repository.hazelcast.com/debian stable main" | sudo tee -a /et
 sudo apt update
 ```
 
+NOTE: If you want to stay on latest patch version for a particular minor 
+release you can replace `main` component with `x.y`, e.g. `5.1`. 
+
+```shell
+wget -qO - https://repository.hazelcast.com/api/gpg/key/public | sudo apt-key add -
+echo "deb https://repository.hazelcast.com/debian stable 5.1" | sudo tee -a /etc/apt/sources.list
+sudo apt update
+```
+
 Install Hazelcast (open source)
 ```shell
 sudo apt install hazelcast
