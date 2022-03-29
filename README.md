@@ -92,6 +92,33 @@ or Hazelcast Enterprise (license required)
 brew install hazelcast-enterprise
 ```
 
+## Upgrading
+
+Use default commands of your package manager to perform the upgrade of the installed hazelcast package 
+(e.g. `hazelcast`, `hazelcast-enterprise`,`hazelcast-snapshot`,`hazelcast-beta`,`hazelcast-5.0` etc.)
+
+NOTE: Upgrades from `5.2021.x.y` to newer `5.x.y` versions are not supported. 
+Remove the older package first and then install the newer one.
+
+### Upgrade with apt
+
+```shell
+sudo apt update
+sudo apt install <installed-hazelcast-package>
+```
+
+### Upgrade with yum/dnf/microdnf
+
+```shell
+sudo yum update <installed-hazelcast-package>
+```
+
+### Upgrade with Homebrew
+
+```shell
+brew install <installed-hazelcast-package>
+```
+
 ## Installing an older version and preventing upgrades
 
 NOTE: The same steps apply to `hazelcast` and `hazelcast-enterprise` packages
