@@ -1,6 +1,6 @@
 Package: ${HZ_DISTRIBUTION}
 Source: hazelcast
-Version: ${PACKAGE_VERSION}
+Version: 1:${PACKAGE_VERSION}
 Section: imdg
 Priority: optional
 Architecture: all
