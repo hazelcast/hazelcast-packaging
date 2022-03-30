@@ -67,7 +67,7 @@ echo 'hazelcastDownloadId=rpm' > "%{buildroot}%{_prefix}/lib/hazelcast/lib/hazel
 rm -rf $RPM_BUILD_ROOT
 
 %post
-chown -R hazelcast:hazelcast %{_prefix}/lib/hazelcast/
+find %{_prefix}/lib/hazelcast -not -path "*/logs/*" -exec chown hazelcast:hazelcast {} \;
 mkdir -p %{_prefix}/lib/hazelcast/logs
 chmod 777 %{_prefix}/lib/hazelcast/logs
 %systemd_post %{name}.service
