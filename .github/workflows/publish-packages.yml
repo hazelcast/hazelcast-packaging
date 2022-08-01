@@ -156,7 +156,7 @@ jobs:
   rpm:
     runs-on: ubuntu-latest
     if: ${{ needs.prepare.outputs.package_types == 'all' || needs.prepare.outputs.package_types == 'rpm' }}
-    container: rockylinux:latest
+    container: rockylinux:9
     strategy:
       fail-fast: false
       matrix:
@@ -183,7 +183,7 @@ jobs:
 
       - name: Install Required tools
         run: |
-          yum install -y maven rpm-sign rpm-build wget
+          yum install -y maven rpm-sign rpm-build wget gettext
 
       - name: Download the distribution tar.gz file
         run: |
