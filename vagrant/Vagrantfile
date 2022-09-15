@@ -1,0 +1,45 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+machines = [
+    {
+        :name => "fedora",
+        :sys => "generic/fedora36",
+        :ram => "2048",
+        :repoCommand => 'fedora/installRepo.sh',
+        :installCommand => 'sudo yum -y install hazelcast',
+        :installEnterpriseCommand => 'sudo yum -y install hazelcast-enterprise'
+    },
+    {
+        :name => "ubuntu",
+        :name => "ubuntu",
+        :sys => "ubuntu/kinetic64",
+        :ram => "2048",
+        :repoCommand => 'ubuntu/installRepo.sh',
+        :installCommand => "sudo apt --assume-yes install hazelcast",
+        :installEnterpriseCommand => 'sudo apt --assume-yes install hazelcast-enterprise'
+    }
+]
+
+Vagrant.configure("2") do |config|
+  machines.each do |machine|
+    config.vm.define machine[:name] do |machineConf|
+        machineConf.vm.box = machine[:sys]
+        machineConf.vm.hostname = machine[:name]
+
+        machineConf.vm.provider :virtualbox do |vb|
+            vb.customize [
+                "modifyvm", :id,
+                "--memory", machine[:ram].to_s,
+                "--cpus", '2',
+                "--name", machine[:name]
+            ]
+            vb.gui = true
+          end
+
+        machineConf.vm.provision "shell", :privileged => false, path: machine[:repoCommand]
+        machineConf.vm.provision "shell", :privileged => false, inline: machine[:installCommand]
+        machineConf.vm.provision "shell", :privileged => false, inline: 'hz start &'
+    end
+  end
+end
