@@ -19,3 +19,4 @@ diagnostics-*.log
 distro/build/
 distro/lib/
 build/
+.vagrant/
