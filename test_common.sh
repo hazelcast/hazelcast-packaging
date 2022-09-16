@@ -78,7 +78,7 @@ function assertMinorVersion {
 log_header "Tests for HZ_MINOR_VERSION"
 assertMinorVersion "5.2-SNAPSHOT" "5.2-SNAPSHOT"
 assertMinorVersion "5.2.0-SNAPSHOT" "5.2.0-SNAPSHOT"
-assertMinorVersion "5.2.1-SNAPSHOT" "5.2.1-SNAPSHOT"
+assertMinorVersion "5.2.0-BETA-1" "5.2.0-BETA-1"
 assertMinorVersion "5.10" "5.10"
 assertMinorVersion "5.10.1" "5.10"
 assertMinorVersion "5.0" "5.0"

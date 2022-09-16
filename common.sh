@@ -12,9 +12,13 @@ if [[ "$HZ_VERSION" == *"BETA"* ]]; then
 fi
 export PACKAGE_REPO=$RELEASE_TYPE
 
-# Extract minor version from HZ_VERSION, works also for 5.10 etc..
-# -d'.' splits by delimiter, -f selects first two components
-HZ_MINOR_VERSION=$(echo "${HZ_VERSION}" | cut -f1,2 -d'.')
+if [[ "$HZ_VERSION" == *"-"* ]]; then
+  HZ_MINOR_VERSION="${HZ_VERSION}"
+else
+  # Extract minor version from HZ_VERSION, works also for 5.10 etc..
+  # -d'.' splits by delimiter, -f selects first two components
+  HZ_MINOR_VERSION=$(echo "${HZ_VERSION}" | cut -f1,2 -d'.')
+fi
 export HZ_MINOR_VERSION
 
 # Extract release version from package version - release version is the version part specific to the package
