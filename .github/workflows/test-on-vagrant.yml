@@ -11,16 +11,6 @@ jobs:
   prepare:
     runs-on: macos-10.15
 
-    strategy:
-      fail-fast: false
-      matrix:
-        hz_distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
-        linux_distribution: [ 'fedora', 'ubuntu' ]
-    env:
-      HZ_DISTRIBUTION: ${{ matrix.hz_distribution }}
-      LINUX_DISTRIBUTION: ${{ matrix.linux_distribution }}
-      VAGRANT_CWD: ${{ github.workspace }}/hazelcast-packaging/vagrant
-
     defaults:
       run:
         working-directory: ./hazelcast-packaging
@@ -39,23 +29,36 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-vagrant-
 
-      - name: Move to Vagrant folder
-        run: cd vagrant
-
-      - name: Tell Vagrant folder
-        run: pwd
-
-      - name: List files
-        run: ls -la
-
       - name: Show Vagrant version
         run: vagrant --version
 
       - name: Run Vagrant up
         run: vagrant up
 
-      - name: install Hazelcast distribution ${{ env.HZ_DISTRIBUTION}} on ${{ env.LINUX_DISTRIBUTION}}
+  test:
+    runs-on: macos-10.15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        hz_distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
+        linux_distribution: [ 'fedora', 'ubuntu' ]
+    env:
+      HZ_DISTRIBUTION: ${{ matrix.hz_distribution }}
+      LINUX_DISTRIBUTION: ${{ matrix.linux_distribution }}
+      VAGRANT_CWD: ${{ github.workspace }}/hazelcast-packaging/vagrant
+
+    steps:
+      - name: Install Hazelcast distribution ${{ matrix.hz_distribution }} on ${{ matrix.linux_distribution }}
         run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -C 'sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}'
 
-      - name: check health
+      - name: Run Hazelcast ${{ matrix.hz_distribution }} on ${{ matrix.linux_distribution }}
+        run: |
+          vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -C \
+            'HAZELCAST_CONFIG="~/hz-config.yaml" hz-start > hz.log 2>&1 &'
+
+      - name: Wait for cluster to be up
+        run: ./check-hazelcast-health.sh
+
+      - name: check health via script
         run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -C 'hz-healthcheck'
