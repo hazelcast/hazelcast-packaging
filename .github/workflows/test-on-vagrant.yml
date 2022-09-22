@@ -38,6 +38,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-vagrant-
 
+      - name: Move to Vagrant folder
+        run: cd vagrant
+
       - name: Show Vagrant version
         run: vagrant --version
 
