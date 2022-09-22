@@ -19,7 +19,7 @@ jobs:
     env:
       HZ_DISTRIBUTION: ${{ matrix.hz_distribution }}
       LINUX_DISTRIBUTION: ${{ matrix.linux_distribution }}
-      VAGRANT_CWD: ${{ env.GITHUB_WORKSPACE }}/vagrant
+      VAGRANT_CWD: ${{ github.workspace }}/vagrant
 
     defaults:
       run:
