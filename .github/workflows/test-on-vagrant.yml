@@ -41,6 +41,12 @@ jobs:
       - name: Move to Vagrant folder
         run: cd vagrant
 
+      - name: Tell Vagrant folder
+        run: pwd
+
+      - name: List files
+        run: ls -la
+
       - name: Show Vagrant version
         run: vagrant --version
 
