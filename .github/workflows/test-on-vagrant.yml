@@ -43,7 +43,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./hazelcast-packaging
+        working-directory: hazelcast-packaging
 
     strategy:
       fail-fast: false
