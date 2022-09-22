@@ -37,7 +37,7 @@ Vagrant.configure("2") do |config|
             vb.gui = true
           end
 
-        machineConf.vm.provision "file", source: "./config/integration-test-hazelcast.yaml", destination: "hz-config.yaml"
+        machineConf.vm.provision "file", source: "../config/integration-test-hazelcast.yaml", destination: "hz-config.yaml"
         machineConf.vm.provision "shell", :privileged => false, path: machine[:repoCommand]
         machineConf.vm.provision "shell", :privileged => false, inline: machine[:installCommand]
     end
