@@ -53,9 +53,12 @@ jobs:
     env:
       HZ_DISTRIBUTION: ${{ matrix.hz_distribution }}
       LINUX_DISTRIBUTION: ${{ matrix.linux_distribution }}
-      VAGRANT_CWD: ${{ github.workspace }}/hazelcast-packaging/vagrant
+      VAGRANT_CWD: ${{ github.workspace }}/vagrant
 
     steps:
+      - name: Debug LS
+        run: ls -la
+
       - name: Install Hazelcast distribution ${{ matrix.hz_distribution }} on ${{ matrix.linux_distribution }}
         run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -C 'sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}'
 
