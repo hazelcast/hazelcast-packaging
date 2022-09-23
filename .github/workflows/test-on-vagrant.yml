@@ -67,9 +67,6 @@ jobs:
       - name: Run Vagrant machine ${{ env.LINUX_DISTRIBUTION}}
         run: vagrant up ${{ env.LINUX_DISTRIBUTION}}
 
-      - name: Install Hazelcast distribution ${{ matrix.hz_distribution }} on ${{ matrix.linux_distribution }}
-        run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}'
-
       - name: Run Hazelcast ${{ matrix.hz_distribution }} on ${{ matrix.linux_distribution }}
         run: |
           vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c \
