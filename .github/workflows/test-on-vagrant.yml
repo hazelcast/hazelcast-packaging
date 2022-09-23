@@ -70,7 +70,7 @@ jobs:
       - name: Run Hazelcast ${{ matrix.hz_distribution }} on ${{ matrix.linux_distribution }}
         run: |
           vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c \
-            'HAZELCAST_CONFIG="~/hz-config.yaml" hz-start > hz.log 2>&1 &'
+            'HAZELCAST_CONFIG="~/hz-config.yaml" hz-start > ~/hz.log 2>&1 &'
 
       - name: Wait for cluster to be up
         run: ./check-hazelcast-health.sh
