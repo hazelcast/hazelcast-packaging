@@ -84,7 +84,7 @@ jobs:
 
 
   postTest:
-    runs-on: macos-10.15
+    runs-on: macos-12
     needs: [test]
 
     defaults:
