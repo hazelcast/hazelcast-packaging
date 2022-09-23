@@ -62,15 +62,15 @@ jobs:
           path: 'hazelcast-packaging'
 
       - name: Install Hazelcast distribution ${{ matrix.hz_distribution }} on ${{ matrix.linux_distribution }}
-        run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -C 'sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}'
+        run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}'
 
       - name: Run Hazelcast ${{ matrix.hz_distribution }} on ${{ matrix.linux_distribution }}
         run: |
-          vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -C \
+          vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c \
             'HAZELCAST_CONFIG="~/hz-config.yaml" hz-start > hz.log 2>&1 &'
 
       - name: Wait for cluster to be up
         run: ./check-hazelcast-health.sh
 
       - name: check health via script
-        run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -C 'hz-healthcheck'
+        run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'hz-healthcheck'
