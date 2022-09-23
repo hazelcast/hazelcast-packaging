@@ -41,6 +41,10 @@ jobs:
     runs-on: macos-10.15
     needs: [prepare]
 
+    defaults:
+      run:
+        working-directory: ./hazelcast-packaging
+
     strategy:
       fail-fast: false
       matrix:
@@ -52,8 +56,10 @@ jobs:
       VAGRANT_CWD: ${{ github.workspace }}/vagrant
 
     steps:
-      - name: Debug LS
-        run: ls -la
+      - name: Checkout hazelcast-packaging repo
+        uses: actions/checkout@v2.3.2
+        with:
+          path: 'hazelcast-packaging'
 
       - name: Install Hazelcast distribution ${{ matrix.hz_distribution }} on ${{ matrix.linux_distribution }}
         run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -C 'sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}'
