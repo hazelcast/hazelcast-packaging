@@ -9,7 +9,7 @@ on:
 
 jobs:
   prepare:
-    runs-on: macos-10.15
+    runs-on: macos-12
     env:
       VAGRANT_CWD: ${{ github.workspace }}/hazelcast-packaging/vagrant
 
@@ -41,7 +41,7 @@ jobs:
         run: vagrant halt
 
   test:
-    runs-on: macos-10.15
+    runs-on: macos-12
     needs: [prepare]
 
     defaults:
