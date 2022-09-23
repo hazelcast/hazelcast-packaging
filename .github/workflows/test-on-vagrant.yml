@@ -34,8 +34,11 @@ jobs:
       - name: Show Vagrant version
         run: vagrant --version
 
-      - name: Run Vagrant up
+      - name: Run Vagrant up to cache machines
         run: vagrant up
+
+      - name: Run Vagrant halt
+        run: vagrant halt
 
   test:
     runs-on: macos-10.15
@@ -61,6 +64,9 @@ jobs:
         with:
           path: 'hazelcast-packaging'
 
+      - name: Run Vagrant machine ${{ env.LINUX_DISTRIBUTION}}
+        run: vagrant up ${{ env.LINUX_DISTRIBUTION}}
+
       - name: Install Hazelcast distribution ${{ matrix.hz_distribution }} on ${{ matrix.linux_distribution }}
         run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}'
 
@@ -74,3 +80,19 @@ jobs:
 
       - name: check health via script
         run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'hz-healthcheck'
+
+      - name: stop machine
+        run: vagrant halt ${{ env.LINUX_DISTRIBUTION}}
+
+
+  postTest:
+    runs-on: macos-10.15
+    needs: [test]
+
+    defaults:
+      run:
+        working-directory: ./hazelcast-packaging
+
+    steps:
+      - name: Destroy Vagrant environments if still running
+        run: vagrant destroy
