@@ -73,7 +73,8 @@ jobs:
             'HAZELCAST_CONFIG="~/hz-config.yaml" hz-start > ~/hz.log 2>&1 &'
 
       - name: Wait for cluster to be up
-        run: ./check-hazelcast-health.sh
+        run: |
+          vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c '~/check-hazelcast-health.sh'
 
       - name: check health via script
         run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'hz-healthcheck'
