@@ -9,7 +9,14 @@ on:
 
 jobs:
   prepare:
-    uses: hazelcast/hazelcast-packaging/.github/workflows/publish-packages.yaml
+    runs-on: macos-12
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2.3.2
+        with:
+          path: 'hazelcast-packaging'
+      - name: publish
+        uses: .github/workflows/publish-packages.yaml
 
   buildVagrant:
     runs-on: macos-12
