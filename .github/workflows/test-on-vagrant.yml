@@ -16,7 +16,7 @@ jobs:
         with:
           path: 'hazelcast-packaging'
       - name: publish
-        uses: .github/workflows/publish-packages.yaml
+        uses: ./.github/workflows/publish-packages.yaml
 
   buildVagrant:
     runs-on: macos-12
