@@ -9,6 +9,9 @@ on:
 
 jobs:
   prepare:
+    uses: hazelcast/hazelcast-packaging/.github/workflows/publish-packages.yaml
+
+  buildVagrant:
     runs-on: macos-12
     env:
       VAGRANT_CWD: ${{ github.workspace }}/hazelcast-packaging/vagrant
@@ -42,11 +45,13 @@ jobs:
 
   test:
     runs-on: macos-12
-    needs: [prepare]
+    needs: [buildVagrant]
 
     defaults:
       run:
         working-directory: ./hazelcast-packaging
+
+    continue-on-error: true
 
     strategy:
       fail-fast: false
@@ -81,16 +86,3 @@ jobs:
 
       - name: stop machine
         run: vagrant halt ${{ env.LINUX_DISTRIBUTION}}
-
-
-  postTest:
-    runs-on: macos-12
-    needs: [test]
-
-    defaults:
-      run:
-        working-directory: ./hazelcast-packaging
-
-    steps:
-      - name: Destroy Vagrant environments if still running
-        run: vagrant destroy
