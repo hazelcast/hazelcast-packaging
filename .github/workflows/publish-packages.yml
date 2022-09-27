@@ -385,7 +385,9 @@ jobs:
             ${{ runner.os }}-vagrant-
 
       - name: Run Vagrant machine ${{ env.LINUX_DISTRIBUTION}}
-        run: vagrant up ${{ env.LINUX_DISTRIBUTION}}
+        run: |
+          source ./common.sh
+          vagrant up ${{ env.LINUX_DISTRIBUTION}}
 
       - name: Run Hazelcast ${{ matrix.hz_distribution }} on ${{ matrix.linux_distribution }}
         run: |
