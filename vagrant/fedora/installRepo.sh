@@ -3,9 +3,9 @@
 # note: fedora has no wget by default (strange, yeah), so it's additional query beside those mentioned in repo
 sudo yum -y install wget
 
-local repoName="$1"
+repoName="$1"
 
-local packageVersion='stable'
+packageVersion='stable'
 if [ "$2" ]; then
   packageVersion="$2"
 fi
