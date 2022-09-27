@@ -376,6 +376,14 @@ jobs:
         with:
           path: 'hazelcast-packaging'
 
+      - name: Cache Vagrant boxes
+        uses: actions/cache@v2
+        with:
+          path: ~/.vagrant.d/boxes
+          key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
+          restore-keys: |
+            ${{ runner.os }}-vagrant-
+
       - name: Run Vagrant machine ${{ env.LINUX_DISTRIBUTION}}
         run: vagrant up ${{ env.LINUX_DISTRIBUTION}}
 
