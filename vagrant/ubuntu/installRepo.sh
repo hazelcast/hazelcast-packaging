@@ -1,7 +1,7 @@
 #!/bin/bash
 
 local packageVersion='stable'
-if [ -z "${PACKAGE_VERSION}" ]; then
+if [ "${PACKAGE_VERSION}" ]; then
   packageVersion="$PACKAGE_VERSION"
 fi
 
