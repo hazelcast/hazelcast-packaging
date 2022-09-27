@@ -45,7 +45,7 @@ Vagrant.configure("2") do |config|
         machineConf.vm.provision "shell" do |s|
             s.privileged = false
             s.path = machine[:repoCommand]
-            s.args = [ ENV[machine[:repoEnvName]], ENV['PACKAGE_VERSION'] ]
+            s.args = [ ENV[machine[:repoEnvName]], ENV['PACKAGE_REPO'] ]
         end
         machineConf.vm.provision "shell", :privileged => false, inline: machine[:installCommand]
     end
