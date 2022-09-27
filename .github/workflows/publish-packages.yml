@@ -350,7 +350,7 @@ jobs:
 
   testOnVagrant:
     runs-on: macos-12
-    needs: [buildVagrant]
+    needs: [prepare, buildVagrant]
 
     defaults:
       run:
@@ -367,6 +367,8 @@ jobs:
       HZ_DISTRIBUTION: ${{ matrix.hz_distribution }}
       LINUX_DISTRIBUTION: ${{ matrix.linux_distribution }}
       VAGRANT_CWD: ${{ github.workspace }}/hazelcast-packaging/vagrant
+      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
+      PACKAGE_VERSION: ${{ needs.prepare.outputs.package_version }}
 
     steps:
       - name: Checkout hazelcast-packaging repo
