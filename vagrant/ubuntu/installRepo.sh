@@ -1,8 +1,8 @@
 #!/bin/bash
 
 local packageVersion='stable'
-if [ "${PACKAGE_VERSION}" ]; then
-  packageVersion="$PACKAGE_VERSION"
+if [ "$1" ]; then
+  packageVersion="$1"
 fi
 
 wget -qO - https://repository.hazelcast.com/api/gpg/key/public | gpg --dearmor | sudo tee /usr/share/keyrings/hazelcast-archive-keyring.gpg > /dev/null

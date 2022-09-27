@@ -40,7 +40,7 @@ Vagrant.configure("2") do |config|
         machineConf.vm.provision "file", source: "../config/integration-test-hazelcast.yaml", destination: "~/hz-config.yaml"
         machineConf.vm.provision "file", source: "../check-hazelcast-health.sh", destination: "~/check-hazelcast-health.sh"
         machineConf.vm.provision "shell", :privileged => false, inline: "chmod +x ~/check-hazelcast-health.sh"
-        machineConf.vm.provision "shell", :privileged => false, path: machine[:repoCommand]
+        machineConf.vm.provision "shell", :privileged => false, path: machine[:repoCommand], args: ENV['PACKAGE_VERSION']
         machineConf.vm.provision "shell", :privileged => false, inline: machine[:installCommand]
     end
   end

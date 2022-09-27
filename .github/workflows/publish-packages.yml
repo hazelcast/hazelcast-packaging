@@ -332,6 +332,8 @@ jobs:
     needs: [ prepare, rpm, deb ]
     env:
       VAGRANT_CWD: ${{ github.workspace }}/hazelcast-packaging/vagrant
+      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
+      PACKAGE_VERSION: ${{ needs.prepare.outputs.package_version }}
 
     defaults:
       run:
@@ -352,7 +354,10 @@ jobs:
             ${{ runner.os }}-vagrant-
 
       - name: Show Vagrant version
-        run: vagrant --version
+        run: |
+          source ./common.sh
+          
+          vagrant --version
 
       - name: Run Vagrant up to cache machines
         run: vagrant up
