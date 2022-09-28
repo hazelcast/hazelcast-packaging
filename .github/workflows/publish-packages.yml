@@ -1,7 +1,6 @@
 name: Publish Hazelcast OS & EE packages
 
 on:
-  workflow_call:
   push:
     # Push to master updates the latest snapshot (HZ_VERSION taken from pom.xml)
     branches:
