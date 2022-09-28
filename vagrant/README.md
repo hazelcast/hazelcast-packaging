@@ -19,9 +19,12 @@ Currently only `x86_64` architecture is supported.
 ## Usage
 
 To run virtual machines, simply run in command line:
-`vagrant up`
+`vagrant up`, 2 virtual machines will run. To launch only one machine,
+use `vagrant up machine_name`, eg. `vagrant up fedora`.
 
-2 virtual machines will run. Default user and password is `vagrant`.
+Default user and password is `vagrant`.
+
+You can connect to machine using `vagrant ssh machine_name -c command`
 
 In order to close VMs, you can run `vagrant halt`.
 
