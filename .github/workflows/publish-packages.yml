@@ -403,3 +403,41 @@ jobs:
 
       - name: stop machine
         run: vagrant halt ${{ env.LINUX_DISTRIBUTION}}
+
+  cleanup:
+    runs-on: ubuntu-latest
+    if: always()
+    container: rockylinux:9
+    strategy:
+      fail-fast: false
+      matrix:
+        distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
+    env:
+      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
+      PACKAGE_VERSION: ${{ needs.prepare.outputs.package_version }}
+      HZ_DISTRIBUTION: ${{ matrix.distribution }}
+    defaults:
+      run:
+        working-directory: ./hazelcast-packaging
+    needs: [ prepare, testOnVagrant ]
+    steps:
+      - name: Checkout hazelcast-packaging repo
+        uses: actions/checkout@v2.3.2
+        with:
+          path: 'hazelcast-packaging'
+
+      - name: Remove deb package from test repo
+        if: github.event_name == 'pull_request'
+        run: |
+          source ./common.sh
+          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
+            -X DELETE \
+            "$DEBIAN_REPO_BASE_URL/${HZ_DISTRIBUTION}-${DEB_PACKAGE_VERSION}-all.deb"
+
+      - name: Remove rpm package from test repo
+        if: github.event_name == 'pull_request'
+        run: |
+          source ./common.sh
+          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
+            -X DELETE \
+            "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
