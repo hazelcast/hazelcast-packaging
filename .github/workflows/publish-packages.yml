@@ -375,7 +375,7 @@ jobs:
         with:
           path: 'hazelcast-packaging'
 
-      - name: Cache Vagrant boxes
+      - name: Use Vagrant box cached in previous job
         uses: actions/cache@v2
         with:
           path: ~/.vagrant.d/boxes
