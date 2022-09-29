@@ -400,7 +400,16 @@ jobs:
       - name: check health via script
         run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'hz-healthcheck'
 
+      - name: stop Hz via systemctl
+        run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'systemctl stop hazelcast'
+
       - name: check health via systemctl
+        run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'systemctl status hazelcast'
+
+      - name: stop Hz via systemctl
+        run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'systemctl start hazelcast'
+
+      - name: check health via systemctl after restart
         run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'systemctl status hazelcast'
 
       - name: stop machine
