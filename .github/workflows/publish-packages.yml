@@ -412,6 +412,12 @@ jobs:
       - name: check health via systemctl after restart
         run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'sudo systemctl status hazelcast'
 
+      - name: uninstall hazelcast
+        run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c '~/uninstall.sh ${{ HZ_DISTRIBUTION }}'
+
+      - name: check health via systemctl after uninstall
+        run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'sudo systemctl status hazelcast && echo "failed as expected || exit -1"'
+
       - name: stop machine
         run: vagrant halt ${{ env.LINUX_DISTRIBUTION}}
 
