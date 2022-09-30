@@ -350,15 +350,14 @@ jobs:
   testOnVagrant:
     runs-on: macos-12
     needs: [prepare, buildVagrant]
-
     defaults:
       run:
         working-directory: ./hazelcast-packaging
 
     continue-on-error: true
-
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         hz_distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
         linux_distribution: [ 'fedora', 'ubuntu' ]
@@ -388,7 +387,10 @@ jobs:
           source ./common.sh
           vagrant up ${{ env.LINUX_DISTRIBUTION}}
 
-      - name: Run Hazelcast ${{ matrix.hz_distribution }} on ${{ matrix.linux_distribution }}
+      - name: install ${{ matrix.hz_distribution }} on ${{ matrix.linux_distribution }}
+        run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c "~/install.sh ${{ env.HZ_DISTRIBUTION }}"
+
+      - name: Run ${{ matrix.hz_distribution }} on ${{ matrix.linux_distribution }}
         run: |
           vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c \
             'HAZELCAST_CONFIG="/home/vagrant/hz-config.yaml" hz-start > ~/hz.log 2>&1 &'
