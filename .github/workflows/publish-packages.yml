@@ -406,10 +406,7 @@ jobs:
       - name: stop Hz via systemctl
         run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'sudo systemctl stop hazelcast'
 
-      - name: check health via systemctl
-        run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'sudo systemctl status hazelcast'
-
-      - name: stop Hz via systemctl
+      - name: start Hz via systemctl
         run: vagrant ssh ${{ env.LINUX_DISTRIBUTION}} -c 'sudo systemctl start hazelcast'
 
       - name: check health via systemctl after restart
