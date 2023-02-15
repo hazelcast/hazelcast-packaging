@@ -183,7 +183,7 @@ jobs:
 
       - name: Install Required tools
         run: |
-          yum install -y maven rpm-sign rpm-build wget gettext
+          yum install -y maven rpm-sign rpm-build wget gettext systemd-rpm-macros
 
       - name: Download the distribution tar.gz file
         run: |
