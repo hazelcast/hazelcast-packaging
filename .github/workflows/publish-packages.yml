@@ -31,7 +31,7 @@ on:
 env:
   EVENT_NAME: ${{ github.event_name }}
   PUBLISH: "true"
-  ARTIFACTORY_SECRET: ${{ secrets.ARTIFACTORY_SECRET }}
+  JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
   DEVOPS_PRIVATE_KEY: ${{ secrets.DEVOPS_PRIVATE_KEY }}
   BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
   HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
@@ -125,7 +125,7 @@ jobs:
         run: |
           source common.sh
 
-          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
+          curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" \
             -X POST "https://repository.hazelcast.com/api/deb/reindex/${DEBIAN_REPO}"
 
       - name: Install Hazelcast from deb
@@ -149,7 +149,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           source ./common.sh
-          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
+          curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" \
             -X DELETE \
             "$DEBIAN_REPO_BASE_URL/${HZ_DISTRIBUTION}-${DEB_PACKAGE_VERSION}-all.deb"
 
@@ -200,7 +200,7 @@ jobs:
           ls -lah
           source ./common.sh
 
-          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
+          curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" \
             -X POST "https://repository.hazelcast.com/api/yum/${RPM_REPO}"
 
       - name: Install Hazelcast from rpm
@@ -224,7 +224,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           source ./common.sh
-          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
+          curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" \
             -X DELETE \
             "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
 

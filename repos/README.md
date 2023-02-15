@@ -7,6 +7,6 @@ structure).
 Upload the file to artifactory:
 
 ```
-curl -H "Authorization: Bearer ${ARTIFACTORY_SECRET}" -Thazelcast-rpm-stable.repo -X PUT "https://repository.hazelcast.com/rpm-local/stable/"
+curl -H "Authorization: Bearer ${JFROG_TOKEN}" -Thazelcast-rpm-stable.repo -X PUT "https://repository.hazelcast.com/rpm-local/stable/"
 ```
 
