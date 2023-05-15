@@ -71,7 +71,7 @@ jobs:
             HZ_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           fi
           echo "HZ_VERSION=$HZ_VERSION" >> $GITHUB_ENV
-          echo ::set-output name=hz_version::$HZ_VERSION
+          echo "hz_version=$HZ_VERSION" >> $GITHUB_OUTPUT
 
       - name: Set PACKAGE_VERSION
         id: package_version
@@ -84,7 +84,7 @@ jobs:
             PACKAGE_VERSION=${{ env.HZ_VERSION }}
           fi
           echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
-          echo ::set-output name=package_version::$PACKAGE_VERSION
+          echo "package_version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
 
   deb:
     runs-on: ubuntu-latest
