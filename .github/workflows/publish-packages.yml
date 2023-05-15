@@ -62,7 +62,6 @@ jobs:
         with:
           java-version: '8'
           distribution: 'temurin'
-          cache: 'maven'
 
       - name: Set HZ_VERSION
         id: hz_version
@@ -112,7 +111,6 @@ jobs:
         with:
           java-version: '8'
           distribution: 'temurin'
-          cache: 'maven'
 
       - name: Download the distribution tar.gz file
         run: |
