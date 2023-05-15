@@ -145,14 +145,6 @@ jobs:
           source ./common.sh
           sudo apt remove ${{ env.HZ_DISTRIBUTION}}
 
-      - name: Remove deb package from test repo
-        if: github.event_name == 'pull_request'
-        run: |
-          source ./common.sh
-          curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" \
-            -X DELETE \
-            "$DEBIAN_REPO_BASE_URL/${HZ_DISTRIBUTION}-${DEB_PACKAGE_VERSION}-all.deb"
-
   rpm:
     runs-on: ubuntu-latest
     if: ${{ needs.prepare.outputs.package_types == 'all' || needs.prepare.outputs.package_types == 'rpm' }}
@@ -219,14 +211,6 @@ jobs:
         run: |
           source ./common.sh
           yum remove -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
-
-      - name: Remove rpm package from test repo
-        if: github.event_name == 'pull_request'
-        run: |
-          source ./common.sh
-          curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" \
-            -X DELETE \
-            "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
 
   homebrew:
     runs-on: macos-latest
@@ -468,7 +452,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           source ./common.sh
-          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
+          curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" \
             -X DELETE \
             "$DEBIAN_REPO_BASE_URL/${HZ_DISTRIBUTION}-${DEB_PACKAGE_VERSION}-all.deb"
 
@@ -476,6 +460,6 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           source ./common.sh
-          curl -H "Authorization: Bearer ${{ secrets.ARTIFACTORY_SECRET }}" \
+          curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" \
             -X DELETE \
             "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
