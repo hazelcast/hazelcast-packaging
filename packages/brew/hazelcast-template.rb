@@ -4,7 +4,7 @@ class HazelcastAT5X < Formula
     url "https://github.com/hazelcast/hazelcast-command-line/releases/download/v5.2021.07.1/hazelcast-5.0-BETA-1.tar.gz"
     sha256 "f108d22a1aec61bbd637f89ff522af7d9861ef13afcfad24a5095127f04f091d"
 
-    depends_on "openjdk" => :recommended
+    depends_on "openjdk@21" => :recommended
 
     def install
       libexec.install Dir["*"]
