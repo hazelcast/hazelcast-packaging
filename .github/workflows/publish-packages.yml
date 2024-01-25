@@ -62,8 +62,8 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          java-version: $JAVA_VERSION
-          distribution: $JAVA_DISTRIBUTION
+          java-version: ${{ JAVA_VERSION }}
+          distribution: ${{ JAVA_DISTRIBUTION }}
 
       - name: Set HZ_VERSION
         id: hz_version
@@ -111,8 +111,8 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          java-version: $JAVA_VERSION
-          distribution: $JAVA_DISTRIBUTION
+          java-version: ${{ JAVA_VERSION }}
+          distribution: ${{ JAVA_DISTRIBUTION }}
 
       - name: Download the distribution tar.gz file
         run: |
@@ -180,8 +180,8 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          java-version: $JAVA_VERSION
-          distribution: $JAVA_DISTRIBUTION
+          java-version: ${{ JAVA_VERSION }}
+          distribution: ${{ JAVA_DISTRIBUTION }}
 
       - name: Install Required tools
         run: |
@@ -269,8 +269,8 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          java-version: $JAVA_VERSION
-          distribution: $JAVA_DISTRIBUTION
+          java-version: ${{ JAVA_VERSION }}
+          distribution: ${{ JAVA_DISTRIBUTION }}
 
       - name: Download the distribution tar.gz file
         run: |
