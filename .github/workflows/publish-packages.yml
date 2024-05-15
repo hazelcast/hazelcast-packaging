@@ -81,7 +81,7 @@ jobs:
       - name: Check if OSS should be built
         id: should_build_oss_step
         run: |
-          . .github/scripts/build.functions.sh
+          . .github/workflows/build.functions.sh
           
           hz_version_oss=${{ env.HZ_VERSION_OSS }}
           hz_version_ee=${{ env.HZ_VERSION_EE }}
