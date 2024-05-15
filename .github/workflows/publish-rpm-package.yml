@@ -14,7 +14,7 @@ on:
       USE_TEST_REPO:
         description: 'Use test repo for publishing'
         required: true
-        type: boolean
+        type: string
       PACKAGE_VERSION:
         description: 'Version of the package e.g. 5.1.1, 5.1.1-1, defaults to HZ_VERSION'
         type: string
