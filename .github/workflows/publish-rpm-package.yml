@@ -41,10 +41,14 @@ jobs:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v4
 
+      - name: Load env vars from .env file
+        run: cat .env >> $GITHUB_ENV
+
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          java-version-file: .java-version
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
 
       - name: Install Required tools
         run: |

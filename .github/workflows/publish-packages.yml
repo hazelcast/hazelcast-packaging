@@ -32,8 +32,6 @@ on:
 
 env:
   EVENT_NAME: ${{ github.event_name }}
-  JAVA_VERSION: "21"
-  JAVA_DISTRIBUTION: "temurin"
 
 # Constant for now - should ensure single build, maybe we can limit this to something from github.*
 concurrency: single-build
@@ -56,6 +54,9 @@ jobs:
     steps:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v4
+
+      - name: Load env vars from .env file
+        run: cat .env >> $GITHUB_ENV
 
       - name: Test scripts
         run: |
