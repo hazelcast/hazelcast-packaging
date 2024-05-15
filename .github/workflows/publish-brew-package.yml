@@ -1,0 +1,112 @@
+name: Publish BREW package
+
+on:
+  workflow_call:
+    inputs:
+      HZ_VERSION:
+        description: 'Version of Hazelcast to build the image for, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
+        required: true
+        type: string
+      HZ_DISTRIBUTION:
+        description: 'Distribution to be built: hazelcast or hazelcast-enterprise'
+        required: true
+        type: string
+      USE_TEST_REPO:
+        description: 'Use test repo for publishing'
+        required: true
+        type: boolean
+      PACKAGE_VERSION:
+        description: 'Version of the package e.g. 5.1.1, 5.1.1-1, defaults to HZ_VERSION'
+        type: string
+
+# Constant for now - should ensure single build, maybe we can limit this to something from github.*
+concurrency: single-build
+
+jobs:
+  homebrew:
+    runs-on: macos-latest
+    env:
+      HZ_VERSION: ${{ inputs.HZ_VERSION }}
+      PACKAGE_VERSION: ${{ inputs.PACKAGE_VERSION || inputs.HZ_VERSION }}
+      HZ_DISTRIBUTION: ${{ inputs.HZ_DISTRIBUTION }}
+      PUBLISH: "true"
+      USE_TEST_REPO: ${{ inputs.USE_TEST_REPO }}
+    steps:
+      - name: Checkout hazelcast-packaging repo
+        uses: actions/checkout@v4
+
+      - name: Install up-to-date tools
+        run: |
+          brew install gnu-sed
+          brew install coreutils
+
+          PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+          sed --version
+          PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+          sha256sum --version
+          echo "PATH=/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:$PATH" >> $GITHUB_ENV
+
+      - name: Run script tests
+        run: |
+          ./test.sh
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version-file: .java-version
+
+      - name: Download the distribution tar.gz file
+        run: |
+          HZ_PACKAGE_URL=$(mvn --batch-mode dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz -DoutputDirectory=./ -Dmdep.useBaseVersion=true | grep 'Downloaded from' | grep -Eo "https://[^ >]+${HZ_DISTRIBUTION}-distribution-.*.tar.gz")
+          echo "HZ_PACKAGE_URL=$HZ_PACKAGE_URL" >> $GITHUB_ENV
+
+      - name: Get homebrew repository
+        run: |
+          source ./common.sh
+          echo "BREW_GIT_REPO_NAME=${BREW_GIT_REPO_NAME}" >> $GITHUB_ENV
+
+      - name: Checkout homebrew-hz repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.BREW_GIT_REPO_NAME }}
+          ref: master
+          token: ${{ secrets.DEVOPS_SECRET }}
+          path: 'homebrew-hz'
+
+      - name: Change the artifact in homebrew-hz
+        run: |
+          ./build-hazelcast-homebrew-package.sh
+
+      - name: Commit changes & Push to homebrew-hz repo
+        run: |
+          source common.sh
+
+          cd homebrew-hz
+          git config --global user.name 'devOpsHazelcast'
+          git config --global user.email 'devops@hazelcast.com'
+          git add *.rb
+          if [[ `git status --porcelain --untracked-files=no` ]]; then
+            git commit -am "Hazelcast Homebrew Package ${{ env.PACKAGE_VERSION }} release"
+            git pull --rebase
+            git push
+          else
+            echo "No changes, this is probably a re-run."
+          fi
+
+      - name: Install Hazelcast from Homebrew
+        run: |
+          source ./common.sh
+          brew tap ${BREW_TAP_NAME}
+          brew install ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
+
+      - name: Run Hazelcast
+        run: HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
+
+      - name: Check Hazelcast health
+        run: |
+          ./check-hazelcast-health.sh
+
+      - name: Uninstall Hazelcast from homebrew
+        run: |
+          source ./common.sh          
+          brew uninstall ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
