@@ -94,6 +94,8 @@ jobs:
       - name: Check if EE should be built
         id: should_build_ee_step
         run: |
+          . .github/workflows/build.functions.sh
+
           editions=${{ env.EDITIONS }}
           triggered_by=${{ env.EVENT_NAME }}
           
