@@ -25,7 +25,7 @@ env:
   BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
 
 concurrency:
-  group: '${{ github.workflow }}-${{ github.base_ref || github.ref_name}}'
+  group: '${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
 
 jobs:
   rpm:

@@ -20,7 +20,7 @@ on:
         type: string
 
 concurrency:
-  group: '${{ github.workflow }}-${{ github.base_ref || github.ref_name}}'
+  group: '${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
 
 jobs:
   homebrew:
