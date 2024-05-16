@@ -43,11 +43,11 @@ jobs:
           brew install gnu-sed
           brew install coreutils
 
-          PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+          PATH="$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH"
           sed --version
-          PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+          PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
           sha256sum --version
-          echo "PATH=/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:$PATH" >> $GITHUB_ENV
+          echo "PATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH" >> $GITHUB_ENV
 
       - name: Run script tests
         run: |
