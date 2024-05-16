@@ -19,8 +19,8 @@ on:
         description: 'Version of the package e.g. 5.1.1, 5.1.1-1, defaults to HZ_VERSION'
         type: string
 
-# Constant for now - should ensure single build, maybe we can limit this to something from github.*
-concurrency: single-build
+concurrency:
+  group: '${{ github.workflow }}-${{ github.base_ref || github.ref_name}}'
 
 jobs:
   homebrew:

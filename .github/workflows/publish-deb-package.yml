@@ -22,8 +22,8 @@ on:
 env:
   JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
 
-# Constant for now - should ensure single build, maybe we can limit this to something from github.*
-concurrency: single-build
+concurrency:
+  group: '${{ github.workflow }}-${{ github.base_ref || github.ref_name}}'
 
 jobs:
   deb:

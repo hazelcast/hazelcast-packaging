@@ -24,8 +24,8 @@ env:
   DEVOPS_PRIVATE_KEY: ${{ secrets.DEVOPS_PRIVATE_KEY }}
   BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
 
-# Constant for now - should ensure single build, maybe we can limit this to something from github.*
-concurrency: single-build
+concurrency:
+  group: '${{ github.workflow }}-${{ github.base_ref || github.ref_name}}'
 
 jobs:
   rpm:
