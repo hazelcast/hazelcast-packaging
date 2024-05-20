@@ -20,13 +20,13 @@ on:
         - deb
         - rpm
         - homebrew
-      EDITIONS:
-        description: 'Editions to build'
+      RELEASE_TYPE:
+        description: 'Which editions should be built'
         required: true
         default: 'EE'
         type: choice
         options:
-          - All
+          - ALL
           - OSS
           - EE
 
@@ -40,13 +40,13 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     env:
-      EDITIONS: ${{ inputs.EDITIONS || 'EE' }}
+      RELEASE_TYPE: ${{ inputs.RELEASE_TYPE || 'EE' }}
       PACKAGE_TYPES: ${{ inputs.PACKAGE_TYPES || 'all' }}
     outputs:
       hz_version_ee: ${{ steps.hz_version_step.outputs.hz_version_ee }}
       hz_version_oss: ${{ steps.hz_version_step.outputs.hz_version_oss }}
-      should_build_oss: ${{ steps.should_build_oss_step.outputs.should_build_oss }}
-      should_build_ee: ${{ steps.should_build_ee_step.outputs.should_build_ee }}
+      should_build_oss: ${{ steps.which_editions.outputs.should_build_oss }}
+      should_build_ee: ${{ steps.which_editions.outputs.should_build_ee }}
       should_build_deb: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'deb' }}
       should_build_rpm: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'rpm' }}
       should_build_homebrew: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew' }}
@@ -78,29 +78,28 @@ jobs:
           echo "HZ_VERSION_OSS=$HZ_VERSION_OSS" >> $GITHUB_ENV
           echo "hz_version_oss=$HZ_VERSION_OSS" >> $GITHUB_OUTPUT
 
-      - name: Check if OSS should be built
-        id: should_build_oss_step
+      - name: Read release type from the file
+        if: github.event_name != 'workflow_dispatch'
         run: |
-          . .github/workflows/build.functions.sh
-          
-          hz_version_oss=${{ env.HZ_VERSION_OSS }}
-          hz_version_ee=${{ env.HZ_VERSION_EE }}
-          editions=${{ env.EDITIONS }}
-          triggered_by=${{ env.EVENT_NAME }}
-          
-          should_build_oss=$(should_build_oss "$hz_version_oss" "$hz_version_ee" "$triggered_by" "$editions")
-          echo "should_build_oss=${should_build_oss}" >> $GITHUB_OUTPUT
+          RELEASE_TYPE_FILE=.github/release_type
+          if [ -f $RELEASE_TYPE_FILE ]; then
+              echo "RELEASE_TYPE=$(cat $RELEASE_TYPE_FILE)" >> $GITHUB_ENV
+          else
+              echo "File '$RELEASE_TYPE_FILE' does not exist."
+              exit 1
+          fi
 
-      - name: Check if EE should be built
-        id: should_build_ee_step
+      - name: Check which editions should be built
+        id: which_editions
         run: |
-          . .github/workflows/build.functions.sh
-
-          editions=${{ env.EDITIONS }}
-          triggered_by=${{ env.EVENT_NAME }}
+          . .github/scripts/build.functions.sh
           
-          should_build_ee=$(should_build_ee "$triggered_by" "$editions")
+          release_type=${{ env.RELEASE_TYPE }}
+          triggered_by=${{ github.event_name }}
+          should_build_oss = $(should_build_oss "$release_type")
+          should_build_ee = $(should_build_ee "$release_type")
           echo "should_build_ee=${should_build_ee}" >> $GITHUB_OUTPUT
+          echo "should_build_oss=${should_build_oss}" >> $GITHUB_OUTPUT
 
   deb-ee:
     if: needs.prepare.outputs.should_build_deb && needs.prepare.outputs.should_build_ee
