@@ -23,7 +23,7 @@ env:
   JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
 
 concurrency:
-  group: '${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
+  group: 'deb-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
 
 jobs:
   deb:
