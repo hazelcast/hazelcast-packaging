@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -euo pipefail ${RUNNER_DEBUG:+-x}
 
 source common.sh
 
