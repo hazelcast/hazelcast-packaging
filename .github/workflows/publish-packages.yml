@@ -98,7 +98,7 @@ jobs:
       - name: Check which editions should be built
         id: which_editions
         run: |
-          . .github/scripts/build.functions.sh
+          . .github/workflows/build.functions.sh
           
           release_type=${{ env.RELEASE_TYPE }}
           triggered_by=${{ github.event_name }}
