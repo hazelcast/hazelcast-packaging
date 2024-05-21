@@ -6,7 +6,7 @@
 
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-packaging</artifactId>
-    <version>not-used</version>
+    <version>5.5.0-SNAPSHOT</version>
 
     <description>A pom.xml file with repository definitions so we can use maven to fetch tar artifacts.</description>
 
