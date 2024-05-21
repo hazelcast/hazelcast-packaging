@@ -68,15 +68,20 @@ if [ "${PUBLISH}" == "true" ]; then
   DEB_SHA1SUM=$(sha1sum $DEB_FILE | cut -d ' ' -f 1)
   DEB_MD5SUM=$(md5sum $DEB_FILE | cut -d ' ' -f 1)
 
-  # Delete any package that exists - previous version of the same package
-  curl --fail-with-body -H "Authorization: Bearer ${JFROG_TOKEN}" \
-    -X DELETE \
-    "$DEBIAN_REPO_BASE_URL/${DEB_FILE}"
+  PACKAGE_URL="$DEBIAN_REPO_BASE_URL/${DEB_FILE}"
+  HTTP_STATUS=$(curl -o /dev/null --silent --head --write-out '%{http_code}' -H "Authorization: Bearer ${JFROG_TOKEN}" "$PACKAGE_URL")
+
+  if [ "$HTTP_STATUS" -eq 200 ]; then
+    # Delete any package that exists - previous version of the same package
+    curl --fail-with-body -H "Authorization: Bearer ${JFROG_TOKEN}" \
+      -X DELETE \
+      "$PACKAGE_URL"
+  fi
 
   curl --fail-with-body -H "Authorization: Bearer ${JFROG_TOKEN}" -H "X-Checksum-Deploy: false" -H "X-Checksum-Sha256: $DEB_SHA256SUM" \
     -H "X-Checksum-Sha1: $DEB_SHA1SUM" -H "X-Checksum-MD5: $DEB_MD5SUM" \
     -T"$DEB_FILE" \
     -X PUT \
-    "$DEBIAN_REPO_BASE_URL/$DEB_FILE;deb.distribution=${PACKAGE_REPO};deb.component=main;deb.component=${HZ_MINOR_VERSION};deb.architecture=all"
+    "$PACKAGE_URL;deb.distribution=${PACKAGE_REPO};deb.component=main;deb.component=${HZ_MINOR_VERSION};deb.architecture=all"
 
 fi

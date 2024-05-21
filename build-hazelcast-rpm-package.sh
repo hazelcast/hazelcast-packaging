@@ -68,15 +68,21 @@ if [ "${PUBLISH}" == "true" ]; then
   RPM_SHA1SUM=$(sha1sum "build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" | cut -d ' ' -f 1)
   RPM_MD5SUM=$(md5sum "build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" | cut -d ' ' -f 1)
 
-  # Delete any package that exists - previous version of the same package
-  curl --fail-with-body -H "Authorization: Bearer ${JFROG_TOKEN}" \
-    -X DELETE \
-    "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
+
+  PACKAGE_URL="$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
+  HTTP_STATUS=$(curl -o /dev/null --silent --head --write-out '%{http_code}' -H "Authorization: Bearer ${JFROG_TOKEN}" "$PACKAGE_URL")
+
+  if [ "$HTTP_STATUS" -eq 200 ]; then
+    # Delete any package that exists - previous version of the same package
+    curl --fail-with-body -H "Authorization: Bearer ${JFROG_TOKEN}" \
+      -X DELETE \
+      "$PACKAGE_URL"
+  fi
 
   curl --fail-with-body -H "Authorization: Bearer ${JFROG_TOKEN}" -H "X-Checksum-Deploy: false" -H "X-Checksum-Sha256: $RPM_SHA256SUM" \
     -H "X-Checksum-Sha1: $RPM_SHA1SUM" -H "X-Checksum-MD5: $RPM_MD5SUM" \
     -T"build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" \
     -X PUT \
-    "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
+    "$PACKAGE_URL"
 
 fi
