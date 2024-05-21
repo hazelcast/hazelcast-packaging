@@ -23,6 +23,8 @@ function findScriptDir() {
 
 findScriptDir
 
+export USE_TEST_REPO=true
+
 . "$SCRIPT_DIR"/packages/tests-common/assert.sh/assert.sh
 . "$SCRIPT_DIR"/common.sh
 

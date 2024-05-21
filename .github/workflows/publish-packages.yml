@@ -60,7 +60,7 @@ jobs:
 
       - name: Test scripts
         run: |
-          .github/workflows/test_scripts.sh
+          ./test_scripts.sh
 
       - name: Setup JDK
         uses: actions/setup-java@v4

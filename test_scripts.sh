@@ -23,4 +23,4 @@ function findScriptDir() {
 
 findScriptDir
 
-find "$SCRIPT_DIR" -name "test_*.sh" -print0 | xargs -0 -n1 bash
+find "$SCRIPT_DIR" -name "*_tests.sh" -print0 | xargs -0 -n1 bash
