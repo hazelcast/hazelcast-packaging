@@ -10,6 +10,9 @@ on:
     types: [ opened, synchronize, edited ]
   workflow_dispatch:
     inputs:
+      HZ_VERSION:
+        description: 'Version of Hazelcast to build the packages from, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
+        required: true
       PACKAGE_TYPES:
         description: 'Packages to build'
         required: true
@@ -42,6 +45,7 @@ jobs:
     env:
       RELEASE_TYPE: ${{ inputs.RELEASE_TYPE || 'EE' }}
       PACKAGE_TYPES: ${{ inputs.PACKAGE_TYPES || 'all' }}
+      HZ_VERSION: ${{ github.event.inputs.HZ_VERSION }}
     outputs:
       hz_version: ${{ steps.hz_version_step.outputs.hz_version }}
       should_build_oss: ${{ steps.which_editions.outputs.should_build_oss }}
@@ -70,7 +74,9 @@ jobs:
       - name: Set HZ_VERSION
         id: hz_version_step
         run: |
-          HZ_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          if [ -z "${{ env.HZ_VERSION }}" ]; then
+            HZ_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          fi
           echo "hz_version=$HZ_VERSION" >> $GITHUB_OUTPUT
 
       - name: Forbid .github/release_type file
