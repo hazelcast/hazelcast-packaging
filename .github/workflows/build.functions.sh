@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -euo pipefail ${RUNNER_DEBUG:+-x}
 
 # Checks if we should build the OSS docker image.
 # If the workflow was triggered by `pull_request` OSS artifact should be built always.
