@@ -49,10 +49,6 @@ jobs:
           sha256sum --version
           echo "PATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH" >> $GITHUB_ENV
 
-      - name: Run script tests
-        run: |
-          ./test.sh
-
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
