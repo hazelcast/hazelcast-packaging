@@ -82,8 +82,8 @@ jobs:
           source common.sh
 
           cd homebrew-hz
-          git config --global user.name 'devOpsHazelcast'
-          git config --global user.email 'devops@hazelcast.com'
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git add *.rb
           if [[ `git status --porcelain --untracked-files=no` ]]; then
             git commit -am "Hazelcast Homebrew Package ${{ env.PACKAGE_VERSION }} release"
