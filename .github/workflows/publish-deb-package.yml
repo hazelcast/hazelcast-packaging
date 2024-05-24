@@ -49,7 +49,8 @@ jobs:
 
       - name: Download the distribution tar.gz file
         run: |
-          mvn --batch-mode dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz -DoutputDirectory=./ -Dmdep.useBaseVersion=true
+          mvn --batch-mode dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz \
+          -DoutputDirectory=./ -Dmdep.useBaseVersion=true
 
       - name: Create & Upload DEB package
         run: |
