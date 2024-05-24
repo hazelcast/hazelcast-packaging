@@ -91,7 +91,7 @@ jobs:
       - name: Read release type from the file
         run: |          
           if [ -f ${{ env.RELEASE_TYPE_FILE }} ]; then
-              echo "RELEASE_TYPE=$(cat ${{ env.RELEASE_TYPE_FILE }}" >> $GITHUB_ENV
+              echo "RELEASE_TYPE=$(cat ${{ env.RELEASE_TYPE_FILE }})" >> $GITHUB_ENV
           else
               echo "File '${{ env.RELEASE_TYPE_FILE }}' does not exist."
           fi
