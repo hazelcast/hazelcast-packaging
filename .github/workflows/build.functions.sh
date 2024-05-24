@@ -10,12 +10,7 @@ function should_build_oss() {
   local triggered_by=$1
   local release_type=$2
 
-  if [[ $triggered_by == "pull_request" ]]; then
-    echo "yes"
-    return
-  fi
-
-  if [[ $release_type == "ALL" || $release_type == "OSS" ]]; then
+  if [[ $triggered_by == "pull_request" || $release_type == "ALL" || $release_type == "OSS" ]]; then
     echo "yes"
   else
     echo "no"
@@ -30,12 +25,7 @@ function should_build_ee() {
   local triggered_by=$1
   local release_type=$2
 
-  if [[ $triggered_by == "pull_request" ]]; then
-    echo "yes"
-    return
-  fi
-
-  if [[ $release_type == "ALL" || $release_type == "EE" ]]; then
+  if [[ $triggered_by == "pull_request" || $release_type == "ALL" || $release_type == "EE" ]]; then
     echo "yes"
   else
     echo "no"

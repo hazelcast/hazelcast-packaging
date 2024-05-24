@@ -1,27 +1,7 @@
 #!/usr/bin/env bash
 
 set -eu
-function find_script_dir() {
-  CURRENT=$PWD
-
-  DIR=$(dirname "$0")
-  cd "$DIR" || exit
-  TARGET_FILE=$(basename "$0")
-
-  while [ -L "$TARGET_FILE" ]
-  do
-      TARGET_FILE=$(readlink "$TARGET_FILE")
-      DIR=$(dirname "$TARGET_FILE")
-      cd "$DIR" || exit
-      TARGET_FILE=$(basename "$TARGET_FILE")
-  done
-
-  local SCRIPT_DIR=$(pwd -P)
-  cd "$CURRENT" || exit
-  echo "$SCRIPT_DIR"
-}
-
-SCRIPT_DIR=$(find_script_dir)
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
 . "$SCRIPT_DIR"/assert.sh/assert.sh
 . "$SCRIPT_DIR"/build.functions.sh
