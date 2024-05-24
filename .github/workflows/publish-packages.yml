@@ -35,6 +35,7 @@ on:
 
 env:
   EVENT_NAME: ${{ github.event_name }}
+  RELEASE_TYPE_FILE: .github/release_type
 
 concurrency:
   group: '${{ github.workflow }}-${{ github.base_ref || github.ref_name}}'
@@ -79,21 +80,20 @@ jobs:
           fi
           echo "hz_version=$HZ_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Forbid .github/release_type file
+      - name: Forbid ${{ env.RELEASE_TYPE_FILE }} file in the PRs
         if: github.event_name == 'pull_request'
         run: |
-          if [ -f ".github/release_type" ]; then
-            echo "Error: .github/release_type file is not allowed in the PRs. It's used only during release creation"
+          if [ -f "${{ env.RELEASE_TYPE_FILE }}" ]; then
+            echo "Error: ${{ env.RELEASE_TYPE_FILE }} file is not allowed in the PRs. It's used only during release creation"
             exit 1
           fi
 
       - name: Read release type from the file
-        run: |
-          RELEASE_TYPE_FILE=.github/release_type
-          if [ -f $RELEASE_TYPE_FILE ]; then
-              echo "RELEASE_TYPE=$(cat $RELEASE_TYPE_FILE)" >> $GITHUB_ENV
+        run: |          
+          if [ -f ${{ env.RELEASE_TYPE_FILE }} ]; then
+              echo "RELEASE_TYPE=$(cat ${{ env.RELEASE_TYPE_FILE }}" >> $GITHUB_ENV
           else
-              echo "File '$RELEASE_TYPE_FILE' does not exist."
+              echo "File '${{ env.RELEASE_TYPE_FILE }}' does not exist."
           fi
 
       - name: Check which editions should be built
