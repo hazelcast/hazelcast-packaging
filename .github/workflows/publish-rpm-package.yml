@@ -35,7 +35,6 @@ jobs:
       HZ_VERSION: ${{ inputs.HZ_VERSION }}
       PACKAGE_VERSION: ${{ inputs.PACKAGE_VERSION || inputs.HZ_VERSION }}
       HZ_DISTRIBUTION: ${{ inputs.HZ_DISTRIBUTION }}
-      PUBLISH: "true"
       USE_TEST_REPO: ${{ inputs.USE_TEST_REPO }}
     steps:
       - name: Checkout hazelcast-packaging repo
