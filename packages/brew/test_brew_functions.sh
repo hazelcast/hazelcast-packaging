@@ -1,27 +1,6 @@
 #!/usr/bin/env bash
 
-function findScriptDir() {
-  CURRENT=$PWD
-
-  DIR=$(dirname "$0")
-  cd "$DIR" || exit
-  TARGET_FILE=$(basename "$0")
-
-  # Iterate down a (possible) chain of symlinks
-  while [ -L "$TARGET_FILE" ]
-  do
-      TARGET_FILE=$(readlink "$TARGET_FILE")
-      DIR=$(dirname "$TARGET_FILE")
-      cd "$DIR" || exit
-      TARGET_FILE=$(basename "$TARGET_FILE")
-  done
-
-  SCRIPT_DIR=$(pwd -P)
-  # Restore current directory
-  cd "$CURRENT" || exit
-}
-
-findScriptDir
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
 . "$SCRIPT_DIR"/../tests-common/assert.sh/assert.sh
 . "$SCRIPT_DIR"/functions.sh
