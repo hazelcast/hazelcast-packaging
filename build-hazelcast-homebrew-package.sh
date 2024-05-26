@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -x
+set -euo pipefail ${RUNNER_DEBUG:+-x}
 
 if [ -z "${HZ_DISTRIBUTION}" ]; then
   echo "Variable HZ_DISTRIBUTION is not set. It must be set to 'hazelcast' for OS, 'hazelcast-enterprise' for EE"
@@ -40,7 +40,7 @@ echo "Building Homebrew package $HZ_DISTRIBUTION:${HZ_VERSION} package version $
 ASSET_SHASUM=$(sha256sum "${HZ_DISTRIBUTION_FILE}" | cut -d ' ' -f 1)
 
 TEMPLATE_FILE="$(pwd)/packages/brew/hazelcast-template.rb"
-cd ../homebrew-hz || exit 1
+cd homebrew-hz || exit 1
 
 function updateClassName {
   class=$1
@@ -91,7 +91,7 @@ if [[ "$RELEASE_TYPE" = "stable" ]]; then
     fi
 else
     # Update 'hazelcast-snapshot/beta/dr'
-    # only if the version is greater than (new release) or equal to highest version
+    # only if the version is greater than (new release) or equal to the highest version
     UPDATE_LATEST="true"
     versions=("${HZ_DISTRIBUTION}"-[0-9]*\.rb)
     for version in "${versions[@]}"

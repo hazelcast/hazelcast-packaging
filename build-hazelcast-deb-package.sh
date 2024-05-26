@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -euo pipefail ${RUNNER_DEBUG:+-x}
 
 if [ -z "${HZ_DISTRIBUTION}" ]; then
   echo "Variable HZ_DISTRIBUTION is not set. It must be set to 'hazelcast' for OS, 'hazelcast-enterprise' for EE"
@@ -61,22 +61,24 @@ dpkg-deb --build build/deb/hazelcast
 DEB_FILE=${HZ_DISTRIBUTION}-${DEB_PACKAGE_VERSION}-all.deb
 mv build/deb/hazelcast.deb "$DEB_FILE"
 
-if [ "${PUBLISH}" == "true" ]; then
-  echo "Publishing $DEB_FILE to jfrog"
+echo "Publishing $DEB_FILE to jfrog"
 
-  DEB_SHA256SUM=$(sha256sum $DEB_FILE | cut -d ' ' -f 1)
-  DEB_SHA1SUM=$(sha1sum $DEB_FILE | cut -d ' ' -f 1)
-  DEB_MD5SUM=$(md5sum $DEB_FILE | cut -d ' ' -f 1)
+DEB_SHA256SUM=$(sha256sum $DEB_FILE | cut -d ' ' -f 1)
+DEB_SHA1SUM=$(sha1sum $DEB_FILE | cut -d ' ' -f 1)
+DEB_MD5SUM=$(md5sum $DEB_FILE | cut -d ' ' -f 1)
 
+PACKAGE_URL="$DEBIAN_REPO_BASE_URL/${DEB_FILE}"
+HTTP_STATUS=$(curl -o /dev/null --silent --head --write-out '%{http_code}' -H "Authorization: Bearer ${JFROG_TOKEN}" "$PACKAGE_URL")
+
+if [ "$HTTP_STATUS" -eq 200 ]; then
   # Delete any package that exists - previous version of the same package
-  curl -H "Authorization: Bearer ${JFROG_TOKEN}" \
+  curl --fail-with-body -H "Authorization: Bearer ${JFROG_TOKEN}" \
     -X DELETE \
-    "$DEBIAN_REPO_BASE_URL/${DEB_FILE}"
-
-  curl -H "Authorization: Bearer ${JFROG_TOKEN}" -H "X-Checksum-Deploy: false" -H "X-Checksum-Sha256: $DEB_SHA256SUM" \
-    -H "X-Checksum-Sha1: $DEB_SHA1SUM" -H "X-Checksum-MD5: $DEB_MD5SUM" \
-    -T"$DEB_FILE" \
-    -X PUT \
-    "$DEBIAN_REPO_BASE_URL/$DEB_FILE;deb.distribution=${PACKAGE_REPO};deb.component=main;deb.component=${HZ_MINOR_VERSION};deb.architecture=all"
-
+    "$PACKAGE_URL"
 fi
+
+curl --fail-with-body -H "Authorization: Bearer ${JFROG_TOKEN}" -H "X-Checksum-Deploy: false" -H "X-Checksum-Sha256: $DEB_SHA256SUM" \
+  -H "X-Checksum-Sha1: $DEB_SHA1SUM" -H "X-Checksum-MD5: $DEB_MD5SUM" \
+  -T"$DEB_FILE" \
+  -X PUT \
+  "$PACKAGE_URL;deb.distribution=${PACKAGE_REPO};deb.component=main;deb.component=${HZ_MINOR_VERSION};deb.architecture=all"
