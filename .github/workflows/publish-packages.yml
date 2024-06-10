@@ -2,12 +2,8 @@ name: Publish Hazelcast OS & EE packages
 
 on:
   push:
-    # Push to master updates the latest snapshot (HZ_VERSION taken from pom.xml)
     branches:
       - master
-    # Push of a matching tag (v*, e.g. v5.0.2) starts build with
-    # - HZ_VERSION extracted from pom.xml
-    # - PACKAGE_VERSION extracted from the tag
     tags:
       - 'v*'
   pull_request:
@@ -15,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       HZ_VERSION:
-        description: 'Version of Hazelcast to build the image for, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
+        description: 'Version of Hazelcast to build the packages from, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
         required: true
       PACKAGE_TYPES:
         description: 'Packages to build'
@@ -27,37 +23,48 @@ on:
         - deb
         - rpm
         - homebrew
+      RELEASE_TYPE:
+        description: 'Which editions should be built'
+        required: true
+        default: 'EE'
+        type: choice
+        options:
+          - ALL
+          - OSS
+          - EE
 
 env:
   EVENT_NAME: ${{ github.event_name }}
-  PUBLISH: "true"
-  JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
-  DEVOPS_PRIVATE_KEY: ${{ secrets.DEVOPS_PRIVATE_KEY }}
-  BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
-  HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
-  JAVA_VERSION: "21"
-  JAVA_DISTRIBUTION: "temurin"
+  RELEASE_TYPE_FILE: .github/release_type
 
-# Constant for now - should ensure single build, maybe we can limit this to something from github.*
-concurrency: single-build
+concurrency:
+  group: '${{ github.workflow }}-${{ github.base_ref || github.ref_name}}'
 
 jobs:
   prepare:
     runs-on: ubuntu-latest
     env:
+      RELEASE_TYPE: ${{ inputs.RELEASE_TYPE || 'EE' }}
+      PACKAGE_TYPES: ${{ inputs.PACKAGE_TYPES || 'all' }}
       HZ_VERSION: ${{ github.event.inputs.HZ_VERSION }}
-    defaults:
-      run:
-        working-directory: ./hazelcast-packaging
     outputs:
-      hz_version: ${{ steps.hz_version.outputs.hz_version }}
-      package_version: ${{ steps.package_version.outputs.package_version }}
-      package_types: ${{ github.event.inputs.package_types || 'all' }}
+      hz_version: ${{ steps.hz_version_step.outputs.hz_version }}
+      should_build_oss: ${{ steps.which_editions.outputs.should_build_oss }}
+      should_build_ee: ${{ steps.which_editions.outputs.should_build_ee }}
+      should_build_deb: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'deb' }}
+      should_build_rpm: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'rpm' }}
+      should_build_homebrew: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew' }}
+      use_test_repo: ${{ env.EVENT_NAME == 'pull_request' }}
     steps:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v4
-        with:
-          path: 'hazelcast-packaging'
+
+      - name: Load env vars from .env file
+        run: cat .env >> $GITHUB_ENV
+
+      - name: Test scripts
+        run: |
+          ./test_scripts.sh
 
       - name: Setup JDK
         uses: actions/setup-java@v4
@@ -66,264 +73,94 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
       - name: Set HZ_VERSION
-        id: hz_version
+        id: hz_version_step
         run: |
           if [ -z "${{ env.HZ_VERSION }}" ]; then
             HZ_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           fi
-          echo "HZ_VERSION=$HZ_VERSION" >> $GITHUB_ENV
           echo "hz_version=$HZ_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Set PACKAGE_VERSION
-        id: package_version
-        # If the ref is version (e.g. v5.0.1) tag then use it as package version,
-        # otherwise use HZ_VERSION for package version (e.g 5.1-SNAPSHOT)
-        run: |
-          if [[ "${{ github.ref }}" == "refs/tags/v"* ]]; then
-            PACKAGE_VERSION=$(echo ${{ github.ref }} | cut -c 12-)
-          else
-            PACKAGE_VERSION=${{ env.HZ_VERSION }}
-          fi
-          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
-          echo "package_version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
-
-  deb:
-    runs-on: ubuntu-latest
-    if: ${{ needs.prepare.outputs.package_types == 'all' || needs.prepare.outputs.package_types == 'deb' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
-    env:
-      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
-      PACKAGE_VERSION: ${{ needs.prepare.outputs.package_version }}
-      HZ_DISTRIBUTION: ${{ matrix.distribution }}
-    defaults:
-      run:
-        working-directory: ./hazelcast-packaging
-    needs: [prepare]
-    steps:
-      - name: Checkout hazelcast-packaging repo
-        uses: actions/checkout@v4
-        with:
-          path: 'hazelcast-packaging'
-
-      - name: Setup JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-
-      - name: Download the distribution tar.gz file
-        run: |
-          HZ_PACKAGE_URL=$(mvn --batch-mode dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz -DoutputDirectory=./ -Dmdep.useBaseVersion=true | grep 'Downloaded from' | grep -Eo "https://[^ >]+${HZ_DISTRIBUTION}-distribution-.*.tar.gz")
-          echo "HZ_PACKAGE_URL=$HZ_PACKAGE_URL" >> $GITHUB_ENV
-
-      - name: Create & Upload DEB package
-        run: |
-          ./build-hazelcast-deb-package.sh
-
-      - name: Calculate Debian Repository Metadata
-        run: |
-          source common.sh
-
-          curl --fail-with-body --retry 3 --retry-delay 10 -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" \
-            -X POST "https://repository.hazelcast.com/api/deb/reindex/${DEBIAN_REPO}"
-
-      - name: Install Hazelcast from deb
-        run: |
-          source ./common.sh
-          wget -qO - https://repository.hazelcast.com/api/gpg/key/public | gpg --dearmor | sudo tee /usr/share/keyrings/hazelcast-archive-keyring.gpg > /dev/null
-          echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list
-          sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}=${HZ_VERSION}
-          HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
-
-      - name: Check Hazelcast health
-        run: |
-          ./check-hazelcast-health.sh
-
-      - name: Uninstall Hazelcast from deb
-        run: |
-          source ./common.sh
-          sudo apt remove ${{ env.HZ_DISTRIBUTION}}
-
-      - name: Remove deb package from test repo
+      - name: Forbid ${{ env.RELEASE_TYPE_FILE }} file in the PRs
         if: github.event_name == 'pull_request'
         run: |
-          source ./common.sh
-          curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" \
-            -X DELETE \
-            "$DEBIAN_REPO_BASE_URL/${HZ_DISTRIBUTION}-${DEB_PACKAGE_VERSION}-all.deb"
-
-  rpm:
-    runs-on: ubuntu-latest
-    if: ${{ needs.prepare.outputs.package_types == 'all' || needs.prepare.outputs.package_types == 'rpm' }}
-    container: rockylinux:9
-    strategy:
-      fail-fast: false
-      matrix:
-        distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
-    env:
-      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
-      PACKAGE_VERSION: ${{ needs.prepare.outputs.package_version }}
-      HZ_DISTRIBUTION: ${{ matrix.distribution }}
-    defaults:
-      run:
-        working-directory: ./hazelcast-packaging
-    needs: [prepare]
-    steps:
-      - name: Checkout hazelcast-packaging repo
-        uses: actions/checkout@v4
-        with:
-          path: 'hazelcast-packaging'
-
-      - name: Setup JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-
-      - name: Install Required tools
-        run: |
-          yum install -y maven rpm-sign rpm-build wget gettext systemd-rpm-macros
-
-      - name: Download the distribution tar.gz file
-        run: |
-          HZ_PACKAGE_URL=$(mvn --batch-mode dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz -DoutputDirectory=./ -Dmdep.useBaseVersion=true | grep 'Downloaded from' | grep -Eo "https://[^ >]+${HZ_DISTRIBUTION}-distribution-.*.tar.gz")
-          echo "HZ_PACKAGE_URL=$HZ_PACKAGE_URL" >> $GITHUB_ENV
-
-      - name: Create & Sign & Upload RPM package
-        run: |
-          ./build-hazelcast-rpm-package.sh
-
-      - name: Calculate YUM Repository Metadata
-        run: |
-          pwd
-          ls -lah
-          source ./common.sh
-
-          curl --fail-with-body --retry 3 --retry-delay 10 -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" \
-            -X POST "https://repository.hazelcast.com/api/yum/${RPM_REPO}"
-
-      - name: Install Hazelcast from rpm
-        run: |
-          source ./common.sh
-          wget ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo -O hazelcast-rpm-${PACKAGE_REPO}.repo
-          mv hazelcast-rpm-${PACKAGE_REPO}.repo /etc/yum.repos.d/          
-          yum install -y ${{ env.HZ_DISTRIBUTION}}-${RPM_HZ_VERSION}
-          HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
-
-      - name: Check Hazelcast health
-        run: |
-          ./check-hazelcast-health.sh
-
-      - name: Uninstall Hazelcast from rpm
-        run: |
-          source ./common.sh
-          yum remove -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
-
-      - name: Remove rpm package from test repo
-        if: github.event_name == 'pull_request'
-        run: |
-          source ./common.sh
-          curl -H "Authorization: Bearer ${{ secrets.JFROG_TOKEN }}" \
-            -X DELETE \
-            "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
-
-  homebrew:
-    runs-on: macos-latest
-    if: ${{ needs.prepare.outputs.package_types == 'all' || needs.prepare.outputs.package_types == 'homebrew' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        distribution: [ 'hazelcast', 'hazelcast-enterprise' ]
-    env:
-      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
-      PACKAGE_VERSION: ${{ needs.prepare.outputs.package_version }}
-      HZ_DISTRIBUTION: ${{ matrix.distribution }}
-    defaults:
-      run:
-        working-directory: ./hazelcast-packaging
-    needs: [prepare]
-    steps:
-      - name: Checkout hazelcast-packaging repo
-        uses: actions/checkout@v4
-        with:
-          path: 'hazelcast-packaging'
-
-      - name: Install up-to-date tools
-        run: |
-          brew install gnu-sed
-          brew install coreutils
-
-          PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
-          sed --version
-          PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
-          sha256sum --version
-          echo "PATH=/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/gnu-sed/libexec/gnubin:$PATH" >> $GITHUB_ENV
-
-      - name: Run script tests
-        run: |
-          ./test.sh
-
-      - name: Setup JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-
-      - name: Download the distribution tar.gz file
-        run: |
-          HZ_PACKAGE_URL=$(mvn --batch-mode dependency:copy -Dartifact=com.hazelcast:${HZ_DISTRIBUTION}-distribution:${HZ_VERSION}:tar.gz -DoutputDirectory=./ -Dmdep.useBaseVersion=true | grep 'Downloaded from' | grep -Eo "https://[^ >]+${HZ_DISTRIBUTION}-distribution-.*.tar.gz")
-          echo "HZ_PACKAGE_URL=$HZ_PACKAGE_URL" >> $GITHUB_ENV
-
-      - name: Get homebrew repository
-        run: |
-          source ./common.sh
-          echo "BREW_GIT_REPO_NAME=${BREW_GIT_REPO_NAME}" >> $GITHUB_ENV
-
-      - name: Checkout homebrew-hz repo
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.BREW_GIT_REPO_NAME }}
-          ref: master
-          token: ${{ secrets.DEVOPS_SECRET }}
-          path: 'homebrew-hz'
-
-      - name: Change the artifact in homebrew-hz
-        run: |
-          ./build-hazelcast-homebrew-package.sh
-
-      - name: Commit changes & Push to homebrew-hz repo
-        run: |
-          source common.sh
-
-          cd ../homebrew-hz
-          git config --global user.name 'devOpsHazelcast'
-          git config --global user.email 'devops@hazelcast.com'
-          git add *.rb
-          if [[ `git status --porcelain --untracked-files=no` ]]; then
-            git commit -am "Hazelcast Homebrew Package ${{ env.PACKAGE_VERSION }} release"
-            git pull --rebase
-            git push
-          else
-            echo "No changes, this is probably a re-run."
+          if [ -f "${{ env.RELEASE_TYPE_FILE }}" ]; then
+            echo "Error: ${{ env.RELEASE_TYPE_FILE }} file is not allowed in the PRs. It's used only during release creation"
+            exit 1
           fi
 
-      - name: Install Hazelcast from Homebrew
-        run: |
-          source ./common.sh
-          brew tap ${BREW_TAP_NAME}
-          brew install ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
+      - name: Read release type from the file
+        run: |          
+          if [ -f ${{ env.RELEASE_TYPE_FILE }} ]; then
+              echo "RELEASE_TYPE=$(cat ${{ env.RELEASE_TYPE_FILE }})" >> $GITHUB_ENV
+          else
+              echo "File '${{ env.RELEASE_TYPE_FILE }}' does not exist."
+          fi
 
-      - name: Run Hazelcast
-        run: HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
-
-      - name: Check Hazelcast health
+      - name: Check which editions should be built
+        id: which_editions
         run: |
-          ./check-hazelcast-health.sh
+          . .github/workflows/build.functions.sh
+          
+          release_type=${{ env.RELEASE_TYPE }}
+          triggered_by=${{ github.event_name }}
+          should_build_oss=$(should_build_oss "$triggered_by" "$release_type")
+          should_build_ee=$(should_build_ee "$triggered_by" "$release_type")
+          echo "should_build_ee=${should_build_ee}" >> $GITHUB_OUTPUT
+          echo "should_build_oss=${should_build_oss}" >> $GITHUB_OUTPUT
 
-      - name: Uninstall Hazelcast from homebrew
-        run: |
-          source ./common.sh          
-          brew uninstall ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
+  deb-ee:
+    if: needs.prepare.outputs.should_build_deb == 'true' && needs.prepare.outputs.should_build_ee == 'yes'
+    needs: [prepare]
+    uses: ./.github/workflows/publish-deb-package.yml
+    secrets: inherit
+    with:
+     HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
+     HZ_DISTRIBUTION: hazelcast-enterprise
+     USE_TEST_REPO: ${{ needs.prepare.outputs.use_test_repo }}
+  deb-oss:
+    needs: [ prepare ]
+    if: needs.prepare.outputs.should_build_deb == 'true' && needs.prepare.outputs.should_build_oss == 'yes'
+    uses: ./.github/workflows/publish-deb-package.yml
+    secrets: inherit
+    with:
+      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
+      HZ_DISTRIBUTION: hazelcast
+      USE_TEST_REPO: ${{ needs.prepare.outputs.use_test_repo }}
+
+  rpm-ee:
+    if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_ee == 'yes'
+    needs: [prepare]
+    uses: ./.github/workflows/publish-rpm-package.yml
+    secrets: inherit
+    with:
+     HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
+     HZ_DISTRIBUTION: hazelcast-enterprise
+     USE_TEST_REPO: ${{ needs.prepare.outputs.use_test_repo }}
+  rpm-oss:
+    needs: [ prepare ]
+    if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_oss == 'yes'
+    uses: ./.github/workflows/publish-rpm-package.yml
+    secrets: inherit
+    with:
+      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
+      HZ_DISTRIBUTION: hazelcast
+      USE_TEST_REPO: ${{ needs.prepare.outputs.use_test_repo }}
+
+  brew-ee:
+    if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_ee == 'yes'
+    needs: [prepare]
+    uses: ./.github/workflows/publish-brew-package.yml
+    secrets: inherit
+    with:
+     HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
+     HZ_DISTRIBUTION: hazelcast-enterprise
+     USE_TEST_REPO: ${{ needs.prepare.outputs.use_test_repo }}
+  brew-oss:
+    needs: [ prepare ]
+    if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_oss == 'yes'
+    uses: ./.github/workflows/publish-brew-package.yml
+    secrets: inherit
+    with:
+      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
+      HZ_DISTRIBUTION: hazelcast
+      USE_TEST_REPO: ${{ needs.prepare.outputs.use_test_repo }}

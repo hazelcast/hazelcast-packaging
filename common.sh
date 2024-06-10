@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ -z "${USE_TEST_REPO}" ]; then
+  echo "Variable USE_TEST_REPO is not set."
+  exit 1
+fi
+
 export RELEASE_TYPE=stable
 if [[ "$HZ_VERSION" == *"SNAPSHOT"* ]]; then
   export RELEASE_TYPE=snapshot
@@ -53,7 +58,7 @@ export RPM_PACKAGE_VERSION
 BREW_PACKAGE_VERSION=$(echo $PACKAGE_VERSION | tr '[:upper:]' '[:lower:]' | sed -r -r 's/(-)/\./g')
 export BREW_PACKAGE_VERSION
 
-if [ "${EVENT_NAME}" == "pull_request" ]; then
+if [ "${USE_TEST_REPO}" == "true" ]; then
   # PRs publish to test repositories and install the packages from there
   export DEBIAN_REPO=debian-test-local
   export DEBIAN_REPO_BASE_URL="https://repository.hazelcast.com/${DEBIAN_REPO}"
