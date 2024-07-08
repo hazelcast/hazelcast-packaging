@@ -2,7 +2,9 @@
 
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
-. "$SCRIPT_DIR"/../tests-common/assert.sh/assert.sh
+assert_script_content=$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)
+# shellcheck source=/dev/null
+. <(echo "${assert_script_content}")
 . "$SCRIPT_DIR"/functions.sh
 
 TESTS_RESULT=0
