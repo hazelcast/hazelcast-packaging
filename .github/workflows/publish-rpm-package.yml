@@ -1,0 +1,102 @@
+name: Publish DEB package
+
+on:
+  workflow_call:
+    inputs:
+      HZ_VERSION:
+        description: 'Version of Hazelcast to build the image for, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
+        required: true
+        type: string
+      HZ_DISTRIBUTION:
+        description: 'Distribution to be built: hazelcast or hazelcast-enterprise'
+        required: true
+        type: string
+      USE_TEST_REPO:
+        description: 'Use test repo for publishing'
+        required: true
+        type: string
+      PACKAGE_VERSION:
+        description: 'Version of the package e.g. 5.1.1, 5.1.1-1, defaults to HZ_VERSION'
+        type: string
+
+env:
+  JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
+  DEVOPS_PRIVATE_KEY: ${{ secrets.DEVOPS_PRIVATE_KEY }}
+  BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
+
+concurrency:
+  group: 'rpm-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
+
+jobs:
+  rpm:
+    runs-on: ubuntu-latest
+    container: rockylinux:9
+    env:
+      HZ_VERSION: ${{ inputs.HZ_VERSION }}
+      PACKAGE_VERSION: ${{ inputs.PACKAGE_VERSION || inputs.HZ_VERSION }}
+      HZ_DISTRIBUTION: ${{ inputs.HZ_DISTRIBUTION }}
+      USE_TEST_REPO: ${{ inputs.USE_TEST_REPO }}
+    steps:
+      - name: Checkout hazelcast-packaging repo
+        uses: actions/checkout@v4
+
+      - name: Load env vars from .env file
+        run: cat .env >> $GITHUB_ENV
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - name: Install Required tools
+        run: |
+          yum install -y maven rpm-sign rpm-build wget gettext systemd-rpm-macros
+
+      - name: Download the distribution tar.gz file
+        run: |
+          . .github/workflows/build.functions.sh
+          export HZ_SNAPSHOT_INTERNAL_PASSWORD=${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}
+          export HZ_SNAPSHOT_INTERNAL_USERNAME=${{ secrets.HZ_SNAPSHOT_INTERNAL_USERNAME }}
+          DISTRIBUTION_URL=$(get_hz_dist_tar_gz "${HZ_VERSION}" "${HZ_DISTRIBUTION}")
+          curl --fail --silent --show-error --location "$DISTRIBUTION_URL" --output distribution.tar.gz 
+
+      - name: Create & Sign & Upload RPM package
+        run: |
+          ./build-hazelcast-rpm-package.sh
+
+      - name: Calculate YUM Repository Metadata
+        run: |
+          pwd
+          ls -lah
+          source ./common.sh
+
+          curl --fail-with-body --retry 3 --retry-delay 10 -H "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
+            -X POST "https://repository.hazelcast.com/api/yum/${RPM_REPO}"
+
+      - name: Install Hazelcast from rpm
+        env:
+          HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
+        run: |
+          source ./common.sh
+          wget ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo -O hazelcast-rpm-${PACKAGE_REPO}.repo
+          mv hazelcast-rpm-${PACKAGE_REPO}.repo /etc/yum.repos.d/          
+          yum install -y ${{ env.HZ_DISTRIBUTION}}-${RPM_HZ_VERSION}
+          HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
+
+      - name: Check Hazelcast health
+        run: |
+          ./check-hazelcast-health.sh
+
+      - name: Uninstall Hazelcast from rpm
+        run: |
+          source ./common.sh
+          yum remove -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
+
+      - name: Remove rpm package from test repo
+        if: env.USE_TEST_REPO == 'true'
+        run: |
+          source ./common.sh
+          curl -H "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
+            -X DELETE \
+            "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
