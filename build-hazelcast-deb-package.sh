@@ -17,7 +17,7 @@ if [ -z "${PACKAGE_VERSION}" ]; then
   exit 1
 fi
 
-export HZ_DISTRIBUTION_FILE=${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz
+export HZ_DISTRIBUTION_FILE=distribution.tar.gz
 
 if [ ! -f "${HZ_DISTRIBUTION_FILE}" ]; then
   echo "File ${HZ_DISTRIBUTION_FILE} doesn't exits in current directory."
