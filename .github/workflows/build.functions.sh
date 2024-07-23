@@ -38,7 +38,7 @@ function get_hz_dist_tar_gz() {
   local extension=tar.gz
   local url
 
-  if [[ $distribution == "hazelcast" ]]; then
+  if [[ "$distribution" == "hazelcast" ]]; then
     if [[ "${hz_version}" == *"SNAPSHOT"* ]]; then
       url="https://${HZ_SNAPSHOT_INTERNAL_USERNAME}:${HZ_SNAPSHOT_INTERNAL_PASSWORD}@repository.hazelcast.com/snapshot-internal/com/hazelcast/hazelcast-distribution/${hz_version}/hazelcast-distribution-${hz_version}.$extension"
     else
@@ -46,7 +46,7 @@ function get_hz_dist_tar_gz() {
     fi
   fi
 
-  if [[ $distribution == "hazelcast-enterprise" ]]; then
+  if [[ "$distribution" == "hazelcast-enterprise" ]]; then
     local repository
     if [[ "${hz_version}" == *"SNAPSHOT"* ]]; then
       repository=snapshot
