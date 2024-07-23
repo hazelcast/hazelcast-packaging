@@ -55,10 +55,11 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
       - name: Download the distribution tar.gz file
+        env:
+          HZ_SNAPSHOT_INTERNAL_PASSWORD: ${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}
+          HZ_SNAPSHOT_INTERNAL_USERNAME: ${{ secrets.HZ_SNAPSHOT_INTERNAL_USERNAME }}
         run: |
           . .github/workflows/build.functions.sh
-          export HZ_SNAPSHOT_INTERNAL_PASSWORD=${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}
-          export HZ_SNAPSHOT_INTERNAL_USERNAME=${{ secrets.HZ_SNAPSHOT_INTERNAL_USERNAME }}
           DISTRIBUTION_URL=$(get_hz_dist_tar_gz "${HZ_VERSION}" "${HZ_DISTRIBUTION}")
           if [[ "DISTRIBUTION_URL" == *"$HZ_SNAPSHOT_INTERNAL_PASSWORD"* ]]; then
              echo "Trying to expose a password-protected url of the distribution file, aborting!";
