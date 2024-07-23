@@ -77,3 +77,5 @@ else
   export BREW_GIT_REPO_NAME="hazelcast/homebrew-hz"
   export BREW_TAP_NAME="hazelcast/hz"
 fi
+
+export HZ_DISTRIBUTION_FILE=distribution.tar.gz
