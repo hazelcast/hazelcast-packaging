@@ -61,7 +61,7 @@ jobs:
         run: |
           . .github/workflows/build.functions.sh
           DISTRIBUTION_URL=$(get_hz_dist_tar_gz "${HZ_VERSION}" "${HZ_DISTRIBUTION}")
-          if [[ "DISTRIBUTION_URL" == *"$HZ_SNAPSHOT_INTERNAL_PASSWORD"* ]]; then
+          if [[ "$DISTRIBUTION_URL" == *"$HZ_SNAPSHOT_INTERNAL_PASSWORD"* ]]; then
              echo "Trying to expose a password-protected url of the distribution file, aborting!";
              exit 1;
           fi
