@@ -55,3 +55,13 @@ function get_hz_dist_tar_gz() {
   fi
   echo "$url"
 }
+
+function url_contains_password() {
+  local url=$1
+  local password=$2
+  if [[ "$url" == *"$password"* ]]; then
+    echo "yes"
+  else
+    echo "no"
+  fi
+}

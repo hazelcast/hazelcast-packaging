@@ -65,4 +65,15 @@ assert_get_hz_dist_tar_gz 5.5.0-SNAPSHOT hazelcast https://dummy_user:dummy_pass
 assert_get_hz_dist_tar_gz 5.4.0 hazelcast-enterprise https://repository.hazelcast.com/release/com/hazelcast/hazelcast-enterprise-distribution/5.4.0/hazelcast-enterprise-distribution-5.4.0.tar.gz
 assert_get_hz_dist_tar_gz 5.5.0-SNAPSHOT hazelcast-enterprise https://repository.hazelcast.com/snapshot/com/hazelcast/hazelcast-enterprise-distribution/5.5.0-SNAPSHOT/hazelcast-enterprise-distribution-5.5.0-SNAPSHOT.tar.gz
 
+function assert_url_contains_password {
+  local url=$1
+  local password=$2
+  local expected_result=$3
+  local actual=$(url_contains_password "$url" "$password")
+  assert_eq "$expected_result" "$actual" "Url '$url' should$( [ "$expected_result" = "no" ] && echo " NOT") contain $password" || TESTS_RESULT=$?
+}
+
+assert_url_contains_password "https://dummy_user:dummy_password@repository.hazelcast.com/snapshot-internal/com/hazelcast/hazelcast-distribution/5.5.0-SNAPSHOT/hazelcast-distribution-5.5.0-SNAPSHOT.tar.gz" "dummy_password" "yes"
+assert_url_contains_password "https://repo1.maven.org/maven2/com/hazelcast/hazelcast-distribution/5.4.0/hazelcast-distribution-5.4.0.tar.gz" "dummy_password" "no"
+
 assert_eq 0 "$TESTS_RESULT" "ALL tests should pass"
