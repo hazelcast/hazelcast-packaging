@@ -36,6 +36,7 @@ function get_hz_dist_tar_gz() {
   local hz_version=$1
   local distribution=$2
   local extension=tar.gz
+  local url
 
   if [[ $distribution == "hazelcast" ]]; then
     if [[ "${hz_version}" == *"SNAPSHOT"* ]]; then
