@@ -157,7 +157,7 @@ jobs:
      USE_TEST_REPO: ${{ needs.prepare.outputs.use_test_repo }}
   brew-oss:
     needs: [ prepare ]
-    if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_oss == 'yes'
+    if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_oss == 'yes' && !contains(needs.prepare.outputs.hz_version, 'SNAPSHOT')
     uses: ./.github/workflows/publish-brew-package.yml
     secrets: inherit
     with:
