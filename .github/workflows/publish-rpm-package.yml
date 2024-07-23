@@ -101,3 +101,10 @@ jobs:
           curl -H "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
             -X DELETE \
             "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
+
+      - name: Store logs as artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: hz.log
+          path: hz.log

@@ -120,3 +120,10 @@ jobs:
         run: |
           source ./common.sh          
           brew uninstall ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
+
+      - name: Store logs as artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: hz.log
+          path: hz.log
