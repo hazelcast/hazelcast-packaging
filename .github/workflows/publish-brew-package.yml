@@ -125,5 +125,5 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: hz.log
+          name: brew-${{ env.HZ_DISTRIBUTION}}-hz.log
           path: hz.log
