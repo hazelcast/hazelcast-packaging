@@ -17,14 +17,13 @@ if [ -z "${PACKAGE_VERSION}" ]; then
   exit 1
 fi
 
-export HZ_DISTRIBUTION_FILE=distribution.tar.gz
+source common.sh
 
 if [ ! -f "${HZ_DISTRIBUTION_FILE}" ]; then
   echo "File ${HZ_DISTRIBUTION_FILE} doesn't exits in current directory."
   exit 1;
 fi
 
-source common.sh
 
 echo "Building DEB package $HZ_DISTRIBUTION:${HZ_VERSION} package version ${DEB_PACKAGE_VERSION}"
 
