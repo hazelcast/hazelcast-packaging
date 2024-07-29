@@ -6,12 +6,12 @@ set -x
 
 # Source the latest version of `abstract-simple-smoke-test.sh` from the `hazelcast-docker` repository and include in current shell
 # TODO Use `master` once merged
-#abstract_simple_smoke_test_script_content=$(curl --silent https://raw.githubusercontent.com/hazelcast/hazelcast-docker/DI-215-Add-additional-Deb/RPM/Brew-tests/.github/scripts/abstract-simple-smoke-test.sh)
-curl --silent https://raw.githubusercontent.com/hazelcast/hazelcast-docker/DI-215-Add-additional-Deb/RPM/Brew-tests/.github/scripts/abstract-simple-smoke-test.sh -o abstract-simple-smoke-test.sh
-cat abstract-simple-smoke-test.sh
+curl --silent https://raw.githubusercontent.com/hazelcast/hazelcast-docker/DI-215-Add-additional-Deb/RPM/Brew-tests/.github/scripts/abstract-simple-smoke-test.sh --output abstract-simple-smoke-test.sh
 
 # shellcheck source=/dev/null
-#. <(echo "${abstract_simple_smoke_test_script_content}")
+# You _should_ be able to avoid a temporary file with something like
+# . <(echo "${abstract_simple_smoke_test_script_content}")
+# But this doesn't work on the MacOS GitHub runner (but does on MacOS locally)
 . abstract-simple-smoke-test.sh
 
 function get_hz_logs() {
