@@ -87,7 +87,7 @@ jobs:
 
       - name: Check Hazelcast health
         run: |
-          ./check-hazelcast-health.sh ${{ env.HZ_DISTRIBUTION}} ${{ env.HZ_VERSION}}
+          ./check-hazelcast-health.sh "${{ env.HZ_DISTRIBUTION}}" "${{ env.HZ_VERSION}}"
 
       - name: Uninstall Hazelcast from rpm
         run: |
