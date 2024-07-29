@@ -1,5 +1,5 @@
 hazelcast:
-  cluster-name: hz-it-cluster
+  cluster-name: dev
   properties:
     hazelcast.socket.bind.any: false
   network:
