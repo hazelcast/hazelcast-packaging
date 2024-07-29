@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 
 set -o errexit
+# TODO REMOVE
+set -x
 
 # Source the latest version of `abstract-simple-smoke-test.sh` from the `hazelcast-docker` repository and include in current shell
 # TODO Use `master` once merged
-abstract_simple_smoke_test_script_content=$(curl --silent https://raw.githubusercontent.com/hazelcast/hazelcast-docker/DI-215-Add-additional-Deb/RPM/Brew-tests/.github/scripts/abstract-simple-smoke-test.sh)
-
-# TODO REMOVE
-echo "${abstract_simple_smoke_test_script_content}"
+#abstract_simple_smoke_test_script_content=$(curl --silent https://raw.githubusercontent.com/hazelcast/hazelcast-docker/DI-215-Add-additional-Deb/RPM/Brew-tests/.github/scripts/abstract-simple-smoke-test.sh)
+curl --silent https://raw.githubusercontent.com/hazelcast/hazelcast-docker/DI-215-Add-additional-Deb/RPM/Brew-tests/.github/scripts/abstract-simple-smoke-test.sh -o abstract-simple-smoke-test.sh
+cat abstract-simple-smoke-test.sh
 
 # shellcheck source=/dev/null
-. <(echo "${abstract_simple_smoke_test_script_content}")
+#. <(echo "${abstract_simple_smoke_test_script_content}")
+. abstract-simple-smoke-test.sh
 
 function get_hz_logs() {
     cat hz.log
