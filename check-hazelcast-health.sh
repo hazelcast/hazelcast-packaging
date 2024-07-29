@@ -1,13 +1,10 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 set -o errexit
 
 # Source the latest version of `abstract-simple-smoke-test.sh` from the `hazelcast-docker` repository and include in current shell
 # TODO Use `master` once merged
 abstract_simple_smoke_test_script_content=$(curl --silent https://raw.githubusercontent.com/hazelcast/hazelcast-docker/DI-215-Add-additional-Deb/RPM/Brew-tests/.github/scripts/abstract-simple-smoke-test.sh)
-
-# TODO REMOVE
-echo "${abstract_simple_smoke_test_script_content}"
 
 # shellcheck source=/dev/null
 . <(echo "${abstract_simple_smoke_test_script_content}")
