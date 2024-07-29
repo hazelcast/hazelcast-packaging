@@ -8,7 +8,7 @@ abstract_simple_smoke_test_script_content=$(curl --silent https://raw.githubuser
 # shellcheck source=/dev/null
 . <(echo "${abstract_simple_smoke_test_script_content}")
 
-function get_logs() {
+function get_hz_logs() {
     cat hz.log
 }
 
