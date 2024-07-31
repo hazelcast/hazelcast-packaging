@@ -18,7 +18,7 @@ function assert_should_build_oss {
   local actual=$(should_build_oss "$triggered_by" "$release_type")
   local msg="For triggered_by=$triggered_by release_type=$release_type \
 we should$( [ "$expected_should_build_os" = "no" ] && echo " NOT") build OS"
-  assert_eq "$expected_should_build_os" "$actual" "$msg" && log_success "$MSG" || TESTS_RESULT=$?
+  assert_eq "$expected_should_build_os" "$actual" "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 log_header "Tests for should_build_oss"
@@ -39,7 +39,7 @@ function assert_should_build_ee {
   local actual=$(should_build_ee "$triggered_by" "$release_type")
   local msg="For triggered_by=$triggered_by release_type=$release_type \
 we should$( [ "$expected_should_build_ee" = "no" ] && echo " NOT") build EE"
-  assert_eq "$expected_should_build_ee" "$actual" "$msg" && log_success "$MSG" || TESTS_RESULT=$?
+  assert_eq "$expected_should_build_ee" "$actual" "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 log_header "Tests for should_build_ee"
