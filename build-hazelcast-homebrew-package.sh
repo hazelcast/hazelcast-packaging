@@ -33,7 +33,7 @@ if [ -z "${HZ_PACKAGE_URL}" ]; then
 fi
 
 source common.sh
-source packages/brew/functions.sh
+source packages/brew/brew_functions.sh
 
 echo "Building Homebrew package $HZ_DISTRIBUTION:${HZ_VERSION} package version ${PACKAGE_VERSION}"
 

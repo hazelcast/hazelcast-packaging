@@ -6,7 +6,7 @@ SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 assert_script_content=$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)
 # shellcheck source=/dev/null
 . <(echo "${assert_script_content}")
-. "$SCRIPT_DIR"/functions.sh
+. "$SCRIPT_DIR"/brew_functions.sh
 
 TESTS_RESULT=0
 
