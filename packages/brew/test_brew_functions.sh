@@ -14,7 +14,8 @@ function assertAlphanumCamelCase {
   local testValue=$1
   local expected=$2
   local actual=$(alphanumCamelCase "$testValue")
-  assert_eq "$expected" "$actual" "Alphanumeric camel case of $testValue should be equal to $expected " || TESTS_RESULT=$?
+  local msg="Alphanumeric camel case of $testValue should be equal to $expected"
+  assert_eq "$expected" "$actual" "$MSG" && log_success "$MSG" || TESTS_RESULT=$?
 }
 
 log_header "Tests for alphanumCamelCase"
@@ -35,7 +36,8 @@ function assertBrewClass {
   local version=$2
   local expected=$3
   local actual=$(brewClass "$distribution" "$version")
-  assert_eq "$expected" "$actual" "Brew class of $distribution $version should be equal to $expected " || TESTS_RESULT=$?
+  local msg="Brew class of $distribution $version should be equal to $expected"
+  assert_eq "$expected" "$actual" "$MSG" && log_success "$MSG" || TESTS_RESULT=$?
 }
 
 log_header "Tests for brewClass"
