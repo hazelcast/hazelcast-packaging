@@ -17,7 +17,7 @@ function assertReleaseType {
   local expected=$2
   . "$SCRIPT_DIR"/common.sh
   local msg="Version $HZ_VERSION should be a $expected release"
-  assert_eq $expected $RELEASE_TYPE "$MSG" && log_success "$MSG" || TESTS_RESULT=$?
+  assert_eq $expected $RELEASE_TYPE "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 log_header "Tests for RELEASE_TYPE"
@@ -39,9 +39,9 @@ function assertPackageVersions {
   local expectedRpmVersion=$4
   . "$SCRIPT_DIR"/common.sh
   local msg="DEB_PACKAGE_VERSION for (HZ_VERSION=$HZ_VERSION, PACKAGE_VERSION=$PACKAGE_VERSION) should be $expectedDebVersion"
-  assert_eq "$expectedDebVersion" "$DEB_PACKAGE_VERSION" "$MSG" && log_success "$MSG" || TESTS_RESULT=$?
+  assert_eq "$expectedDebVersion" "$DEB_PACKAGE_VERSION" "$msg" && log_success "$msg" || TESTS_RESULT=$?
   msg="RPM_PACKAGE_VERSION for (HZ_VERSION=$HZ_VERSION, PACKAGE_VERSION=$PACKAGE_VERSION) should be $expectedRpmVersion"
-  assert_eq "$expectedRpmVersion" "$RPM_PACKAGE_VERSION" "$MSG" && log_success "$MSG" || TESTS_RESULT=$?
+  assert_eq "$expectedRpmVersion" "$RPM_PACKAGE_VERSION" "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 log_header "Tests for DEB_PACKAGE_VERSION and RPM_PACKAGE_VERSION"
@@ -60,7 +60,7 @@ function assertMinorVersion {
   local expected=$2
   . "$SCRIPT_DIR"/common.sh
   local msg="Version $HZ_VERSION should be mapped to $expected minor version"
-  assert_eq "$expected" "$HZ_MINOR_VERSION" "$MSG" && log_success "$MSG" || TESTS_RESULT=$?
+  assert_eq "$expected" "$HZ_MINOR_VERSION" "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 log_header "Tests for HZ_MINOR_VERSION"
