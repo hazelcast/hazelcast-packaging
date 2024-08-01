@@ -17,12 +17,6 @@ if [ -z "${PACKAGE_VERSION}" ]; then
   exit 1
 fi
 
-export HZ_DISTRIBUTION_FILE=${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz
-
-if [ ! -f "${HZ_DISTRIBUTION_FILE}" ]; then
-  echo "File ${HZ_DISTRIBUTION_FILE} doesn't exits in current directory."
-  exit 1;
-fi
 
 # With Homebrew we actually don't upload the artifact anywhere, but use the base tar.gz artifact url.
 # The package manager then downloads it from there.
@@ -34,6 +28,11 @@ fi
 
 source common.sh
 source packages/brew/brew_functions.sh
+
+if [ ! -f "${HZ_DISTRIBUTION_FILE}" ]; then
+  echo "File ${HZ_DISTRIBUTION_FILE} doesn't exits in current directory."
+  exit 1;
+fi
 
 echo "Building Homebrew package $HZ_DISTRIBUTION:${HZ_VERSION} package version ${PACKAGE_VERSION}"
 
