@@ -4,7 +4,10 @@ SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
 export USE_TEST_REPO=true
 
-. "$SCRIPT_DIR"/packages/tests-common/assert.sh/assert.sh
+# Source the latest version of assert.sh unit testing library and include in current shell
+assert_script_content=$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)
+# shellcheck source=/dev/null
+. <(echo "${assert_script_content}")
 . "$SCRIPT_DIR"/common.sh
 
 TESTS_RESULT=0
@@ -13,7 +16,8 @@ function assertReleaseType {
   export HZ_VERSION=$1
   local expected=$2
   . "$SCRIPT_DIR"/common.sh
-  assert_eq $expected $RELEASE_TYPE "Version $HZ_VERSION should be a $expected release" || TESTS_RESULT=$?
+  local msg="Version $HZ_VERSION should be a $expected release"
+  assert_eq $expected $RELEASE_TYPE "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 log_header "Tests for RELEASE_TYPE"
@@ -34,8 +38,10 @@ function assertPackageVersions {
   local expectedDebVersion=$3
   local expectedRpmVersion=$4
   . "$SCRIPT_DIR"/common.sh
-  assert_eq "$expectedDebVersion" "$DEB_PACKAGE_VERSION" "DEB_PACKAGE_VERSION for (HZ_VERSION=$HZ_VERSION, PACKAGE_VERSION=$PACKAGE_VERSION) should be $expectedDebVersion" || TESTS_RESULT=$?
-  assert_eq "$expectedRpmVersion" "$RPM_PACKAGE_VERSION" "RPM_PACKAGE_VERSION for (HZ_VERSION=$HZ_VERSION, PACKAGE_VERSION=$PACKAGE_VERSION) should be $expectedRpmVersion" || TESTS_RESULT=$?
+  local msg="DEB_PACKAGE_VERSION for (HZ_VERSION=$HZ_VERSION, PACKAGE_VERSION=$PACKAGE_VERSION) should be $expectedDebVersion"
+  assert_eq "$expectedDebVersion" "$DEB_PACKAGE_VERSION" "$msg" && log_success "$msg" || TESTS_RESULT=$?
+  msg="RPM_PACKAGE_VERSION for (HZ_VERSION=$HZ_VERSION, PACKAGE_VERSION=$PACKAGE_VERSION) should be $expectedRpmVersion"
+  assert_eq "$expectedRpmVersion" "$RPM_PACKAGE_VERSION" "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 log_header "Tests for DEB_PACKAGE_VERSION and RPM_PACKAGE_VERSION"
@@ -53,7 +59,8 @@ function assertMinorVersion {
   export HZ_VERSION=$1
   local expected=$2
   . "$SCRIPT_DIR"/common.sh
-  assert_eq "$expected" "$HZ_MINOR_VERSION" "Version $HZ_VERSION should be mapped to $expected minor version" || TESTS_RESULT=$?
+  local msg="Version $HZ_VERSION should be mapped to $expected minor version"
+  assert_eq "$expected" "$HZ_MINOR_VERSION" "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 log_header "Tests for HZ_MINOR_VERSION"

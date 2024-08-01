@@ -27,7 +27,7 @@ if [ -z "${HZ_PACKAGE_URL}" ]; then
 fi
 
 source common.sh
-source packages/brew/functions.sh
+source packages/brew/brew_functions.sh
 
 if [ ! -f "${HZ_DISTRIBUTION_FILE}" ]; then
   echo "File ${HZ_DISTRIBUTION_FILE} doesn't exits in current directory."

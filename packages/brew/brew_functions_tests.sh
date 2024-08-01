@@ -2,8 +2,11 @@
 
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
-. "$SCRIPT_DIR"/../tests-common/assert.sh/assert.sh
-. "$SCRIPT_DIR"/functions.sh
+# Source the latest version of assert.sh unit testing library and include in current shell
+assert_script_content=$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)
+# shellcheck source=/dev/null
+. <(echo "${assert_script_content}")
+. "$SCRIPT_DIR"/brew_functions.sh
 
 TESTS_RESULT=0
 
@@ -11,7 +14,8 @@ function assertAlphanumCamelCase {
   local testValue=$1
   local expected=$2
   local actual=$(alphanumCamelCase "$testValue")
-  assert_eq "$expected" "$actual" "Alphanumeric camel case of $testValue should be equal to $expected " || TESTS_RESULT=$?
+  local msg="Alphanumeric camel case of $testValue should be equal to $expected"
+  assert_eq "$expected" "$actual" "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 log_header "Tests for alphanumCamelCase"
@@ -32,7 +36,8 @@ function assertBrewClass {
   local version=$2
   local expected=$3
   local actual=$(brewClass "$distribution" "$version")
-  assert_eq "$expected" "$actual" "Brew class of $distribution $version should be equal to $expected " || TESTS_RESULT=$?
+  local msg="Brew class of $distribution $version should be equal to $expected"
+  assert_eq "$expected" "$actual" "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 log_header "Tests for brewClass"

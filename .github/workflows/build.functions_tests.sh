@@ -3,7 +3,10 @@
 set -eu
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
-. "$SCRIPT_DIR"/assert.sh/assert.sh
+# Source the latest version of assert.sh unit testing library and include in current shell
+assert_script_content=$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)
+# shellcheck source=/dev/null
+. <(echo "${assert_script_content}")
 . "$SCRIPT_DIR"/build.functions.sh
 
 TESTS_RESULT=0
@@ -13,8 +16,9 @@ function assert_should_build_oss {
   local release_type=$2
   local expected_should_build_os=$3
   local actual=$(should_build_oss "$triggered_by" "$release_type")
-  assert_eq "$expected_should_build_os" "$actual" "For triggered_by=$triggered_by release_type=$release_type \
-we should$( [ "$expected_should_build_os" = "no" ] && echo " NOT") build OS" || TESTS_RESULT=$?
+  local msg="For triggered_by=$triggered_by release_type=$release_type \
+we should$( [ "$expected_should_build_os" = "no" ] && echo " NOT") build OS"
+  assert_eq "$expected_should_build_os" "$actual" "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 log_header "Tests for should_build_oss"
@@ -33,8 +37,9 @@ function assert_should_build_ee {
   local release_type=$2
   local expected_should_build_ee=$3
   local actual=$(should_build_ee "$triggered_by" "$release_type")
-  assert_eq "$expected_should_build_ee" "$actual" "For triggered_by=$triggered_by release_type=$release_type \
-we should$( [ "$expected_should_build_ee" = "no" ] && echo " NOT") build EE" || TESTS_RESULT=$?
+  local msg="For triggered_by=$triggered_by release_type=$release_type \
+we should$( [ "$expected_should_build_ee" = "no" ] && echo " NOT") build EE"
+  assert_eq "$expected_should_build_ee" "$actual" "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 log_header "Tests for should_build_ee"
@@ -53,7 +58,8 @@ function assert_get_hz_dist_tar_gz {
   local distribution=$2
   local expected_url=$3
   local actual_url=$(get_hz_dist_tar_gz "$hz_version" "$distribution")
-  assert_eq "$expected_url" "$actual_url" "Expected URL for version \"$hz_version\", distribution \"$distribution\"" || TESTS_RESULT=$?
+  local msg="Expected '${expected_url}' URL for version \"$hz_version\", distribution \"$distribution\""
+  assert_eq "$expected_url" "$actual_url" "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 log_header "Tests for get_hz_dist_tar_gz"
@@ -70,7 +76,8 @@ function assert_url_contains_password {
   local password=$2
   local expected_result=$3
   local actual=$(url_contains_password "$url" "$password")
-  assert_eq "$expected_result" "$actual" "Url '$url' should$( [ "$expected_result" = "no" ] && echo " NOT") contain $password" || TESTS_RESULT=$?
+  local msg="Url '$url' should$( [ "$expected_result" = "no" ] && echo " NOT") contain $password"
+  assert_eq "$expected_result" "$actual" "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 assert_url_contains_password "https://dummy_user:dummy_password@repository.hazelcast.com/snapshot-internal/com/hazelcast/hazelcast-distribution/5.5.0-SNAPSHOT/hazelcast-distribution-5.5.0-SNAPSHOT.tar.gz" "dummy_password" "yes"
