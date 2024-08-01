@@ -58,7 +58,8 @@ function assert_get_hz_dist_tar_gz {
   local distribution=$2
   local expected_url=$3
   local actual_url=$(get_hz_dist_tar_gz "$hz_version" "$distribution")
-  assert_eq "$expected_url" "$actual_url" "Expected URL for version \"$hz_version\", distribution \"$distribution\"" || TESTS_RESULT=$?
+  local msg="Expected URL for version \"$hz_version\", distribution \"$distribution\""
+  assert_eq "$expected_url" "$actual_url" "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
 log_header "Tests for get_hz_dist_tar_gz"
