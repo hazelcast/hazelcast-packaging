@@ -5,8 +5,7 @@ set -o errexit
 set -x
 
 # Source the latest version of `abstract-simple-smoke-test.sh` from the `hazelcast-docker` repository and include in current shell
-# TODO Use `master` once merged
-curl --silent https://raw.githubusercontent.com/hazelcast/hazelcast-docker/DI-215-Add-additional-Deb/RPM/Brew-tests/.github/scripts/abstract-simple-smoke-test.sh --output abstract-simple-smoke-test.sh
+curl --silent https://raw.githubusercontent.com/hazelcast/hazelcast-docker/master/.github/scripts/abstract-simple-smoke-test.sh --output abstract-simple-smoke-test.sh
 
 # shellcheck source=/dev/null
 # You _should_ be able to avoid a temporary file with something like
