@@ -1,4 +1,4 @@
-# Hazelcast Packaging
+# DUMMY CHANGE Hazelcast Packaging
 
 Automation scripts to package and publish Hazelcast and Hazelcast Enterprise as DEB, RPM and Homebrew packages.
 
