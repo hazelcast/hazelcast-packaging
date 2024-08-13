@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o errexit -o nounset -o pipefail
 
 if [ -z "${USE_TEST_REPO}" ]; then
   echo "Variable USE_TEST_REPO is not set."
@@ -61,7 +62,7 @@ export BREW_PACKAGE_VERSION
 if [ "${USE_TEST_REPO}" == "true" ]; then
   # PRs publish to test repositories and install the packages from there
   export DEBIAN_REPO=debian-test-local
-  export DEBIAN_REPO_BASE_URL="https://repository.hazelcast.com/${DEBIAN_REPO}"
+  export DEBIAN_REPO_BASE_URL="https://${JFROG_USERNAME}:${JFROG_TOKEN}@repository.hazelcast.com/${DEBIAN_REPO}"
   export RPM_REPO=rpm-test-local
   export RPM_REPO_BASE_URL="https://repository.hazelcast.com/${RPM_REPO}"
 
