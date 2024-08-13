@@ -1,5 +1,4 @@
 #!/bin/bash
-set -o errexit -o nounset -o pipefail
 
 if [ -z "${USE_TEST_REPO}" ]; then
   echo "Variable USE_TEST_REPO is not set."
