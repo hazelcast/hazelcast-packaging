@@ -81,7 +81,7 @@ jobs:
             | gpg --dearmor \
             | sudo tee /usr/share/keyrings/hazelcast-archive-keyring.gpg > /dev/null
           echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list
-          sudo apt-get update && sudo apt-get install ${{ env.HZ_DISTRIBUTION}}=${HZ_VERSION}
+          sudo apt-get update && sudo apt-get install ${{ env.HZ_DISTRIBUTION }}=${HZ_VERSION}
           HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
