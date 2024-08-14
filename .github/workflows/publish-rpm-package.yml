@@ -87,8 +87,7 @@ jobs:
             ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo \
             --header "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
             --output-document - | \
-          sed \
-            "s#\(https\?://\)#\1${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_TOKEN }}@#g" > \
+          sed "s#\(https://\)#\1${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_TOKEN }}@#g" > \
           /etc/yum.repos.d/hazelcast-rpm-${PACKAGE_REPO}.repo
 
           yum install -y ${{ env.HZ_DISTRIBUTION}}-${RPM_HZ_VERSION}
