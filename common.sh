@@ -61,9 +61,8 @@ export BREW_PACKAGE_VERSION
 if [ "${USE_TEST_REPO}" == "true" ]; then
   # PRs publish to test repositories and install the packages from there
   export DEBIAN_REPO=debian-test-local
-  export DEBIAN_REPO_BASE_URL="https://repository.hazelcast.com/${DEBIAN_REPO}"
+  export DEBIAN_REPO_BASE_URL="https://${JFROG_USERNAME}:${JFROG_TOKEN}@repository.hazelcast.com/${DEBIAN_REPO}"
   export RPM_REPO=rpm-test-local
-  export RPM_REPO_BASE_URL="https://repository.hazelcast.com/${RPM_REPO}"
 
   # This is a clone of the hazelcast/homebrew-hz repository
   export BREW_GIT_REPO_NAME="hazelcast/homebrew-hz-test"
@@ -72,8 +71,10 @@ else
   export DEBIAN_REPO=debian-local
   export DEBIAN_REPO_BASE_URL="https://repository.hazelcast.com/${DEBIAN_REPO}"
   export RPM_REPO=rpm-local
-  export RPM_REPO_BASE_URL="https://repository.hazelcast.com/${RPM_REPO}"
 
   export BREW_GIT_REPO_NAME="hazelcast/homebrew-hz"
   export BREW_TAP_NAME="hazelcast/hz"
 fi
+
+export RPM_REPO_BASE_URL="https://repository.hazelcast.com/${RPM_REPO}"
+export HZ_DISTRIBUTION_FILE=distribution.tar.gz

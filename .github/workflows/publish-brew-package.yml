@@ -19,6 +19,10 @@ on:
         description: 'Version of the package e.g. 5.1.1, 5.1.1-1, defaults to HZ_VERSION'
         type: string
 
+env:
+  JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
+  JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
+
 concurrency:
   group: 'brew-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
 
