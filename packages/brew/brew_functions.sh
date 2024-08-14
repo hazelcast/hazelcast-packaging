@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail ${RUNNER_DEBUG:+-x}
+
 function alphanumCamelCase {
   echo "$1"|  sed -r 's/(-)/\./g' | tr '[:upper:]' '[:lower:]' | sed "s/\b\(.\)/\u\1/g" | sed 's+\.++g'
 }
@@ -7,7 +9,7 @@ function alphanumCamelCase {
 # The class name used in formula must not have dots nor hyphens and must be alphanumCamelCased
 function brewClass {
   basename=$(alphanumCamelCase "$1")
-  version=$(alphanumCamelCase "$2")
+  version=$(alphanumCamelCase "${2:-}")
   if [ -n "${version}" ]; then
     version="AT${version}"
   fi
