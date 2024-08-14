@@ -81,15 +81,16 @@ jobs:
           HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
         run: |
           source ./common.sh
+
+          # Bake authentication into the returned URLs
           wget \
             ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo \
             --header "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
-            --output-document hazelcast-rpm-${PACKAGE_REPO}.repo
+            --output-document - | \
+          sed \
+            "s#\(https\?://\)#\1${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_TOKEN }}@#g" > \
+          /etc/yum.repos.d/hazelcast-rpm-${PACKAGE_REPO}.repo
 
-          # Bake authentication into the returned URLs
-          sed --in-place "s#\(https\?://\)#\1${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_TOKEN }}@#g" hazelcast-rpm-${PACKAGE_REPO}.repo
-
-          mv hazelcast-rpm-${PACKAGE_REPO}.repo /etc/yum.repos.d/          
           yum install -y ${{ env.HZ_DISTRIBUTION}}-${RPM_HZ_VERSION}
           HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
