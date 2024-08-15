@@ -1,4 +1,4 @@
-name: Publish DEB package
+name: Publish RPM package
 
 on:
   workflow_call:
