@@ -81,7 +81,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ env.BREW_GIT_REPO_NAME }}
-          ref: master
           token: ${{ secrets.DEVOPS_SECRET }}
           path: 'homebrew-hz'
 
