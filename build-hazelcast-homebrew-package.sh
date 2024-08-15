@@ -58,7 +58,7 @@ function generateFormula {
   all_hz_versions=({hazelcast.rb,hazelcast?[0-9]*\.rb,hazelcast-enterprise*\.rb})
   for version in "${all_hz_versions[@]}"
   do
-    if [[ "$version" != "$file" ]] && [[ ! "$version" =~ .*(beta).* ]] ; then
+    if [[ "$version" != "$file" && ! "$version" =~ .*beta.* ]] ; then
       sed -i "/sha256.*$/a \ \ \ \ conflicts_with \"${version%.rb}\", because: \"you can install only a single hazelcast or hazelcast-enterprise package\"" "$file"
     fi
   done
