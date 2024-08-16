@@ -9,9 +9,6 @@ export RELEASE_TYPE=stable
 if [[ "$HZ_VERSION" == *"SNAPSHOT"* ]]; then
   export RELEASE_TYPE=snapshot
 fi
-if [[ "$HZ_VERSION" == *"DEVEL"* ]]; then
-  export RELEASE_TYPE=devel
-fi
 if [[ "$HZ_VERSION" == *"BETA"* ]]; then
   export RELEASE_TYPE=beta
 fi
