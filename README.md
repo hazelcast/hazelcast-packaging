@@ -164,11 +164,11 @@ Run the following to install e.g. version `5.0.1`:
 brew install hazelcast@5.0.1
 ```
 
-## Installing a SNAPSHOT/DEVEL/BETA version
+## Installing a SNAPSHOT/BETA version
 
-### Install a SNAPSHOT/DEVEL/BETA version with apt
+### Install a SNAPSHOT/BETA version with apt
 
-You need to replace `stable` with `snapshot`/`devel`/`beta` in
+You need to replace `stable` with `snapshot`/`beta` in
 the repository definition to use Hazelcast snapshots.
 
 Run the following to install the latest snapshot version:
@@ -185,9 +185,9 @@ Install Hazelcast Enterprise (license required)
 sudo apt install hazelcast-enterprise
 ```
 
-### Install a SNAPSHOT/DEVEL/BETA version with yum
+### Install a SNAPSHOT/BETA version with yum
 
-You need to replace `stable` with `snapshot`/`devel`/`beta` in 
+You need to replace `stable` with `snapshot`/`beta` in 
 the repository definition to use Hazelcast snapshots.
 
 Run the following to install the latest snapshot version:
@@ -203,16 +203,16 @@ Install Hazelcast Enterprise (license required)
 sudo yum install hazelcast-enterprise
 ```
 
-### Install a SNAPSHOT/DEVEL/BETA version with Homebrew
+### Install a SNAPSHOT/BETA version with Homebrew
 
-You need to add `snapshot`/`devel`/`beta` suffix to the package version when 
+You need to add `snapshot`/`beta` suffix to the package version when 
 installing a snapshot.
 
-Run the following to install the latest `devel` version of Hazelcast Enterprise:
+Run the following to install the latest `snapshot` version of Hazelcast Enterprise:
 
 ```shell
 brew tap hazelcast/hz
-brew install hazelcast-enterprise-devel
+brew install hazelcast-enterprise-snapshot
 ```
 
 Search for available versions using the following command:
