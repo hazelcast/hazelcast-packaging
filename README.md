@@ -37,7 +37,7 @@ echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] https://
 sudo apt update
 ```
 
-Install Hazelcast (open source)
+Install Hazelcast (community edition)
 ```shell
 sudo apt install hazelcast
 ```
@@ -60,7 +60,7 @@ sudo mv hazelcast-rpm-stable.repo /etc/yum.repos.d/
 sudo yum install hazelcast
 ```
 
-Install Hazelcast (open source)
+Install Hazelcast (community edition)
 ```shell
 sudo yum install hazelcast
 ```
@@ -82,7 +82,7 @@ Add repository
 brew tap hazelcast/hz
 ```
 
-Install Hazelcast (open source)
+Install Hazelcast (community edition)
 ```shell
 brew install hazelcast
 ```
@@ -166,8 +166,6 @@ brew install hazelcast@5.0.1
 
 ## Installing a SNAPSHOT/BETA version
 
-NOTE: The same steps apply to `hazelcast` and `hazelcast-enterprise` packages
-
 ### Install a SNAPSHOT/BETA version with apt
 
 You need to replace `stable` with `snapshot`/`beta` in
@@ -182,12 +180,7 @@ echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] https://
 sudo apt update
 ```
 
-Install Hazelcast (open source)
-```shell
-sudo apt install hazelcast
-```
-
-or Hazelcast Enterprise (license required)
+Install Hazelcast Enterprise (license required)
 ```shell
 sudo apt install hazelcast-enterprise
 ```
@@ -205,12 +198,7 @@ wget https://repository.hazelcast.com/rpm/snapshot/hazelcast-rpm-snapshot.repo -
 sudo mv hazelcast-rpm-snapshot.repo /etc/yum.repos.d/
 ```
 
-Install Hazelcast (open source)
-```shell
-sudo yum install hazelcast
-```
-
-or Hazelcast Enterprise (license required)
+Install Hazelcast Enterprise (license required)
 ```shell
 sudo yum install hazelcast-enterprise
 ```
@@ -220,11 +208,11 @@ sudo yum install hazelcast-enterprise
 You need to add `snapshot`/`beta` suffix to the package version when 
 installing a snapshot.
 
-Run the following to install the latest `snapshot` version of open-source Hazelcast:
+Run the following to install the latest `snapshot` version of Hazelcast Enterprise:
 
 ```shell
 brew tap hazelcast/hz
-brew install hazelcast-snapshot
+brew install hazelcast-enterprise-snapshot
 ```
 
 Search for available versions using the following command:
