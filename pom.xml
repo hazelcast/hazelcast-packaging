@@ -45,10 +45,5 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <id>hazelcast-devel-repository</id>
-            <name>Hazelcast Private Development Repository</name>
-            <url>https://repository.hazelcast.com/devel/</url>
-        </repository>
     </repositories>
 </project>

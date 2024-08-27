@@ -58,7 +58,7 @@ function generateFormula {
   all_hz_versions=({hazelcast.rb,hazelcast-devel.rb,hazelcast-snapshot.rb,hazelcast?[0-9]*\.rb,hazelcast-enterprise*\.rb})
   for version in "${all_hz_versions[@]}"
   do
-    if [[ "$version" != "$file" ]] && [[ ! "$version" =~ .*(beta|devel).* ]] ; then
+    if [[ "$version" != "$file" && ! "$version" =~ .*beta.* ]] ; then
       sed -i "/sha256.*$/a \ \ \ \ conflicts_with \"${version%.rb}\", because: \"you can install only a single hazelcast or hazelcast-enterprise package\"" "$file"
     fi
   done
@@ -67,7 +67,7 @@ function generateFormula {
 BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}" "${BREW_PACKAGE_VERSION}")
 generateFormula "$BREW_CLASS" "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb"
 
-# Update hazelcast and hazelcast-x.y aliases only if the version is a stable release (not SNAPSHOT/DEVEL/BETA)
+# Update hazelcast and hazelcast-x.y aliases only if the version is a stable release (not SNAPSHOT/BETA)
 if [[ "$RELEASE_TYPE" = "stable" ]]; then
     rm -f "Aliases/${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}" #migrate incrementally from symlinks to regular files
     BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}${HZ_MINOR_VERSION}")
