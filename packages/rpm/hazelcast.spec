@@ -60,8 +60,6 @@ rm -rf $RPM_BUILD_ROOT
 %{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-healthcheck %{buildroot}%{_bindir}/hz-healthcheck
 %{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-start %{buildroot}%{_bindir}/hz-start
 %{__ln_s} %{_prefix}/lib/hazelcast/bin/hz-stop %{buildroot}%{_bindir}/hz-stop
-# Fix for missing custom-lib
-%{__mkdir} -p %{buildroot}%{_prefix}/lib/hazelcast/custom-lib
 
 echo 'hazelcastDownloadId=rpm' > "%{buildroot}%{_prefix}/lib/hazelcast/lib/hazelcast-download.properties"
 
@@ -89,7 +87,6 @@ printf "\n\nUse 'hz start' or 'systemctl start hazelcast' to start the Hazelcast
 %endif
 %{_prefix}/lib/hazelcast/NOTICE
 %{_prefix}/lib/hazelcast/bin
-%{_prefix}/lib/hazelcast/custom-lib
 %{_prefix}/lib/hazelcast/lib
 %{_prefix}/lib/hazelcast/licenses
 %config(noreplace) %{_prefix}/lib/hazelcast/config/*.xml
