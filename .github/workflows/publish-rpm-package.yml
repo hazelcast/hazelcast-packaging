@@ -102,7 +102,7 @@ jobs:
           yum remove -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
 
       - name: Remove rpm package from test repo
-        if: env.USE_TEST_REPO == 'true'
+        if: ${{ env.USE_TEST_REPO == 'true' && (success() || failure()) }}
         run: |
           source ./common.sh
           curl -H "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \

@@ -5,7 +5,7 @@ Section: imdg
 Priority: optional
 Architecture: all
 Conflicts: ${CONFLICTS}
-Depends: java21-sdk-headless
+Depends: java21-sdk-headless | default-jdk-headless
 Maintainer: Hazelcast Platform Team <platform@hazelcast.com>
 Description: A tool that allows users to install & run Hazelcast
 Homepage: https://www.hazelcast.com/
