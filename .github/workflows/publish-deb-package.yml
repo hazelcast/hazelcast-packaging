@@ -29,6 +29,11 @@ concurrency:
 jobs:
   deb:
     runs-on: ubuntu-latest
+    container:
+      image: debian:stable
+    defaults:
+      run:
+        shell: bash
     env:
       HZ_VERSION: ${{ inputs.HZ_VERSION }}
       PACKAGE_VERSION: ${{ inputs.PACKAGE_VERSION || inputs.HZ_VERSION }}
@@ -39,14 +44,10 @@ jobs:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v4
 
-      - name: Load env vars from .env file
-        run: cat .env >> $GITHUB_ENV
-
-      - name: Setup JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
+      - name: Install prerequisites
+        run: |
+          apt-get update
+          apt-get install -y curl gettext-base gpg sudo wget
 
       - name: Download the distribution tar.gz file
         env:
@@ -94,7 +95,7 @@ jobs:
           sudo apt remove ${{ env.HZ_DISTRIBUTION}}
 
       - name: Remove deb package from test repo
-        if: env.USE_TEST_REPO == 'true'
+        if: ${{ env.USE_TEST_REPO == 'true' && (success() || failure()) }}
         run: |
           source ./common.sh
           curl -H "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
