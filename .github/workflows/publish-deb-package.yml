@@ -92,7 +92,7 @@ jobs:
       - name: Uninstall Hazelcast from deb
         run: |
           source ./common.sh
-          sudo apt-get remove --assume-yes ${{ env.HZ_DISTRIBUTION}}
+          sudo apt-get remove -y ${{ env.HZ_DISTRIBUTION}}
 
       - name: Remove deb package from test repo
         if: ${{ env.USE_TEST_REPO == 'true' && (success() || failure()) }}
