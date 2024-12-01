@@ -82,7 +82,7 @@ jobs:
             | gpg --dearmor \
             | sudo tee /usr/share/keyrings/hazelcast-archive-keyring.gpg > /dev/null
           echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list
-          sudo apt update && sudo apt install ${{ env.HZ_DISTRIBUTION}}=${HZ_VERSION}
+          sudo apt-get update && sudo apt-get install -y ${{ env.HZ_DISTRIBUTION }}=${HZ_VERSION}
           HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
@@ -92,7 +92,7 @@ jobs:
       - name: Uninstall Hazelcast from deb
         run: |
           source ./common.sh
-          sudo apt remove ${{ env.HZ_DISTRIBUTION}}
+          sudo apt-get remove -y ${{ env.HZ_DISTRIBUTION}}
 
       - name: Remove deb package from test repo
         if: ${{ env.USE_TEST_REPO == 'true' && (success() || failure()) }}
