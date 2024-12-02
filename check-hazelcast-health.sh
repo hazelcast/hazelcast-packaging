@@ -1,17 +1,9 @@
 #!/usr/bin/env bash
 
-set -o errexit
-# TODO REMOVE
-set -x
+set -o errexit ${RUNNER_DEBUG:+-x}
 
-# Source the latest version of `abstract-simple-smoke-test.sh` from the `hazelcast-docker` repository and include in current shell
-curl --silent https://raw.githubusercontent.com/hazelcast/hazelcast-docker/master/.github/scripts/abstract-simple-smoke-test.sh --output abstract-simple-smoke-test.sh
-
-# shellcheck source=/dev/null
-# You _should_ be able to avoid a temporary file with something like
-# . <(echo "${abstract_simple_smoke_test_script_content}")
-# But this doesn't work on the MacOS GitHub runner (but does on MacOS locally)
-. abstract-simple-smoke-test.sh
+# shellcheck source=../hazelcast-docker/.github/scripts/abstract-simple-smoke-test.sh
+. hazelcast-docker/.github/scripts/abstract-simple-smoke-test.sh
 
 function get_hz_logs() {
     cat hz.log
