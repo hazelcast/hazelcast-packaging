@@ -41,6 +41,12 @@ jobs:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v4
 
+      - name: Checkout hazelcast-docker repo
+        uses: actions/checkout@v4
+        with:
+          repository: hazelcast/hazelcast-docker
+          path: 'hazelcast-docker'
+
       - name: Load env vars from .env file
         run: cat .env >> $GITHUB_ENV
 
