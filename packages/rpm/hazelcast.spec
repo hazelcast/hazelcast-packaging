@@ -89,6 +89,7 @@ printf "\n\nUse 'hz start' or 'systemctl start hazelcast' to start the Hazelcast
 %{_prefix}/lib/hazelcast/bin
 %{_prefix}/lib/hazelcast/lib
 %{_prefix}/lib/hazelcast/licenses
+%{_prefix}/lib/hazelcast/release_notes.txt
 %config(noreplace) %{_prefix}/lib/hazelcast/config/*.xml
 %config(noreplace) %{_prefix}/lib/hazelcast/config/*.yaml
 %config(noreplace) %{_prefix}/lib/hazelcast/config/*.options
