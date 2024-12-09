@@ -3,7 +3,6 @@
 set -o errexit ${RUNNER_DEBUG:+-x}
 
 pushd hazelcast-docker
-  # shellcheck source=../hazelcast-docker/.github/scripts/abstract-simple-smoke-test.sh
   . .github/scripts/abstract-simple-smoke-test.sh
 popd
 
