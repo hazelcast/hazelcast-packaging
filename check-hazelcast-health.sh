@@ -2,8 +2,9 @@
 
 set -o errexit ${RUNNER_DEBUG:+-x}
 
-# shellcheck source=../hazelcast-docker/.github/scripts/abstract-simple-smoke-test.sh
-. hazelcast-docker/.github/scripts/abstract-simple-smoke-test.sh
+pushd hazelcast-docker
+  . .github/scripts/abstract-simple-smoke-test.sh
+popd
 
 function get_hz_logs() {
     cat hz.log
