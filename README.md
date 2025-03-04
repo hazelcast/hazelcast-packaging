@@ -22,10 +22,9 @@ You can find the Debian packages for Hazelcast at
 Run the following commands to install the package using apt:
 
 Add repository
+# TODO Change file location to Hazelcast-based!
 ```shell
-wget -qO - https://repository.hazelcast.com/api/gpg/key/public | gpg --dearmor | sudo tee /usr/share/keyrings/hazelcast-archive-keyring.gpg > /dev/null
-echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] https://repository.hazelcast.com/debian stable main" | sudo tee -a /etc/apt/sources.list
-sudo apt update
+wget -qO - https://tinyurl.com/hz-deb-repo |  bash -
 ```
 
 NOTE: If you want to stay on latest patch version for a particular minor 
