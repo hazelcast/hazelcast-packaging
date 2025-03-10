@@ -1,3 +1,0 @@
-#!/bin/sh
-
-java -version || (echo "Java must be installed" && exit 1)

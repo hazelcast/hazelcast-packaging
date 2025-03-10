@@ -24,16 +24,22 @@ Run the following commands to install the package using apt:
 Add repository
 # TODO Change file location to Hazelcast-based!
 ```shell
-wget -qO - https://tinyurl.com/hz-deb-repo |  bash -
+sudo apt install --no-upgrade wget gpg coreutils
+bash <(wget -qO - https://tinyurl.com/hz-deb-repo)
 ```
 
 NOTE: If you want to stay on latest patch version for a particular minor 
 release you can replace `main` component with `x.y`, e.g. `5.1`. 
 
 ```shell
-wget -qO - https://repository.hazelcast.com/api/gpg/key/public | gpg --dearmor | sudo tee /usr/share/keyrings/hazelcast-archive-keyring.gpg > /dev/null
-echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] https://repository.hazelcast.com/debian stable 5.1" | sudo tee -a /etc/apt/sources.list
-sudo apt update
+sudo apt install --no-upgrade wget gpg coreutils
+bash <(wget -qO - https://tinyurl.com/hz-deb-repo) stable 5.1
+```
+
+To install snapshot version, you can add following repository (works only with Hazelcast Enterprise):
+```shell
+sudo apt install --no-upgrade wget gpg coreutils
+bash <(wget -qO - https://tinyurl.com/hz-deb-repo) snapshot main
 ```
 
 Install Hazelcast (community edition)
