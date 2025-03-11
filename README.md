@@ -28,6 +28,8 @@ sudo apt install --no-upgrade wget gpg coreutils
 bash <(wget -qO - https://tinyurl.com/hz-deb-repo)
 ```
 
+Of course you can also use other tool to download the script and review it before execution.
+
 NOTE: If you want to stay on latest patch version for a particular minor 
 release you can replace `main` component with `x.y`, e.g. `5.1`. 
 
