@@ -23,7 +23,6 @@ Run the following commands to install the package using apt:
 
 Add repository:
 ```shell
-# install necessary tools
 sudo apt-get install -y --no-upgrade wget gpg coreutils \
   && wget -qO - https://repository.hazelcast.com/api/gpg/key/public | gpg --dearmor | sudo tee /usr/share/keyrings/hazelcast-archive-keyring.gpg > /dev/null \
   && echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] https://repository.hazelcast.com/debian stable main" | sudo tee -a /etc/apt/sources.list \
@@ -34,7 +33,6 @@ NOTE: If you want to stay on latest patch version for a particular minor
 release you can replace `main` component with `x.y`, e.g. `5.1`. 
 
 ```shell
-# install necessary tools
 sudo apt-get install -y --no-upgrade wget gpg coreutils \
   && wget -qO - https://repository.hazelcast.com/api/gpg/key/public | gpg --dearmor | sudo tee /usr/share/keyrings/hazelcast-archive-keyring.gpg > /dev/null \
   && echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] https://repository.hazelcast.com/debian stable 5.1" | sudo tee -a /etc/apt/sources.list \
