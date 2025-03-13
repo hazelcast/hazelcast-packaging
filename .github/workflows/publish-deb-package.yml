@@ -80,15 +80,16 @@ jobs:
           HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
         run: |
           source ./common.sh
-          wget \
-            https://repository.hazelcast.com/api/gpg/key/public \
-            --header "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
-            --output-document - \
-            --quiet \
-            | gpg --dearmor \
-            | sudo tee /usr/share/keyrings/hazelcast-archive-keyring.gpg > /dev/null
-          echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list
-          sudo apt-get update && sudo apt-get install -y ${{ env.HZ_DISTRIBUTION }}=${HZ_VERSION}
+          apt-get install -y curl gettext-base gpg sudo wget \
+            && wget \
+              https://repository.hazelcast.com/api/gpg/key/public \
+              --header "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
+              --output-document - \
+              --quiet \
+              | gpg --dearmor \
+              | sudo tee /usr/share/keyrings/hazelcast-archive-keyring.gpg > /dev/null \
+            && echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list \
+            && sudo apt-get update && sudo apt-get install -y ${{ env.HZ_DISTRIBUTION }}=${HZ_VERSION}
           HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
