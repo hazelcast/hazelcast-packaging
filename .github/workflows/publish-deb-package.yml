@@ -80,7 +80,7 @@ jobs:
           HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
         run: |
           source ./common.sh
-          apt-get install -y curl gettext-base gpg sudo wget \
+          apt-get install -y --no-upgrade wget gpg coreutils \
             && wget \
               https://repository.hazelcast.com/api/gpg/key/public \
               --header "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
