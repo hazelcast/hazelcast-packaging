@@ -72,7 +72,7 @@ jobs:
         run: |
           source common.sh
 
-          curl --fail-with-body --retry 3 --retry-max-time 240 -H "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
+          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
             -X POST "https://repository.hazelcast.com/api/deb/reindex/${DEBIAN_REPO}"
 
       - name: Install Hazelcast from deb
