@@ -83,7 +83,6 @@ jobs:
           apt-get install -y --no-upgrade wget gpg coreutils \
             && wget \
               https://repository.hazelcast.com/api/gpg/key/public \
-              --header "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
               --output-document - \
               --quiet \
               | gpg --dearmor \
