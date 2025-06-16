@@ -7,6 +7,8 @@ export USE_TEST_REPO=true
 # Source the latest version of assert.sh unit testing library and include in current shell
 source /dev/stdin <<< "$(curl --silent https://raw.githubusercontent.com/hazelcast/assert.sh/main/assert.sh)"
 
+. "$SCRIPT_DIR"/common.sh
+
 TESTS_RESULT=0
 
 function assertReleaseType {
