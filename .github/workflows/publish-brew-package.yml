@@ -18,6 +18,9 @@ on:
       PACKAGE_VERSION:
         description: 'Version of the package e.g. 5.1.1, 5.1.1-1, defaults to HZ_VERSION'
         type: string
+      environment:
+        description: 'Environment to use'
+        type: string
 
 env:
   JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
@@ -28,6 +31,7 @@ concurrency:
 
 jobs:
   homebrew:
+    environment: ${{ inputs.environment }}
     runs-on: macos-latest
     env:
       HZ_VERSION: ${{ inputs.HZ_VERSION }}
