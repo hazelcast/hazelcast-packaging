@@ -27,6 +27,7 @@ env:
   JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
   DEVOPS_PRIVATE_KEY: ${{ secrets.DEVOPS_PRIVATE_KEY }}
   BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
+  ENVIRONMENT: ${{ inputs.environment }}
 
 concurrency:
   group: 'rpm-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'

@@ -5,6 +5,11 @@ if [ -z "${USE_TEST_REPO}" ]; then
   exit 1
 fi
 
+if [ -z "${ENVIRONMENT}" ]; then
+  echo "Variable ENVIRONMENT is not set."
+  exit 1
+fi
+
 export RELEASE_TYPE=stable
 if [[ "$HZ_VERSION" == *"SNAPSHOT"* ]]; then
   export RELEASE_TYPE=snapshot
@@ -65,12 +70,19 @@ if [ "${USE_TEST_REPO}" == "true" ]; then
   export BREW_GIT_REPO_NAME="hazelcast/homebrew-hz-test"
   export BREW_TAP_NAME="hazelcast/hz-test"
 else
-  export DEBIAN_REPO=debian-local
-  export DEBIAN_REPO_BASE_URL="https://repository.hazelcast.com/${DEBIAN_REPO}"
-  export RPM_REPO=rpm-local
-
-  export BREW_GIT_REPO_NAME="hazelcast/homebrew-hz"
-  export BREW_TAP_NAME="hazelcast/hz"
+  if [ "${ENVIRONMENT}" == "sandbox" ]; then
+    export DEBIAN_REPO=sandbox-deb-prod
+    export DEBIAN_REPO_BASE_URL="https://${JFROG_USERNAME}:${JFROG_TOKEN}@repository.hazelcast.com/${DEBIAN_REPO}"
+    export RPM_REPO=sandbox-rpm-prod
+    export BREW_GIT_REPO_NAME="hazelcast/homebrew-sandbox-hz"
+    export BREW_TAP_NAME="hazelcast/sandbox-hz"
+  else
+    export DEBIAN_REPO=debian-local
+    export DEBIAN_REPO_BASE_URL="https://repository.hazelcast.com/${DEBIAN_REPO}"
+    export RPM_REPO=rpm-local
+    export BREW_GIT_REPO_NAME="hazelcast/homebrew-hz"
+    export BREW_TAP_NAME="hazelcast/hz"
+  fi
 fi
 
 export RPM_REPO_BASE_URL="https://repository.hazelcast.com/${RPM_REPO}"
