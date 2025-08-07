@@ -25,6 +25,7 @@ on:
 env:
   JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
   JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
+  ENVIRONMENT: ${{ inputs.environment }}
 
 concurrency:
   group: 'deb-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'

@@ -51,7 +51,6 @@ concurrency:
 
 jobs:
   prepare:
-    environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     env:
       RELEASE_TYPE: ${{ inputs.RELEASE_TYPE || 'EE' }}
@@ -65,6 +64,7 @@ jobs:
       should_build_rpm: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'rpm' }}
       should_build_homebrew: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew' }}
       use_test_repo: ${{ env.EVENT_NAME == 'pull_request' }}
+      environment: ${{ inputs.environment || 'sandbox' }}
     steps:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v5
@@ -127,7 +127,7 @@ jobs:
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
      USE_TEST_REPO: ${{ needs.prepare.outputs.use_test_repo }}
-     environment: ${{ inputs.environment }}
+     environment: ${{ needs.prepare.outputs.environment }}
   deb-oss:
     needs: [ prepare ]
     if: needs.prepare.outputs.should_build_deb == 'true' && needs.prepare.outputs.should_build_oss == 'yes'
@@ -137,7 +137,7 @@ jobs:
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
       USE_TEST_REPO: ${{ needs.prepare.outputs.use_test_repo }}
-      environment: ${{ inputs.environment }}
+      environment: ${{ needs.prepare.outputs.environment }}
 
   rpm-ee:
     if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_ee == 'yes'
@@ -148,7 +148,7 @@ jobs:
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
      USE_TEST_REPO: ${{ needs.prepare.outputs.use_test_repo }}
-     environment: ${{ inputs.environment }}
+     environment: ${{ needs.prepare.outputs.environment }}
   rpm-oss:
     needs: [ prepare ]
     if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_oss == 'yes'
@@ -158,7 +158,7 @@ jobs:
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
       USE_TEST_REPO: ${{ needs.prepare.outputs.use_test_repo }}
-      environment: ${{ inputs.environment }}
+      environment: ${{ needs.prepare.outputs.environment }}
 
   brew-ee:
     if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_ee == 'yes'
@@ -169,7 +169,7 @@ jobs:
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
      USE_TEST_REPO: ${{ needs.prepare.outputs.use_test_repo }}
-     environment: ${{ inputs.environment }}
+     environment: ${{ needs.prepare.outputs.environment }}
   brew-oss:
     needs: [ prepare ]
     if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_oss == 'yes' && !contains(needs.prepare.outputs.hz_version, 'SNAPSHOT')
@@ -179,4 +179,4 @@ jobs:
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
       USE_TEST_REPO: ${{ needs.prepare.outputs.use_test_repo }}
-      environment: ${{ inputs.environment }}
+      environment: ${{ needs.prepare.outputs.environment }}
