@@ -118,6 +118,8 @@ jobs:
       - name: Install Hazelcast from Homebrew
         run: |
           source ./common.sh
+          git config --global url."https://${{ secrets.DEVOPS_SECRET }}@github.com/".insteadOf "https://github.com/"
+
           brew tap ${BREW_TAP_NAME}
           brew install ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
 
