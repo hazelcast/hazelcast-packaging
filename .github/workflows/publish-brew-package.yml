@@ -36,10 +36,10 @@ jobs:
       USE_TEST_REPO: ${{ inputs.USE_TEST_REPO }}
     steps:
       - name: Checkout hazelcast-packaging repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Checkout hazelcast-docker repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: hazelcast/hazelcast-docker
           path: 'hazelcast-docker'
@@ -84,7 +84,7 @@ jobs:
           echo "BREW_GIT_REPO_NAME=${BREW_GIT_REPO_NAME}" >> $GITHUB_ENV
 
       - name: Checkout homebrew-hz repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ env.BREW_GIT_REPO_NAME }}
           token: ${{ secrets.DEVOPS_SECRET }}
