@@ -58,7 +58,7 @@ jobs:
       use_test_repo: ${{ env.EVENT_NAME == 'pull_request' }}
     steps:
       - name: Checkout hazelcast-packaging repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Load env vars from .env file
         run: cat .env >> $GITHUB_ENV
