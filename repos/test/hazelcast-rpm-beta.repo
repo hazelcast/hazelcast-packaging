@@ -3,5 +3,5 @@ name=Hazelcast RPM Beta Repository
 baseurl=https://repository.hazelcast.com/rpm-test-local/beta
 enabled=1
 gpgcheck=1
-gpgkey=https://repository.hazelcast.com/rpm-test-local/beta/repodata/repomd.xml.key
+gpgkey=https://repository.hazelcast.com/api/security/keypair/public/repositories/rpm-test-local https://repository.hazelcast.com/api/security/keypair/gpg-key-2011/public
 repo_gpgcheck=1
