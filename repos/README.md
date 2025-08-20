@@ -9,10 +9,10 @@ Upload the file to artifactory:
 - TEST environment
 ```shell
 export REPO=stable; # beta,snapshot,stable
-curl -H "Authorization: Bearer ${JFROG_TOKEN}" -Thazelcast-rpm-${REPO}.repo -X PUT "https://repository.hazelcast.com/rpm-test-local/${REPO}/"
+curl -H "Authorization: Bearer ${JFROG_TOKEN}" --upload-file hazelcast-rpm-${REPO}.repo -X PUT "https://repository.hazelcast.com/rpm-test-local/${REPO}/"
 ```
 - PROD environment
 ```shell
 export REPO=stable; # beta,snapshot,stable
-curl -H "Authorization: Bearer ${JFROG_TOKEN}" -Thazelcast-rpm-${REPO}.repo -X PUT "https://repository.hazelcast.com/rpm-local/${REPO}/"
+curl -H "Authorization: Bearer ${JFROG_TOKEN}" --upload-file hazelcast-rpm-${REPO}.repo -X PUT "https://repository.hazelcast.com/rpm-local/${REPO}/"
 ```
