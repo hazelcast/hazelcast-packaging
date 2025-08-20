@@ -14,5 +14,5 @@ curl -H "Authorization: Bearer ${JFROG_TOKEN}" -Thazelcast-rpm-${REPO}.repo -X P
 - PROD environment
 ```shell
 export REPO=stable; # beta,snapshot,stable
-curl -H "Authorization: Bearer ${JFROG_TOKEN}"  -Thazelcast-rpm-${REPO}.repo -X PUT "https://repository.hazelcast.com/rpm-local/${REPO}/"
+curl -H "Authorization: Bearer ${JFROG_TOKEN}" -Thazelcast-rpm-${REPO}.repo -X PUT "https://repository.hazelcast.com/rpm-local/${REPO}/"
 ```
