@@ -42,7 +42,7 @@ function get_hz_dist_tar_gz() {
     if [[ "${hz_version}" == *"SNAPSHOT"* ]]; then
       url="https://${HZ_SNAPSHOT_INTERNAL_USERNAME}:${HZ_SNAPSHOT_INTERNAL_PASSWORD}@repository.hazelcast.com/snapshot-internal/com/hazelcast/hazelcast-distribution/${hz_version}/hazelcast-distribution-${hz_version}.$extension"
     else
-      url="https://repo1.maven.org/maven2/com/hazelcast/hazelcast-distribution/${hz_version}/hazelcast-distribution-${hz_version}.$extension"
+      url="https://repo.maven.apache.org/maven2/com/hazelcast/hazelcast-distribution/${hz_version}/hazelcast-distribution-${hz_version}.$extension"
     fi
   elif [[ "$distribution" == "hazelcast-enterprise" ]]; then
     local repository

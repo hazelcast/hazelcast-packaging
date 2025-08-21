@@ -64,7 +64,7 @@ function assert_get_hz_dist_tar_gz {
 log_header "Tests for get_hz_dist_tar_gz"
 export HZ_SNAPSHOT_INTERNAL_USERNAME=dummy_user
 export HZ_SNAPSHOT_INTERNAL_PASSWORD=dummy_password
-assert_get_hz_dist_tar_gz 5.4.0 hazelcast https://repo1.maven.org/maven2/com/hazelcast/hazelcast-distribution/5.4.0/hazelcast-distribution-5.4.0.tar.gz
+assert_get_hz_dist_tar_gz 5.4.0 hazelcast https://repo.maven.apache.org/maven2/com/hazelcast/hazelcast-distribution/5.4.0/hazelcast-distribution-5.4.0.tar.gz
 assert_get_hz_dist_tar_gz 5.5.0-SNAPSHOT hazelcast https://dummy_user:dummy_password@repository.hazelcast.com/snapshot-internal/com/hazelcast/hazelcast-distribution/5.5.0-SNAPSHOT/hazelcast-distribution-5.5.0-SNAPSHOT.tar.gz
 
 assert_get_hz_dist_tar_gz 5.4.0 hazelcast-enterprise https://repository.hazelcast.com/release/com/hazelcast/hazelcast-enterprise-distribution/5.4.0/hazelcast-enterprise-distribution-5.4.0.tar.gz
@@ -80,6 +80,6 @@ function assert_url_contains_password {
 }
 
 assert_url_contains_password "https://dummy_user:dummy_password@repository.hazelcast.com/snapshot-internal/com/hazelcast/hazelcast-distribution/5.5.0-SNAPSHOT/hazelcast-distribution-5.5.0-SNAPSHOT.tar.gz" "dummy_password" "yes"
-assert_url_contains_password "https://repo1.maven.org/maven2/com/hazelcast/hazelcast-distribution/5.4.0/hazelcast-distribution-5.4.0.tar.gz" "dummy_password" "no"
+assert_url_contains_password "https://repo.maven.apache.org/maven2/com/hazelcast/hazelcast-distribution/5.4.0/hazelcast-distribution-5.4.0.tar.gz" "dummy_password" "no"
 
 assert_eq 0 "$TESTS_RESULT" "ALL tests should pass"
