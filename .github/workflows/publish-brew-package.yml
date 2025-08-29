@@ -16,6 +16,7 @@ on:
         type: string
       ENVIRONMENT:
         description: 'Environment to use'
+        required: true
         type: string
 
 env:
