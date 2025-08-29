@@ -1,7 +1,6 @@
 #!/bin/bash
 
-SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-source "${SCRIPT_DIR}/logging.functions.sh"
+source logging.functions.sh
 
 if [ -z "${ENVIRONMENT}" ]; then
   echoerr "Variable ENVIRONMENT is not set."
