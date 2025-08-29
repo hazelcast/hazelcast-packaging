@@ -33,7 +33,7 @@ on:
           - ALL
           - OSS
           - EE
-      environment:
+      ENVIRONMENT:
         description: 'Environment to use'
         required: true
         default: 'live'
@@ -63,7 +63,7 @@ jobs:
       should_build_deb: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'deb' }}
       should_build_rpm: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'rpm' }}
       should_build_homebrew: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew' }}
-      environment: ${{ (env.EVENT_NAME == 'pull_request' && 'test') || inputs.environment || 'live' }}
+      ENVIRONMENT: ${{ (env.EVENT_NAME == 'pull_request' && 'test') || inputs.ENVIRONMENT || 'live' }}
     steps:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v5
@@ -125,7 +125,7 @@ jobs:
     with:
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
-     environment: ${{ needs.prepare.outputs.environment }}
+     ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
   deb-oss:
     needs: [ prepare ]
     if: needs.prepare.outputs.should_build_deb == 'true' && needs.prepare.outputs.should_build_oss == 'yes'
@@ -134,7 +134,7 @@ jobs:
     with:
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
-      environment: ${{ needs.prepare.outputs.environment }}
+      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
 
   rpm-ee:
     if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_ee == 'yes'
@@ -144,7 +144,7 @@ jobs:
     with:
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
-     environment: ${{ needs.prepare.outputs.environment }}
+     ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
   rpm-oss:
     needs: [ prepare ]
     if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_oss == 'yes'
@@ -153,7 +153,7 @@ jobs:
     with:
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
-      environment: ${{ needs.prepare.outputs.environment }}
+      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
 
   brew-ee:
     if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_ee == 'yes'
@@ -163,7 +163,7 @@ jobs:
     with:
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
-     environment: ${{ needs.prepare.outputs.environment }}
+     ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
   brew-oss:
     needs: [ prepare ]
     if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_oss == 'yes' && !contains(needs.prepare.outputs.hz_version, 'SNAPSHOT')
@@ -172,4 +172,4 @@ jobs:
     with:
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
-      environment: ${{ needs.prepare.outputs.environment }}
+      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}

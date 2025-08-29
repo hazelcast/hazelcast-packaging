@@ -14,7 +14,7 @@ on:
       PACKAGE_VERSION:
         description: 'Version of the package e.g. 5.1.1, 5.1.1-1, defaults to HZ_VERSION'
         type: string
-      environment:
+      ENVIRONMENT:
         description: 'Environment to use'
         type: string
 
@@ -23,14 +23,14 @@ env:
   JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
   DEVOPS_PRIVATE_KEY: ${{ secrets.DEVOPS_PRIVATE_KEY }}
   BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
-  ENVIRONMENT: ${{ inputs.environment }}
+  ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
 
 concurrency:
   group: 'rpm-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
 
 jobs:
   rpm:
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.ENVIRONMENT }}
     runs-on: ubuntu-latest
     container: rockylinux:9
     env:
@@ -109,7 +109,7 @@ jobs:
           yum remove -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
 
       - name: Remove rpm package from test repo
-        if: ${{ inputs.environment == 'test' && (success() || failure()) }}
+        if: ${{ inputs.ENVIRONMENT == 'test' && (success() || failure()) }}
         run: |
           source ./common.sh
           curl -H "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
