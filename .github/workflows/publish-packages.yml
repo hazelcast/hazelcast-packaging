@@ -36,7 +36,7 @@ on:
       environment:
         description: 'Environment to use'
         required: true
-        default: 'sandbox'
+        default: 'live'
         type: choice
         options:
           - live
@@ -64,7 +64,7 @@ jobs:
       should_build_rpm: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'rpm' }}
       should_build_homebrew: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew' }}
       use_test_repo: ${{ env.EVENT_NAME == 'pull_request' }}
-      environment: ${{ inputs.environment || 'sandbox' }}
+      environment: ${{ inputs.environment || 'live' }}
     steps:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v5
