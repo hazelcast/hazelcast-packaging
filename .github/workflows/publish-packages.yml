@@ -64,7 +64,7 @@ jobs:
       should_build_deb: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'deb' }}
       should_build_rpm: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'rpm' }}
       should_build_homebrew: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew' }}
-      ENVIRONMENT: ${{ (env.EVENT_NAME == 'pull_request' && 'test') || inputs.ENVIRONMENT || 'live' }}
+      ENVIRONMENT: ${{ steps.environment.outputs.ENVIRONMENT }}
     steps:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v5
@@ -117,6 +117,25 @@ jobs:
           should_build_ee=$(should_build_ee "$triggered_by" "$release_type")
           echo "should_build_ee=${should_build_ee}" >> $GITHUB_OUTPUT
           echo "should_build_oss=${should_build_oss}" >> $GITHUB_OUTPUT
+          echo "release_type=${release_type}" >> $GITHUB_OUTPUT
+
+      - name: Calculate the environment
+        id: environment
+        run: |
+          ENVIRONMENT=${{ (env.EVENT_NAME == 'pull_request' && 'test') || inputs.ENVIRONMENT || 'live' }}
+          echo "ENVIRONMENT=${ENVIRONMENT}" >> $GITHUB_OUTPUT
+
+      - name: Add workflow inputs to summary
+        run: |
+          echo "### Workflow Setup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Name | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| HZ_VERSION | ${{ steps.hz_version_step.outputs.hz_version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| PACKAGE_TYPES | ${PACKAGE_TYPES} |" >> $GITHUB_STEP_SUMMARY
+          echo "| RELEASE_TYPE | ${{ steps.which_editions.outputs.release_type }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ENVIRONMENT | ${{ steps.environment.outputs.ENVIRONMENT }} |" >> $GITHUB_STEP_SUMMARY
+
 
   deb-ee:
     if: needs.prepare.outputs.should_build_deb == 'true' && needs.prepare.outputs.should_build_ee == 'yes'
