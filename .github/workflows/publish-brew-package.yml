@@ -11,10 +11,6 @@ on:
         description: 'Distribution to be built: hazelcast or hazelcast-enterprise'
         required: true
         type: string
-      USE_TEST_REPO:
-        description: 'Use test repo for publishing'
-        required: true
-        type: string
       PACKAGE_VERSION:
         description: 'Version of the package e.g. 5.1.1, 5.1.1-1, defaults to HZ_VERSION'
         type: string
@@ -38,7 +34,6 @@ jobs:
       HZ_VERSION: ${{ inputs.HZ_VERSION }}
       PACKAGE_VERSION: ${{ inputs.PACKAGE_VERSION || inputs.HZ_VERSION }}
       HZ_DISTRIBUTION: ${{ inputs.HZ_DISTRIBUTION }}
-      USE_TEST_REPO: ${{ inputs.USE_TEST_REPO }}
     steps:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v5
