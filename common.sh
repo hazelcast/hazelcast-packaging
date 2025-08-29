@@ -1,7 +1,10 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+source "${SCRIPT_DIR}/logging.functions.sh"
+
 if [ -z "${ENVIRONMENT}" ]; then
-  echo "Variable ENVIRONMENT is not set."
+  echoerr "Variable ENVIRONMENT is not set."
   exit 1
 fi
 
@@ -81,7 +84,7 @@ live)
   export BREW_TAP_NAME="hazelcast/hz"
   ;;
 *)
-  echo "Unknown ENVIRONMENT: ${ENVIRONMENT}. Must be one of: test, sandbox, live."
+  echoerr "Unknown ENVIRONMENT: ${ENVIRONMENT}. Must be one of: test, sandbox, live."
   exit 1
   ;;
 esac
