@@ -39,8 +39,9 @@ on:
         default: 'live'
         type: choice
         options:
-          - live
+          - test
           - sandbox
+          - live
 
 env:
   EVENT_NAME: ${{ github.event_name }}
