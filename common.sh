@@ -1,11 +1,8 @@
 #!/bin/bash
 
-# Prints the given message to stderr
-function echoerr() {
-  # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-error-message
-  # Support multi-line strings by replacing line separator with GitHub Actions compatible one
-  echo "::error::ERROR - ${*//$'\n'/%0A}" 1>&2;
-}
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+source "$SCRIPT_DIR/logging.functions.sh"
 
 if [ -z "${ENVIRONMENT}" ]; then
   echoerr "Variable ENVIRONMENT is not set."
