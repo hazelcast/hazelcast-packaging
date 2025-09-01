@@ -6,12 +6,17 @@ structure).
 
 Upload the file to artifactory:
 
-- TEST environment
+- `test` environment
 ```shell
 export REPO=stable; # beta,snapshot,stable
 curl -H "Authorization: Bearer ${JFROG_TOKEN}" --upload-file hazelcast-rpm-${REPO}.repo -X PUT "https://repository.hazelcast.com/rpm-test-local/${REPO}/"
 ```
-- PROD environment
+- `sandbox` environment
+```shell
+export REPO=stable; # beta,snapshot,stable
+curl -H "Authorization: Bearer ${JFROG_TOKEN}" --upload-file hazelcast-rpm-${REPO}.repo -X PUT "https://repository.hazelcast.com/sandbox-rpm-prod/${REPO}/"
+```
+- `live` environment
 ```shell
 export REPO=stable; # beta,snapshot,stable
 curl -H "Authorization: Bearer ${JFROG_TOKEN}" --upload-file hazelcast-rpm-${REPO}.repo -X PUT "https://repository.hazelcast.com/rpm-local/${REPO}/"

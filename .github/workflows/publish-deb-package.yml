@@ -11,23 +11,25 @@ on:
         description: 'Distribution to be built: hazelcast or hazelcast-enterprise'
         required: true
         type: string
-      USE_TEST_REPO:
-        description: 'Use test repo for publishing'
-        required: true
-        type: string
       PACKAGE_VERSION:
         description: 'Version of the package e.g. 5.1.1, 5.1.1-1, defaults to HZ_VERSION'
+        type: string
+      ENVIRONMENT:
+        description: 'Environment to use'
+        required: true
         type: string
 
 env:
   JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
   JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
+  ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
 
 concurrency:
   group: 'deb-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
 
 jobs:
   deb:
+    environment: ${{ inputs.ENVIRONMENT }}
     runs-on: ubuntu-latest
     container:
       image: debian:stable
@@ -38,7 +40,6 @@ jobs:
       HZ_VERSION: ${{ inputs.HZ_VERSION }}
       PACKAGE_VERSION: ${{ inputs.PACKAGE_VERSION || inputs.HZ_VERSION }}
       HZ_DISTRIBUTION: ${{ inputs.HZ_DISTRIBUTION }}
-      USE_TEST_REPO: ${{ inputs.USE_TEST_REPO }}
 
     steps:
       - name: Checkout hazelcast-packaging repo
@@ -101,7 +102,7 @@ jobs:
           sudo apt-get remove -y ${{ env.HZ_DISTRIBUTION}}
 
       - name: Remove deb package from test repo
-        if: ${{ env.USE_TEST_REPO == 'true' && (success() || failure()) }}
+        if: ${{ inputs.ENVIRONMENT == 'test' && (success() || failure()) }}
         run: |
           source ./common.sh
           curl -H "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
