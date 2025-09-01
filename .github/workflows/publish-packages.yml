@@ -136,7 +136,7 @@ jobs:
           echo "| RELEASE_TYPE | ${{ steps.which_editions.outputs.release_type }} |" >> $GITHUB_STEP_SUMMARY
           echo "| ENVIRONMENT | ${{ steps.environment.outputs.ENVIRONMENT }} |" >> $GITHUB_STEP_SUMMARY
 
-
+  # Debian builds
   deb-ee:
     if: needs.prepare.outputs.should_build_deb == 'true' && needs.prepare.outputs.should_build_ee == 'yes'
     needs: [prepare]
@@ -155,7 +155,7 @@ jobs:
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
-
+  # RPM builds
   rpm-ee:
     if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_ee == 'yes'
     needs: [prepare]
@@ -174,7 +174,7 @@ jobs:
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
-
+  # Homebrew builds
   brew-ee:
     if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_ee == 'yes'
     needs: [prepare]
