@@ -15,7 +15,6 @@ on:
       PACKAGE_TYPES:
         description: 'Packages to build'
         required: true
-        default: 'all'
         type: choice
         options:
         - all
@@ -25,7 +24,6 @@ on:
       RELEASE_TYPE:
         description: 'Which editions should be built'
         required: true
-        default: 'EE'
         type: choice
         options:
           - ALL
@@ -34,7 +32,6 @@ on:
       ENVIRONMENT:
         description: 'Environment to use'
         required: true
-        default: 'live'
         type: choice
         options:
           - test
