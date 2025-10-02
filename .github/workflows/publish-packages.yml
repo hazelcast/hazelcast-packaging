@@ -178,7 +178,7 @@ jobs:
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
   brew-oss:
     needs: [ prepare ]
-    if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_oss == 'yes' && !contains(needs.prepare.outputs.hz_version, 'SNAPSHOT')
+    if: needs.prepare.outputs.should_build_homebrew == 'true' && (needs.prepare.outputs.should_build_oss == 'yes'  || github.event_name == 'pull_request') && !contains(needs.prepare.outputs.hz_version, 'SNAPSHOT')
     uses: ./.github/workflows/publish-brew-package.yml
     secrets: inherit
     with:
