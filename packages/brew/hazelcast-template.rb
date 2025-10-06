@@ -1,8 +1,8 @@
-class HazelcastAT5X < Formula
+class ${class} < Formula
     desc "Hazelcast is a streaming and memory-first application platform for fast, stateful, data-intensive workloads on-premises, at the edge or as a fully managed cloud service."
     homepage "https://github.com/hazelcast/hazelcast-command-line"
-    url "https://github.com/hazelcast/hazelcast-command-line/releases/download/v5.2021.07.1/hazelcast-5.0-BETA-1.tar.gz"
-    sha256 "f108d22a1aec61bbd637f89ff522af7d9861ef13afcfad24a5095127f04f091d"
+    url "${HZ_PACKAGE_URL}"
+    sha256 "${ASSET_SHASUM}"
 
     depends_on "openjdk@21" => :recommended
 
