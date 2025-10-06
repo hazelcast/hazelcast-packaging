@@ -51,12 +51,6 @@ jobs:
       - name: Load env vars from .env file
         run: cat .env >> $GITHUB_ENV
 
-      - name: Setup JDK
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-
       - name: Install Required tools
         run: |
           yum install -y maven rpm-sign rpm-build wget gettext systemd-rpm-macros

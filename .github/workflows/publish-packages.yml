@@ -71,12 +71,6 @@ jobs:
         run: |
           ./test_scripts.sh
 
-      - name: Setup JDK
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-
       - name: Set HZ_VERSION
         id: hz_version_step
         run: |
