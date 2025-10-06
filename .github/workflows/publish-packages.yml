@@ -1,16 +1,11 @@
 name: Publish Hazelcast OS & EE packages
 
 on:
-  push:
-    branches:
-      - master
-    tags:
-      - 'v*'
   pull_request:
   workflow_dispatch:
     inputs:
-      HZ_VERSION:
-        description: 'Version of Hazelcast to build the packages from, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
+      SOURCE_REF:
+        description: 'The hazelcast-packaging branch to build the image from'
         required: true
       PACKAGE_TYPES:
         description: 'Packages to build'
@@ -51,7 +46,6 @@ jobs:
     env:
       RELEASE_TYPE: ${{ inputs.RELEASE_TYPE || 'EE' }}
       PACKAGE_TYPES: ${{ inputs.PACKAGE_TYPES || 'all' }}
-      HZ_VERSION: ${{ github.event.inputs.HZ_VERSION }}
     outputs:
       hz_version: ${{ steps.hz_version_step.outputs.hz_version }}
       should_build_oss: ${{ steps.which_editions.outputs.should_build_oss }}
@@ -61,29 +55,23 @@ jobs:
       should_build_homebrew: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew' }}
       ENVIRONMENT: ${{ steps.environment.outputs.ENVIRONMENT }}
     steps:
-      - name: Checkout hazelcast-packaging repo
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      - name: Load env vars from .env file
-        run: cat .env >> $GITHUB_ENV
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.SOURCE_REF }}
+          path: source_path
+          sparse-checkout: "**/pom.xml"
+          sparse-checkout-cone-mode: false
 
       - name: Test scripts
         run: |
           ./test_scripts.sh
 
-      - name: Setup JDK
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-
       - name: Set HZ_VERSION
         id: hz_version_step
         run: |
-          if [ -z "${{ env.HZ_VERSION }}" ]; then
-            HZ_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          fi
-          echo "hz_version=$HZ_VERSION" >> $GITHUB_OUTPUT
+          echo "hz_version=$(mvn help:evaluate -Dexpression=project.version --file source_path --quiet -DforceStdout)" >> ${GITHUB_OUTPUT}
 
       - name: Forbid ${{ env.RELEASE_TYPE_FILE }} file in the PRs
         if: github.event_name == 'pull_request'
@@ -138,6 +126,7 @@ jobs:
     uses: ./.github/workflows/publish-deb-package.yml
     secrets: inherit
     with:
+     SOURCE_REF: ${{ inputs.SOURCE_REF }}
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
@@ -147,6 +136,7 @@ jobs:
     uses: ./.github/workflows/publish-deb-package.yml
     secrets: inherit
     with:
+      SOURCE_REF: ${{ inputs.SOURCE_REF }}
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
@@ -157,6 +147,7 @@ jobs:
     uses: ./.github/workflows/publish-rpm-package.yml
     secrets: inherit
     with:
+     SOURCE_REF: ${{ inputs.SOURCE_REF }}
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
@@ -166,6 +157,7 @@ jobs:
     uses: ./.github/workflows/publish-rpm-package.yml
     secrets: inherit
     with:
+      SOURCE_REF: ${{ inputs.SOURCE_REF }}
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
@@ -176,6 +168,7 @@ jobs:
     uses: ./.github/workflows/publish-brew-package.yml
     secrets: inherit
     with:
+     SOURCE_REF: ${{ inputs.SOURCE_REF }}
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
@@ -185,6 +178,7 @@ jobs:
     uses: ./.github/workflows/publish-brew-package.yml
     secrets: inherit
     with:
+      SOURCE_REF: ${{ inputs.SOURCE_REF }}
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}

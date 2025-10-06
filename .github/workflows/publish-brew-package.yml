@@ -3,6 +3,10 @@ name: Publish BREW package
 on:
   workflow_call:
     inputs:
+      SOURCE_REF:
+        description: 'The hazelcast-packaging branch to build the image from'
+        required: true
+        type: string
       HZ_VERSION:
         description: 'Version of Hazelcast to build the image for, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
         required: true
@@ -39,6 +43,14 @@ jobs:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v5
 
+      - name: Checkout hazelcast-packaging repo (${{ inputs.SOURCE_REF }})
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.SOURCE_REF }}
+          path: source_path
+          sparse-checkout: ".env"
+          sparse-checkout-cone-mode: false
+
       - name: Checkout hazelcast-docker repo
         uses: actions/checkout@v5
         with:
@@ -46,7 +58,7 @@ jobs:
           path: 'hazelcast-docker'
 
       - name: Load env vars from .env file
-        run: cat .env >> $GITHUB_ENV
+        run: cat source_path/.env >> ${GITHUB_ENV}
 
       - name: Install up-to-date tools
         run: |
