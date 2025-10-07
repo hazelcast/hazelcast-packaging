@@ -4,7 +4,7 @@ class ${class} < Formula
     url "${HZ_PACKAGE_URL}"
     sha256 "${ASSET_SHASUM}"
 
-    depends_on "openjdk@21" => :recommended
+    depends_on "openjdk@${JAVA_VERSION}" => :recommended
 
     def install
       libexec.install Dir["*"]

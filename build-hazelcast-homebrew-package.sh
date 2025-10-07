@@ -48,6 +48,7 @@ function generateFormula {
   export class
   export HZ_PACKAGE_URL
   export ASSET_SHASUM
+  export JAVA_VERSION
   envsubst <"${TEMPLATE_FILE}" >"${file}"
   all_hz_versions=({hazelcast.rb,hazelcast?[0-9]*\.rb,hazelcast-enterprise*\.rb})
   for version in "${all_hz_versions[@]}"
