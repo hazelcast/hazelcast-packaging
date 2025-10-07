@@ -64,18 +64,9 @@ jobs:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v5
 
-      - name: Load env vars from .env file
-        run: cat .env >> $GITHUB_ENV
-
       - name: Test scripts
         run: |
           ./test_scripts.sh
-
-      - name: Setup JDK
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
 
       - name: Set HZ_VERSION
         id: hz_version_step
