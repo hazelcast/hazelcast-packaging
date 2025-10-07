@@ -2,8 +2,6 @@
 
 set -euo pipefail ${RUNNER_DEBUG:+-x}
 
-source common.sh
-
 if [ -z "${HZ_DISTRIBUTION}" ]; then
   echo "Variable HZ_DISTRIBUTION is not set. It must be set to 'hazelcast' for OS, 'hazelcast-enterprise' for EE"
   exit 1
