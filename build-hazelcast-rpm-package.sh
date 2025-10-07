@@ -2,8 +2,6 @@
 
 set -euo pipefail ${RUNNER_DEBUG:+-x}
 
-source common.sh
-
 if [ -z "${HZ_DISTRIBUTION}" ]; then
   echo "Variable HZ_DISTRIBUTION is not set. It must be set to 'hazelcast' for OS, 'hazelcast-enterprise' for EE"
   exit 1
@@ -39,6 +37,7 @@ cp packages/common/hazelcast.service build/rpmbuild/SOURCES/hazelcast.service
 
 export RPM_BUILD_ROOT='$RPM_BUILD_ROOT'
 export FILENAME='${FILENAME}'
+export JAVA_VERSION
 envsubst <packages/rpm/hazelcast.spec >build/rpmbuild/rpm/hazelcast.spec
 
 echo "${DEVOPS_PRIVATE_KEY}" > private.key

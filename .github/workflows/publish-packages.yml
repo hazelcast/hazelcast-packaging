@@ -6,8 +6,6 @@ on:
       - master
     tags:
       - 'v*'
-  schedule:
-    - cron: '0 2 * * *' # 2AM Nightly
   pull_request:
   workflow_dispatch:
     inputs:
@@ -17,7 +15,6 @@ on:
       PACKAGE_TYPES:
         description: 'Packages to build'
         required: true
-        default: 'all'
         type: choice
         options:
         - all
@@ -27,7 +24,6 @@ on:
       RELEASE_TYPE:
         description: 'Which editions should be built'
         required: true
-        default: 'EE'
         type: choice
         options:
           - ALL
@@ -36,7 +32,6 @@ on:
       ENVIRONMENT:
         description: 'Environment to use'
         required: true
-        default: 'live'
         type: choice
         options:
           - test
@@ -69,18 +64,9 @@ jobs:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v5
 
-      - name: Load env vars from .env file
-        run: cat .env >> $GITHUB_ENV
-
       - name: Test scripts
         run: |
           ./test_scripts.sh
-
-      - name: Setup JDK
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
 
       - name: Set HZ_VERSION
         id: hz_version_step

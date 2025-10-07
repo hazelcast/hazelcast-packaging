@@ -8,42 +8,5 @@
     <artifactId>hazelcast-packaging</artifactId>
     <version>5.7.0-SNAPSHOT</version>
 
-    <description>A pom.xml file with repository definitions so we can use maven to fetch tar artifacts.</description>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
-    <repositories>
-        <repository>
-            <id>oss-sonatype</id>
-            <name>oss-sonatype</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>hazelcast-private-repository</id>
-            <name>Hazelcast Private Repository</name>
-            <url>https://repository.hazelcast.com/release/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>hazelcast-private-snapshot-repository</id>
-            <name>Hazelcast Private Snapshot Repository</name>
-            <url>https://repository.hazelcast.com/snapshot/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+    <description>A pom.xml file to define the project version.</description>
 </project>

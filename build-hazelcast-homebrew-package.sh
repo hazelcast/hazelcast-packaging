@@ -41,20 +41,15 @@ ASSET_SHASUM=$(sha256sum "${HZ_DISTRIBUTION_FILE}" | cut -d ' ' -f 1)
 TEMPLATE_FILE="$(pwd)/packages/brew/hazelcast-template.rb"
 cd homebrew-hz || exit 1
 
-function updateClassName {
-  class=$1
-  file=$2
-  sed -i "s+class HazelcastAT5X <\(.*$\)+class $class <\1+g" "$file"
-}
-
 function generateFormula {
   class=$1
   file=$2
   echo "Generating $file formula"
-  cp "$TEMPLATE_FILE" "$file"
-  updateClassName "$class" "$file"
-  sed -i "s+url.*$+url \"${HZ_PACKAGE_URL}\"+g" "$file"
-  sed -i "s+sha256.*$+sha256 \"${ASSET_SHASUM}\"+g" "$file"
+  export class
+  export HZ_PACKAGE_URL
+  export ASSET_SHASUM
+  export JAVA_VERSION
+  envsubst <"${TEMPLATE_FILE}" >"${file}"
   all_hz_versions=({hazelcast.rb,hazelcast?[0-9]*\.rb,hazelcast-enterprise*\.rb})
   for version in "${all_hz_versions[@]}"
   do
