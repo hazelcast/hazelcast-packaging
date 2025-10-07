@@ -43,6 +43,7 @@ if [ "${HZ_DISTRIBUTION}" == "hazelcast-enterprise" ]; then
 fi
 
 # Replace variable placeholders in the following files with the values from the environment
+export JAVA_VERSION
 envsubst <packages/deb/hazelcast/DEBIAN/control >build/deb/hazelcast/DEBIAN/control
 
 cp packages/deb/hazelcast/DEBIAN/conffiles build/deb/hazelcast/DEBIAN/conffiles
