@@ -132,7 +132,6 @@ jobs:
     uses: ./.github/workflows/publish-deb-package.yml
     secrets: inherit
     with:
-     SOURCE_REF: ${{ inputs.SOURCE_REF }}
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
@@ -143,7 +142,6 @@ jobs:
     uses: ./.github/workflows/publish-deb-package.yml
     secrets: inherit
     with:
-      SOURCE_REF: ${{ inputs.SOURCE_REF }}
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
@@ -155,7 +153,6 @@ jobs:
     uses: ./.github/workflows/publish-rpm-package.yml
     secrets: inherit
     with:
-     SOURCE_REF: ${{ inputs.SOURCE_REF }}
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
@@ -166,7 +163,6 @@ jobs:
     uses: ./.github/workflows/publish-rpm-package.yml
     secrets: inherit
     with:
-      SOURCE_REF: ${{ inputs.SOURCE_REF }}
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
@@ -178,7 +174,6 @@ jobs:
     uses: ./.github/workflows/publish-brew-package.yml
     secrets: inherit
     with:
-     SOURCE_REF: ${{ inputs.SOURCE_REF }}
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
@@ -189,7 +184,6 @@ jobs:
     uses: ./.github/workflows/publish-brew-package.yml
     secrets: inherit
     with:
-      SOURCE_REF: ${{ inputs.SOURCE_REF }}
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
