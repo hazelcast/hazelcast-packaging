@@ -59,19 +59,20 @@ jobs:
           sha256sum --version
           echo "PATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH" >> $GITHUB_ENV
 
+      - name: Get the distribution tar.gz URL
+        uses: ./.github/actions/get-hz-dist-url
+        id: hz-dist-url
+        with:
+          vars-as-json: ${{ toJSON(vars) }}
+          hz_version: ${{ env.HZ_VERSION }}
+          distribution: ${{ env.HZ_DISTRIBUTION }}
+
       - name: Download the distribution tar.gz file
-        env:
-          HZ_SNAPSHOT_INTERNAL_PASSWORD: ${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}
-          HZ_SNAPSHOT_INTERNAL_USERNAME: ${{ secrets.HZ_SNAPSHOT_INTERNAL_USERNAME }}
-        run: |
-          . .github/workflows/build.functions.sh
-          DISTRIBUTION_URL=$(get_hz_dist_tar_gz "${HZ_VERSION}" "${HZ_DISTRIBUTION}")
-          if [[ "$(url_contains_password "$DISTRIBUTION_URL" "$HZ_SNAPSHOT_INTERNAL_PASSWORD")" == "yes" ]]; then
-             echo "Trying to expose a password-protected url of the distribution file, aborting!";
-             exit 1;
-          fi
-          curl --fail --silent --show-error --location "${DISTRIBUTION_URL}" --output distribution.tar.gz 
-          echo "HZ_PACKAGE_URL=${DISTRIBUTION_URL}" >> $GITHUB_ENV
+        uses: ./.github/actions/download-hz-dist
+        with:
+          vars-as-json: ${{ toJSON(vars) }}
+          hz_version: ${{ env.HZ_VERSION }}
+          distribution: ${{ env.HZ_DISTRIBUTION }}
 
       - name: Get homebrew repository
         run: |
@@ -88,6 +89,8 @@ jobs:
       - name: Change the artifact in homebrew-hz
         run: |
           ./build-hazelcast-homebrew-package.sh
+        env:
+          HZ_PACKAGE_URL: ${{ steps.hz-dist-url.outputs.url }}
 
       - name: Commit changes & Push to homebrew-hz repo
         run: |

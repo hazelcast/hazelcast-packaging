@@ -1,0 +1,39 @@
+name: Get Hazelcast Distribution Maven Repository
+inputs:
+  vars-as-json:
+    description: 'Vars as JSON - https://github.com/orgs/community/discussions/49689#discussioncomment-6398261'
+    required: true
+  hz_version:
+    required: true
+  distribution:
+    required: true
+outputs:
+  repo_url:
+    value: ${{ steps.get_repo_url.outputs.repo_url }}
+runs:
+  using: "composite"
+  steps:
+    - id: get_repo_url
+      shell: bash
+      run: |
+        case "${{ inputs.distribution }}" in
+            "hazelcast")
+              if [[ "${{ inputs.hz_version }}" == *"SNAPSHOT"* ]]; then
+                repo_var_name=MAVEN_OSS_SNAPSHOT_REPO
+              else
+                repo_var_name=MAVEN_OSS_RELEASE_REPO
+              fi
+            ;;
+            "hazelcast-enterprise")
+              if [[ "${{ inputs.hz_version }}" == *"SNAPSHOT"* ]]; then
+                repo_var_name=MAVEN_EE_SNAPSHOT_REPO
+              else
+                repo_var_name=MAVEN_EE_RELEASE_REPO
+              fi
+            ;;
+            *)
+            echoerr "Unsupported repository behaviour for ${{ inputs.distribution }}" ; return 1
+            ;;
+        esac
+
+        echo "repo_url=$(jq --raw-output .${repo_var_name} <<< '${{ fromJSON(inputs.vars-as-json) }}')" >> ${GITHUB_OUTPUT}
