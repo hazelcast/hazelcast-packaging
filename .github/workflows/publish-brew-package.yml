@@ -22,6 +22,10 @@ on:
         description: 'Environment to use'
         required: true
         type: string
+      JAVA_VERSION:
+        description: 'Environment to use'
+        required: true
+        type: string
 
 env:
   JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
@@ -56,9 +60,6 @@ jobs:
         with:
           repository: hazelcast/hazelcast-docker
           path: 'hazelcast-docker'
-
-      - name: Load env vars from .env file
-        run: cat source_path/.env >> ${GITHUB_ENV}
 
       - name: Install up-to-date tools
         run: |
@@ -100,6 +101,8 @@ jobs:
       - name: Change the artifact in homebrew-hz
         run: |
           ./build-hazelcast-homebrew-package.sh
+        env:
+          JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
 
       - name: Commit changes & Push to homebrew-hz repo
         run: |
