@@ -1,8 +1,8 @@
 # TODO Consider sharing with https://github.com/hazelcast/hazelcast-docker/blob/9466756692553823bfca159b28e007e27cf06730/.github/workflows/tag_image_push.yml#L179-L212
 name: Download Hazelcast Distribution
 inputs:
-  vars-as-json:
-    description: 'Vars as JSON - https://github.com/orgs/community/discussions/49689#discussioncomment-6398261'
+  repo-vars-as-json:
+    description: 'Repo Vars as JSON - not inherited in composite actions - see https://github.com/orgs/community/discussions/49689#discussioncomment-6398261'
     required: true
   hz_version:
     required: true
@@ -14,7 +14,7 @@ runs:
     - id: maven-repo
       uses: ./.github/actions/get-hz-dist-maven-repo
       with:
-        vars-as-json: ${{ toJSON(inputs.vars-as-json) }}
+        repo-vars-as-json: ${{ toJSON(inputs.repo-vars-as-json) }}
         hz_version: ${{ inputs.hz_version }}
         distribution: ${{ inputs.distribution }}
 

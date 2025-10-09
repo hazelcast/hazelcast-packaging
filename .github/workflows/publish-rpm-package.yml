@@ -68,7 +68,7 @@ jobs:
       - name: Download the distribution tar.gz file
         uses: ./.github/actions/download-hz-dist
         with:
-          vars-as-json: ${{ toJSON(vars) }}
+          repo-vars-as-json: ${{ toJSON(vars) }}
           hz_version: ${{ env.HZ_VERSION }}
           distribution: ${{ env.HZ_DISTRIBUTION }}
 
