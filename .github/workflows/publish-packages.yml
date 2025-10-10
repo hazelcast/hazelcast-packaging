@@ -1,16 +1,11 @@
 name: Publish Hazelcast OS & EE packages
 
 on:
-  push:
-    branches:
-      - master
-    tags:
-      - 'v*'
   pull_request:
   workflow_dispatch:
     inputs:
-      HZ_VERSION:
-        description: 'Version of Hazelcast to build the packages from, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
+      SOURCE_REF:
+        description: 'The hazelcast-packaging branch to build the image from'
         required: true
       PACKAGE_TYPES:
         description: 'Packages to build'
@@ -47,7 +42,6 @@ jobs:
     env:
       RELEASE_TYPE: ${{ inputs.RELEASE_TYPE || 'EE' }}
       PACKAGE_TYPES: ${{ inputs.PACKAGE_TYPES || 'all' }}
-      HZ_VERSION: ${{ github.event.inputs.HZ_VERSION }}
     outputs:
       hz_version: ${{ steps.hz_version_step.outputs.hz_version }}
       should_build_oss: ${{ steps.resolve-editions.outputs.should_build_oss || github.event_name == 'pull_request' }}
@@ -56,9 +50,16 @@ jobs:
       should_build_rpm: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'rpm' }}
       should_build_homebrew: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew' }}
       ENVIRONMENT: ${{ steps.environment.outputs.ENVIRONMENT }}
+      java_version: ${{ steps.default-java-version.outputs.VERSION }}
     steps:
-      - name: Checkout hazelcast-packaging repo
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.SOURCE_REF }}
+          path: source_path
+          sparse-checkout: "**/pom.xml"
+          sparse-checkout-cone-mode: false
 
       - name: Test scripts
         run: |
@@ -67,10 +68,7 @@ jobs:
       - name: Set HZ_VERSION
         id: hz_version_step
         run: |
-          if [ -z "${{ env.HZ_VERSION }}" ]; then
-            HZ_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          fi
-          echo "hz_version=$HZ_VERSION" >> $GITHUB_OUTPUT
+          echo "hz_version=$(mvn help:evaluate -Dexpression=project.version --file source_path --quiet -DforceStdout)" >> ${GITHUB_OUTPUT}
 
       - name: Forbid ${{ env.RELEASE_TYPE_FILE }} file in the PRs
         if: github.event_name == 'pull_request'
@@ -99,6 +97,18 @@ jobs:
           ENVIRONMENT=${{ (env.EVENT_NAME == 'pull_request' && 'test') || inputs.ENVIRONMENT || 'live' }}
           echo "ENVIRONMENT=${ENVIRONMENT}" >> $GITHUB_OUTPUT
 
+      - name: Get supported JDKs
+        id: jdks
+        uses: hazelcast/docker-actions/get-supported-jdks@master
+        with:
+          HZ_VERSION: ${{ steps.hz_version_step.outputs.hz_version }}
+
+      - name: Get default Java version
+        id: default-java-version
+        run: |
+          # TODO Consider adding this as an output to get-supported-jdks
+          echo "VERSION=$(jq --raw-output '.[-1]' <<< '${{ steps.jdks.outputs.jdks }}')" >> ${GITHUB_OUTPUT}
+
       - name: Add workflow inputs to summary
         run: |
           echo "### Workflow Setup" >> $GITHUB_STEP_SUMMARY
@@ -109,6 +119,7 @@ jobs:
           echo "| PACKAGE_TYPES | ${PACKAGE_TYPES} |" >> $GITHUB_STEP_SUMMARY
           echo "| RELEASE_TYPE | ${RELEASE_TYPE} |" >> $GITHUB_STEP_SUMMARY
           echo "| ENVIRONMENT | ${{ steps.environment.outputs.ENVIRONMENT }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| JAVA_VERSION | ${{ steps.default-java-version.outputs.VERSION }} |" >> $GITHUB_STEP_SUMMARY
 
   # Debian builds
   deb-ee:
@@ -120,6 +131,7 @@ jobs:
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
+     JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
   deb-oss:
     needs: [ prepare ]
     if: needs.prepare.outputs.should_build_deb == 'true' && needs.prepare.outputs.should_build_oss == 'yes'
@@ -129,6 +141,7 @@ jobs:
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
+      JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
   # RPM builds
   rpm-ee:
     if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_ee == 'yes'
@@ -139,6 +152,7 @@ jobs:
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
+     JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
   rpm-oss:
     needs: [ prepare ]
     if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_oss == 'yes'
@@ -148,6 +162,7 @@ jobs:
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
+      JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
   # Homebrew builds
   brew-ee:
     if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_ee == 'yes'
@@ -158,6 +173,7 @@ jobs:
      HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
      HZ_DISTRIBUTION: hazelcast-enterprise
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
+     JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
   brew-oss:
     needs: [ prepare ]
     if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_oss == 'yes' && !contains(needs.prepare.outputs.hz_version, 'SNAPSHOT')
@@ -167,3 +183,4 @@ jobs:
       HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
       HZ_DISTRIBUTION: hazelcast
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
+      JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
