@@ -144,7 +144,7 @@ jobs:
 
       - name: Run Hazelcast
         env:
-          HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
+          HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
         run: HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health

@@ -91,7 +91,7 @@ jobs:
 
       - name: Install Hazelcast from rpm
         env:
-          HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
+          HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
         run: |
           source ./common.sh
 
