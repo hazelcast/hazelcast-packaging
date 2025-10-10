@@ -112,7 +112,7 @@ jobs:
 
   # Debian builds
   deb-ee:
-    if: needs.prepare.outputs.should_build_deb == 'true' && needs.prepare.outputs.should_build_ee == 'true'
+    if: needs.prepare.outputs.should_build_deb && needs.prepare.outputs.should_build_ee
     needs: [prepare]
     uses: ./.github/workflows/publish-deb-package.yml
     secrets: inherit
@@ -122,7 +122,7 @@ jobs:
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
   deb-oss:
     needs: [ prepare ]
-    if: needs.prepare.outputs.should_build_deb == 'true' && needs.prepare.outputs.should_build_oss == 'true'
+    if: needs.prepare.outputs.should_build_deb && needs.prepare.outputs.should_build_oss
     uses: ./.github/workflows/publish-deb-package.yml
     secrets: inherit
     with:
@@ -131,7 +131,7 @@ jobs:
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
   # RPM builds
   rpm-ee:
-    if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_ee == 'true'
+    if: needs.prepare.outputs.should_build_rpm && needs.prepare.outputs.should_build_ee
     needs: [prepare]
     uses: ./.github/workflows/publish-rpm-package.yml
     secrets: inherit
@@ -141,7 +141,7 @@ jobs:
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
   rpm-oss:
     needs: [ prepare ]
-    if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_oss == 'true'
+    if: needs.prepare.outputs.should_build_rpm && needs.prepare.outputs.should_build_oss
     uses: ./.github/workflows/publish-rpm-package.yml
     secrets: inherit
     with:
@@ -150,7 +150,7 @@ jobs:
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
   # Homebrew builds
   brew-ee:
-    if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_ee == 'true'
+    if: needs.prepare.outputs.should_build_homebrew && needs.prepare.outputs.should_build_ee
     needs: [prepare]
     uses: ./.github/workflows/publish-brew-package.yml
     secrets: inherit
@@ -160,7 +160,7 @@ jobs:
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
   brew-oss:
     needs: [ prepare ]
-    if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_oss == 'true' && !contains(needs.prepare.outputs.hz_version, 'SNAPSHOT')
+    if: needs.prepare.outputs.should_build_homebrew && needs.prepare.outputs.should_build_oss && !contains(needs.prepare.outputs.hz_version, 'SNAPSHOT')
     uses: ./.github/workflows/publish-brew-package.yml
     secrets: inherit
     with:
