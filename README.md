@@ -16,7 +16,7 @@ this version.
 NOTE: The same steps apply to `hazelcast` and `hazelcast-enterprise` packages
 
 ### Install with apt
-
+a
 You can find the Debian packages for Hazelcast at
 [Hazelcast's Debian repository](https://repository.hazelcast.com/debian).
 Run the following commands to install the package using apt:
