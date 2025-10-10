@@ -126,13 +126,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_DEV_INFRA_SECRET_ACCESS_KEY }}
           aws-region: 'us-east-1'
 
-      - name: Get Secrets
-        uses: aws-actions/aws-secretsmanager-get-secrets@v2
-        with:
-          secret-ids: |
-            GITHUB/DEVOPSHAZELCAST
-          parse-json-secrets: true
-
       - name: Install Hazelcast from Homebrew
         run: |
           source ./common.sh
