@@ -30,7 +30,7 @@ source common.sh
 source packages/brew/brew_functions.sh
 
 if [ ! -f "${HZ_DISTRIBUTION_FILE}" ]; then
-  echo "File ${HZ_DISTRIBUTION_FILE} doesn't exits in current directory."
+  echo "File ${HZ_DISTRIBUTION_FILE} doesn't exists in current directory."
   exit 1;
 fi
 

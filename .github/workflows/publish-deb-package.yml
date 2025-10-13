@@ -19,7 +19,7 @@ on:
         required: true
         type: string
       JAVA_VERSION:
-        description: 'Environment to use'
+        description: 'Java version to use'
         required: true
         type: string
 
@@ -84,7 +84,7 @@ jobs:
 
       - name: Install Hazelcast from deb
         env:
-          HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
+          HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
         run: |
           source ./common.sh
           apt-get install -y --no-upgrade wget gpg coreutils \

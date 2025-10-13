@@ -19,15 +19,13 @@ on:
         required: true
         type: string
       JAVA_VERSION:
-        description: 'Environment to use'
+        description: 'Java version to use'
         required: true
         type: string
 
 env:
   JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
   JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
-  DEVOPS_PRIVATE_KEY: ${{ secrets.DEVOPS_PRIVATE_KEY }}
-  BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
   ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
 
 concurrency:
@@ -65,6 +63,20 @@ jobs:
           DISTRIBUTION_URL=$(get_hz_dist_tar_gz "${HZ_VERSION}" "${HZ_DISTRIBUTION}")
           curl --fail --silent --show-error --location "$DISTRIBUTION_URL" --output distribution.tar.gz 
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_DEV_INFRA_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_DEV_INFRA_SECRET_ACCESS_KEY }}
+          aws-region: 'us-east-1'
+
+      - name: Get Secrets
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          secret-ids: |
+            SIGNING_KEY,SIGNING/GPG-KEY-2011
+          parse-json-secrets: true
+
       - name: Create & Sign & Upload RPM package
         run: |
           ./build-hazelcast-rpm-package.sh
@@ -82,7 +94,7 @@ jobs:
 
       - name: Install Hazelcast from rpm
         env:
-          HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
+          HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
         run: |
           source ./common.sh
 

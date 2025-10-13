@@ -19,7 +19,7 @@ on:
         required: true
         type: string
       JAVA_VERSION:
-        description: 'Environment to use'
+        description: 'Java version to use'
         required: true
         type: string
 
@@ -79,11 +79,25 @@ jobs:
           source ./common.sh
           echo "BREW_GIT_REPO_NAME=${BREW_GIT_REPO_NAME}" >> $GITHUB_ENV
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_DEV_INFRA_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_DEV_INFRA_SECRET_ACCESS_KEY }}
+          aws-region: 'us-east-1'
+
+      - name: Get Secrets
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          secret-ids: |
+            GITHUB/DEVOPSHAZELCAST
+          parse-json-secrets: true
+
       - name: Checkout homebrew-hz repo
         uses: actions/checkout@v5
         with:
           repository: ${{ env.BREW_GIT_REPO_NAME }}
-          token: ${{ secrets.DEVOPS_SECRET }}
+          token: ${{ env.GITHUB_DEVOPSHAZELCAST_SECRET }}
           path: 'homebrew-hz'
 
       - name: Change the artifact in homebrew-hz
@@ -108,18 +122,25 @@ jobs:
             echo "No changes, this is probably a re-run."
           fi
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_DEV_INFRA_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_DEV_INFRA_SECRET_ACCESS_KEY }}
+          aws-region: 'us-east-1'
+
       - name: Install Hazelcast from Homebrew
         run: |
           source ./common.sh
           # Add a GitHub token be able to use a homebrew tap from the private repository
-          git config --global url."https://${{ secrets.DEVOPS_SECRET }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://${{ env.GITHUB_DEVOPSHAZELCAST_SECRET }}@github.com/".insteadOf "https://github.com/"
 
           brew tap ${BREW_TAP_NAME}
           brew install ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
 
       - name: Run Hazelcast
         env:
-          HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
+          HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
         run: HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
