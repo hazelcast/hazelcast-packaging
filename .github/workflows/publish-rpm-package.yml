@@ -19,7 +19,7 @@ on:
         required: true
         type: string
       JAVA_VERSION:
-        description: 'Environment to use'
+        description: 'Java version to use'
         required: true
         type: string
 
