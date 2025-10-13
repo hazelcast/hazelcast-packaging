@@ -40,7 +40,7 @@ export FILENAME='${FILENAME}'
 export JAVA_VERSION
 envsubst <packages/rpm/hazelcast.spec >build/rpmbuild/rpm/hazelcast.spec
 
-echo "${DEVOPS_PRIVATE_KEY}" > private.key
+echo "${SIGNING_KEY_PRIVATE_KEY}" > private.key
 
 # Location on Debian based systems
 if [  -f "/usr/lib/gnupg2/gpg-preset-passphrase" ]; then
@@ -55,7 +55,7 @@ fi
 gpg --batch --import private.key
 echo 'allow-preset-passphrase' | tee ~/.gnupg/gpg-agent.conf
 gpg-connect-agent reloadagent /bye
-$GPG_PRESET_PASSPHRASE --passphrase ${BINTRAY_PASSPHRASE} --preset 50907674C38F9E099C35345E246EBBA203D8E107
+$GPG_PRESET_PASSPHRASE --passphrase ${SIGNING_KEY_PASSPHRASE} --preset 50907674C38F9E099C35345E246EBBA203D8E107
 rpmbuild --define "_topdir $(realpath build/rpmbuild)" -bb build/rpmbuild/rpm/hazelcast.spec
 
 rpm --define "_gpg_name deploy@hazelcast.com" --addsign build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm
