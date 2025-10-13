@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       SOURCE_REF:
-        description: 'The hazelcast-packaging branch to build the image from'
+        description: 'The hazelcast-packaging branch to build from'
         required: true
       PACKAGE_TYPES:
         description: 'Packages to build'
