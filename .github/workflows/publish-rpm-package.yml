@@ -18,12 +18,14 @@ on:
         description: 'Environment to use'
         required: true
         type: string
+      JAVA_VERSION:
+        description: 'Java version to use'
+        required: true
+        type: string
 
 env:
   JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
   JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
-  DEVOPS_PRIVATE_KEY: ${{ secrets.DEVOPS_PRIVATE_KEY }}
-  BINTRAY_PASSPHRASE: ${{ secrets.BINTRAY_PASSPHRASE }}
   ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
 
 concurrency:
@@ -48,9 +50,6 @@ jobs:
           repository: hazelcast/hazelcast-docker
           path: 'hazelcast-docker'
 
-      - name: Load env vars from .env file
-        run: cat .env >> $GITHUB_ENV
-
       - name: Install Required tools
         run: |
           yum install -y maven rpm-sign rpm-build wget gettext systemd-rpm-macros jq
@@ -72,9 +71,25 @@ jobs:
           hz_version: ${{ env.HZ_VERSION }}
           distribution: ${{ env.HZ_DISTRIBUTION }}
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_DEV_INFRA_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_DEV_INFRA_SECRET_ACCESS_KEY }}
+          aws-region: 'us-east-1'
+
+      - name: Get Secrets
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          secret-ids: |
+            SIGNING_KEY,SIGNING/GPG-KEY-2011
+          parse-json-secrets: true
+
       - name: Create & Sign & Upload RPM package
         run: |
           ./build-hazelcast-rpm-package.sh
+        env:
+          JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
 
       - name: Calculate YUM Repository Metadata
         run: |
@@ -87,7 +102,7 @@ jobs:
 
       - name: Install Hazelcast from rpm
         env:
-          HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
+          HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
         run: |
           source ./common.sh
 

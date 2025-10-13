@@ -18,6 +18,10 @@ on:
         description: 'Environment to use'
         required: true
         type: string
+      JAVA_VERSION:
+        description: 'Java version to use'
+        required: true
+        type: string
 
 env:
   JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
@@ -51,9 +55,6 @@ jobs:
           repository: hazelcast/hazelcast-docker
           path: 'hazelcast-docker'
 
-      - name: Load env vars from .env file
-        run: cat .env >> $GITHUB_ENV
-
       - name: Install prerequisites
         run: |
           apt-get update
@@ -79,6 +80,8 @@ jobs:
       - name: Create & Upload DEB package
         run: |
           ./build-hazelcast-deb-package.sh
+        env:
+          JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
 
       - name: Calculate Debian Repository Metadata
         run: |
@@ -89,7 +92,7 @@ jobs:
 
       - name: Install Hazelcast from deb
         env:
-          HZ_LICENSEKEY: ${{ secrets.HZ_LICENSEKEY }}
+          HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
         run: |
           source ./common.sh
           apt-get install -y --no-upgrade wget gpg coreutils \
