@@ -52,9 +52,11 @@ jobs:
       ENVIRONMENT: ${{ steps.environment.outputs.ENVIRONMENT }}
       java_version: ${{ steps.default-java-version.outputs.VERSION }}
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout hazelcast-packaging repo
+        uses: actions/checkout@v5
 
-      - uses: actions/checkout@v5
+      - name: Get pom.xml from ${{ inputs.SOURCE_REF }}
+        uses: actions/checkout@v5
         with:
           ref: ${{ inputs.SOURCE_REF }}
           path: source_path
