@@ -4,8 +4,10 @@ inputs:
     description: 'Repo Vars as JSON - not inherited in composite actions - see https://github.com/orgs/community/discussions/49689#discussioncomment-6398261'
     required: true
   hz_version:
+    description: 'Hazelcast version'
     required: true
   distribution:
+    description: 'Distribution type: "hazelcast" or "hazelcast-enterprise"'
     required: true
 outputs:
   repo_url:
