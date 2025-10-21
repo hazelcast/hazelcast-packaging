@@ -65,12 +65,14 @@ jobs:
                 "password": "${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}"
             }]
 
-      - name: Download the distribution tar.gz file
-        uses: ./.github/actions/download-hz-dist
+      - name: Download the distribution file
+        uses: hazelcast/docker-actions/download-hz-dist@share-distribution-download
         with:
           repo-vars-as-json: ${{ toJSON(vars) }}
-          hz_version: ${{ env.HZ_VERSION }}
           distribution: ${{ env.HZ_DISTRIBUTION }}
+          hz_version: ${{ env.HZ_VERSION }}
+          packaging: "tar.gz"
+          output_file: "distribution.tar.gz"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
