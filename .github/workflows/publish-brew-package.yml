@@ -60,20 +60,26 @@ jobs:
           sha256sum --version
           echo "PATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH" >> $GITHUB_ENV
 
-      - name: Get the distribution tar.gz URL
-        uses: ./.github/actions/get-hz-dist-url
-        id: hz-dist-url
+      - name: Download the distribution file
+        uses: hazelcast/docker-actions/download-hz-dist@share-distribution-download
+        id: download-hz-dist
         with:
           repo-vars-as-json: ${{ toJSON(vars) }}
-          hz_version: ${{ env.HZ_VERSION }}
           distribution: ${{ env.HZ_DISTRIBUTION }}
+          hz_version: ${{ env.HZ_VERSION }}
+          packaging: "tar.gz"
+          output_file: "distribution.tar.gz"
 
-      - name: Download the distribution tar.gz file
-        uses: ./.github/actions/download-hz-dist
-        with:
-          repo-vars-as-json: ${{ toJSON(vars) }}
-          hz_version: ${{ env.HZ_VERSION }}
-          distribution: ${{ env.HZ_DISTRIBUTION }}
+      - name: Get the distribution file URL
+        id: hz-dist-url
+        run: |
+          # Detect if the repo definition specifies authentication via a Maven server (e.g. "my-private-repo::::https://example.com/private-repo")
+          if [[ "${{ steps.download-hz-dist.outputs.maven_repo_url }}" == *[!:]::::* ]]; then
+            echo "Distribution URL requires authentication, aborting!";
+            exit 1;
+          else
+            echo "url=${{ steps.download-hz-dist.outputs.maven_repo_url }}/com/hazelcast/${HZ_DISTRIBUTION}-distribution/${HZ_VERSION}/${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz" >> ${GITHUB_OUTPUT}
+          fi
 
       - name: Get homebrew repository
         run: |
