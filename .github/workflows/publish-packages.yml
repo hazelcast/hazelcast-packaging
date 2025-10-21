@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - master
-    tags:
-      - 'v*'
   schedule:
     - cron: '0 2 * * *' # 2AM Nightly
   pull_request:
