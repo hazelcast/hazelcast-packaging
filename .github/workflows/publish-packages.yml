@@ -56,7 +56,7 @@ jobs:
       should_build_rpm: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'rpm' }}
       should_build_homebrew: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew' }}
       ENVIRONMENT: ${{ steps.environment.outputs.ENVIRONMENT }}
-      java_version: ${{ steps.default-java-version.outputs.VERSION }}
+      java_version: ${{ steps.jdks.outputs.default-jdk }}
     steps:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v5
@@ -106,12 +106,6 @@ jobs:
         with:
           HZ_VERSION: ${{ steps.hz_version_step.outputs.hz_version }}
 
-      - name: Get default Java version
-        id: default-java-version
-        run: |
-          # TODO Consider adding this as an output to get-supported-jdks
-          echo "VERSION=$(jq --raw-output '.[-1]' <<< '${{ steps.jdks.outputs.jdks }}')" >> ${GITHUB_OUTPUT}
-
       - name: Add workflow inputs to summary
         run: |
           echo "### Workflow Setup" >> $GITHUB_STEP_SUMMARY
@@ -122,7 +116,7 @@ jobs:
           echo "| PACKAGE_TYPES | ${PACKAGE_TYPES} |" >> $GITHUB_STEP_SUMMARY
           echo "| RELEASE_TYPE | ${RELEASE_TYPE} |" >> $GITHUB_STEP_SUMMARY
           echo "| ENVIRONMENT | ${{ steps.environment.outputs.ENVIRONMENT }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| JAVA_VERSION | ${{ steps.default-java-version.outputs.VERSION }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| JAVA_VERSION | ${{ steps.jdks.outputs.default-jdk }} |" >> $GITHUB_STEP_SUMMARY
 
   # Debian builds
   deb-ee:
