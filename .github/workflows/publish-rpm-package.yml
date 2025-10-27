@@ -72,7 +72,6 @@ jobs:
           distribution: ${{ env.HZ_DISTRIBUTION }}
           hz_version: ${{ env.HZ_VERSION }}
           packaging: "tar.gz"
-          output_file: "distribution.tar.gz"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
