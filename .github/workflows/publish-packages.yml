@@ -37,7 +37,6 @@ on:
 
 env:
   EVENT_NAME: ${{ github.event_name }}
-  RELEASE_TYPE_FILE: .github/release_type
 
 concurrency:
   group: '${{ github.workflow }}-${{ github.base_ref || github.ref_name}}'
@@ -78,26 +77,10 @@ jobs:
         run: |
           echo "hz_version=$(mvn help:evaluate -Dexpression=project.version --file source_path --quiet -DforceStdout)" >> ${GITHUB_OUTPUT}
 
-      - name: Forbid ${{ env.RELEASE_TYPE_FILE }} file in the PRs
-        if: github.event_name == 'pull_request'
-        run: |
-          if [ -f "${{ env.RELEASE_TYPE_FILE }}" ]; then
-            echo "Error: ${{ env.RELEASE_TYPE_FILE }} file is not allowed in the PRs. It's used only during release creation"
-            exit 1
-          fi
-
-      - name: Read release type from the file
-        run: |          
-          if [ -f ${{ env.RELEASE_TYPE_FILE }} ]; then
-              echo "RELEASE_TYPE=$(cat ${{ env.RELEASE_TYPE_FILE }})" >> $GITHUB_ENV
-          else
-              echo "File '${{ env.RELEASE_TYPE_FILE }}' does not exist."
-          fi
-
       - id: resolve-editions
         uses: hazelcast/docker-actions/resolve-editions@master
         with:
-          release-type: ${{ env.RELEASE_TYPE }}
+          release-type: ${{ inputs.RELEASE_TYPE }}
 
       - name: Calculate the environment
         id: environment
