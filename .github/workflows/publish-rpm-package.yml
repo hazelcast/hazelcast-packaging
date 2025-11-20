@@ -54,8 +54,7 @@ jobs:
         run: |
           yum install -y maven rpm-sign rpm-build wget gettext systemd-rpm-macros jq
 
-      # https://github.com/s4u/maven-settings-action/releases/tag/v4.0.0
-      - uses: s4u/maven-settings-action@894661b3ddae382f1ae8edbeab60987e08cf0788
+      - uses: s4u/maven-settings-action@894661b3ddae382f1ae8edbeab60987e08cf0788 # v4.0.0
         with:
           path: /usr/share/maven/conf/settings.xml
           servers: |
