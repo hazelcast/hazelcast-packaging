@@ -122,7 +122,7 @@ jobs:
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git add *.rb
           if [[ `git status --porcelain --untracked-files=no` ]]; then
-            git commit -am "Hazelcast Homebrew Package ${{ env.PACKAGE_VERSION }} release"
+            git commit -am "Hazelcast Homebrew Package ${PACKAGE_VERSION} release"
             git pull --rebase
             git push
           else
@@ -140,10 +140,10 @@ jobs:
         run: |
           source ./common.sh
           # Add a GitHub token be able to use a homebrew tap from the private repository
-          git config --global url."https://${{ env.GITHUB_DEVOPSHAZELCAST_SECRET }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://${GITHUB_DEVOPSHAZELCAST_SECRET}@github.com/".insteadOf "https://github.com/"
 
           brew tap ${BREW_TAP_NAME}
-          brew install ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
+          brew install ${HZ_DISTRIBUTION}@$BREW_PACKAGE_VERSION
 
       - name: Run Hazelcast
         env:
@@ -152,12 +152,12 @@ jobs:
 
       - name: Check Hazelcast health
         run: |
-          ./check-hazelcast-health.sh "${{ env.HZ_DISTRIBUTION}}" "${{ env.HZ_VERSION}}"
+          ./check-hazelcast-health.sh "${HZ_DISTRIBUTION}" "${HZ_VERSION}"
 
       - name: Uninstall Hazelcast from homebrew
         run: |
           source ./common.sh          
-          brew uninstall ${{ env.HZ_DISTRIBUTION}}@$BREW_PACKAGE_VERSION
+          brew uninstall ${HZ_DISTRIBUTION}@$BREW_PACKAGE_VERSION
 
       - name: Store logs as artifact
         if: ${{ always() }}

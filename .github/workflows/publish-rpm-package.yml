@@ -98,7 +98,7 @@ jobs:
           ls -lah
           source ./common.sh
 
-          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
+          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
             -X POST "https://repository.hazelcast.com/api/yum/${RPM_REPO}"
 
       - name: Install Hazelcast from rpm
@@ -110,28 +110,28 @@ jobs:
           # Bake authentication into the returned URLs
           wget \
             ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo \
-            --header "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
+            --header "Authorization: Bearer ${JFROG_TOKEN}" \
             --output-document - | \
-          sed "s#https://#https://${{ env.JFROG_USERNAME }}:${{ env.JFROG_TOKEN }}@#g" > \
+          sed "s#https://#https://${JFROG_USERNAME}:${JFROG_TOKEN}@#g" > \
           /etc/yum.repos.d/hazelcast-rpm-${PACKAGE_REPO}.repo
 
-          yum install -y ${{ env.HZ_DISTRIBUTION}}-${RPM_HZ_VERSION}
+          yum install -y ${HZ_DISTRIBUTION}-${RPM_HZ_VERSION}
           HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
         run: |
-          ./check-hazelcast-health.sh "${{ env.HZ_DISTRIBUTION}}" "${{ env.HZ_VERSION}}"
+          ./check-hazelcast-health.sh "${HZ_DISTRIBUTION}" "${HZ_VERSION}"
 
       - name: Uninstall Hazelcast from rpm
         run: |
           source ./common.sh
-          yum remove -y ${{ env.HZ_DISTRIBUTION}}-${RPM_PACKAGE_VERSION}
+          yum remove -y ${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}
 
       - name: Remove rpm package from test repo
         if: ${{ inputs.ENVIRONMENT == 'test' && (success() || failure()) }}
         run: |
           source ./common.sh
-          curl -H "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
+          curl -H "Authorization: Bearer ${JFROG_TOKEN}" \
             -X DELETE \
             "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
 
@@ -139,5 +139,5 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v5
         with:
-          name: rpm-${{ env.HZ_DISTRIBUTION}}-hz.log
+          name: rpm-${HZ_DISTRIBUTION}-hz.log
           path: hz.log
