@@ -41,10 +41,10 @@ jobs:
       HZ_DISTRIBUTION: ${{ inputs.HZ_DISTRIBUTION }}
     steps:
       - name: Checkout hazelcast-packaging repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Checkout hazelcast-docker repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: hazelcast/hazelcast-docker
           path: 'hazelcast-docker'
@@ -100,7 +100,7 @@ jobs:
           parse-json-secrets: true
 
       - name: Checkout homebrew-hz repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: ${{ env.BREW_GIT_REPO_NAME }}
           token: ${{ env.GITHUB_DEVOPSHAZELCAST_SECRET }}
