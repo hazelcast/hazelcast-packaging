@@ -88,7 +88,7 @@ jobs:
         run: |
           source common.sh
 
-          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
+          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
             -X POST "https://repository.hazelcast.com/api/deb/reindex/${DEBIAN_REPO}"
 
       - name: Install Hazelcast from deb
@@ -104,23 +104,23 @@ jobs:
               | gpg --dearmor \
               | sudo tee /usr/share/keyrings/hazelcast-archive-keyring.gpg > /dev/null \
             && echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list \
-            && sudo apt-get update && sudo apt-get install -y ${{ env.HZ_DISTRIBUTION }}=${HZ_VERSION}
+            && sudo apt-get update && sudo apt-get install -y ${HZ_DISTRIBUTION}=${HZ_VERSION}
           HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
         run: |
-          ./check-hazelcast-health.sh "${{ env.HZ_DISTRIBUTION}}" "${{ env.HZ_VERSION}}"
+          ./check-hazelcast-health.sh "${HZ_DISTRIBUTION}" "${HZ_VERSION}"
 
       - name: Uninstall Hazelcast from deb
         run: |
           source ./common.sh
-          sudo apt-get remove -y ${{ env.HZ_DISTRIBUTION}}
+          sudo apt-get remove -y ${HZ_DISTRIBUTION}
 
       - name: Remove deb package from test repo
         if: ${{ inputs.ENVIRONMENT == 'test' && (success() || failure()) }}
         run: |
           source ./common.sh
-          curl -H "Authorization: Bearer ${{ env.JFROG_TOKEN }}" \
+          curl -H "Authorization: Bearer ${JFROG_TOKEN}" \
             -X DELETE \
             "$DEBIAN_REPO_BASE_URL/${HZ_DISTRIBUTION}-${DEB_PACKAGE_VERSION}-all.deb"
 
