@@ -49,8 +49,8 @@ jobs:
       PACKAGE_TYPES: ${{ inputs.PACKAGE_TYPES || 'all' }}
     outputs:
       hz_version: ${{ steps.hz_version_step.outputs.hz_version }}
-      should_build_oss: ${{ steps.resolve-editions.outputs.should_build_oss == 'yes' || github.event_name == 'pull_request' }}
-      should_build_ee: ${{ steps.resolve-editions.outputs.should_build_ee == 'yes' || github.event_name == 'pull_request'}}
+      should_build_oss: ${{ steps.resolve-editions.outputs.should_build_oss == 'true' || github.event_name == 'pull_request' }}
+      should_build_ee: ${{ steps.resolve-editions.outputs.should_build_ee == 'true' || github.event_name == 'pull_request'}}
       should_build_deb: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'deb' }}
       should_build_rpm: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'rpm' }}
       should_build_homebrew: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew' }}
