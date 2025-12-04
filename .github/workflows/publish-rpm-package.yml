@@ -26,7 +26,6 @@ on:
 env:
   JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
   JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
-  ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
 
 concurrency:
   group: 'rpm-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
@@ -40,6 +39,7 @@ jobs:
       HZ_VERSION: ${{ inputs.HZ_VERSION }}
       PACKAGE_VERSION: ${{ inputs.PACKAGE_VERSION || inputs.HZ_VERSION }}
       HZ_DISTRIBUTION: ${{ inputs.HZ_DISTRIBUTION }}
+      RPM_REPO_BASE_URL: https://repository.hazelcast.com/${{ vars.RPM_REPO }}
     steps:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v6
@@ -94,12 +94,8 @@ jobs:
 
       - name: Calculate YUM Repository Metadata
         run: |
-          pwd
-          ls -lah
-          source ./common.sh
-
           curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
-            -X POST "https://repository.hazelcast.com/api/yum/${RPM_REPO}"
+            -X POST "https://repository.hazelcast.com/api/yum/${{ vars.RPM_REPO }}"
 
       - name: Install Hazelcast from rpm
         env:

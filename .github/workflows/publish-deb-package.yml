@@ -26,7 +26,6 @@ on:
 env:
   JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
   JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
-  ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
 
 concurrency:
   group: 'deb-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
@@ -44,6 +43,7 @@ jobs:
       HZ_VERSION: ${{ inputs.HZ_VERSION }}
       PACKAGE_VERSION: ${{ inputs.PACKAGE_VERSION || inputs.HZ_VERSION }}
       HZ_DISTRIBUTION: ${{ inputs.HZ_DISTRIBUTION }}
+      DEBIAN_REPO_BASE_URL: https://repository.hazelcast.com/${{ vars.DEBIAN_REPO }}
 
     steps:
       - name: Checkout hazelcast-packaging repo
@@ -89,13 +89,23 @@ jobs:
           source common.sh
 
           curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
-            -X POST "https://repository.hazelcast.com/api/deb/reindex/${DEBIAN_REPO}"
+            -X POST "https://repository.hazelcast.com/api/deb/reindex/${{ vars.DEBIAN_REPO }}"
 
       - name: Install Hazelcast from deb
         env:
           HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
         run: |
           source ./common.sh
+
+          # Setup authentication file to access private repo
+          sudo bash -c "cat >/etc/apt/auth.conf.d/hazelcast.conf <<EOF
+            machine $(echo ${DEBIAN_REPO_BASE_URL} | sed -E 's#https?://([^/]+).*#\1#')
+            login ${JFROG_USERNAME}
+            password ${JFROG_TOKEN}
+          EOF"
+
+          sudo chmod 600 /etc/apt/auth.conf.d/hazelcast.conf
+
           apt-get install -y --no-upgrade wget gpg coreutils \
             && wget \
               https://repository.hazelcast.com/api/gpg/key/public \
@@ -103,7 +113,7 @@ jobs:
               --quiet \
               | gpg --dearmor \
               | sudo tee /usr/share/keyrings/hazelcast-archive-keyring.gpg > /dev/null \
-            && echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list \
+            && echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list.d/hazelcast.list \
             && sudo apt-get update && sudo apt-get install -y ${HZ_DISTRIBUTION}=${HZ_VERSION}
           HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 

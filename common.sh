@@ -4,11 +4,6 @@ SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 source "$SCRIPT_DIR/logging.functions.sh"
 
-if [ -z "${ENVIRONMENT}" ]; then
-  echoerr "Variable ENVIRONMENT is not set."
-  exit 1
-fi
-
 export RELEASE_TYPE=stable
 if [[ "$HZ_VERSION" == *"SNAPSHOT"* ]]; then
   export RELEASE_TYPE=snapshot
@@ -59,36 +54,4 @@ export RPM_PACKAGE_VERSION
 BREW_PACKAGE_VERSION=$(echo $PACKAGE_VERSION | tr '[:upper:]' '[:lower:]' | sed -r -r 's/(-)/\./g')
 export BREW_PACKAGE_VERSION
 
-case "${ENVIRONMENT}" in
-test)
-  # PRs publish to test repositories and install the packages from there
-  export DEBIAN_REPO=debian-test-local
-  export DEBIAN_REPO_BASE_URL="https://${JFROG_USERNAME}:${JFROG_TOKEN}@repository.hazelcast.com/${DEBIAN_REPO}"
-  export RPM_REPO=rpm-test-local
-
-  # This is a clone of the hazelcast/homebrew-hz repository
-  export BREW_GIT_REPO_NAME="hazelcast/homebrew-hz-test"
-  export BREW_TAP_NAME="hazelcast/hz-test"
-  ;;
-sandbox)
-  export DEBIAN_REPO=sandbox-deb-prod
-  export DEBIAN_REPO_BASE_URL="https://${JFROG_USERNAME}:${JFROG_TOKEN}@repository.hazelcast.com/${DEBIAN_REPO}"
-  export RPM_REPO=sandbox-rpm-prod
-  export BREW_GIT_REPO_NAME="hazelcast/homebrew-sandbox-hz"
-  export BREW_TAP_NAME="hazelcast/sandbox-hz"
-  ;;
-live)
-  export DEBIAN_REPO=debian-local
-  export DEBIAN_REPO_BASE_URL="https://repository.hazelcast.com/${DEBIAN_REPO}"
-  export RPM_REPO=rpm-local
-  export BREW_GIT_REPO_NAME="hazelcast/homebrew-hz"
-  export BREW_TAP_NAME="hazelcast/hz"
-  ;;
-*)
-  echoerr "Unknown ENVIRONMENT: ${ENVIRONMENT}. Must be one of: test, sandbox, live."
-  exit 1
-  ;;
-esac
-
-export RPM_REPO_BASE_URL="https://repository.hazelcast.com/${RPM_REPO}"
 export HZ_DISTRIBUTION_FILE=distribution.tar.gz
