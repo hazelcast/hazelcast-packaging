@@ -26,7 +26,6 @@ on:
 env:
   JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
   JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
-  ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
 
 concurrency:
   group: 'brew-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
@@ -80,11 +79,6 @@ jobs:
             echo "url=${{ steps.download-hz-dist.outputs.maven_repo_url }}/com/hazelcast/${HZ_DISTRIBUTION}-distribution/${HZ_VERSION}/${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz" >> ${GITHUB_OUTPUT}
           fi
 
-      - name: Get homebrew repository
-        run: |
-          source ./common.sh
-          echo "BREW_GIT_REPO_NAME=${BREW_GIT_REPO_NAME}" >> $GITHUB_ENV
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
@@ -102,7 +96,7 @@ jobs:
       - name: Checkout homebrew-hz repo
         uses: actions/checkout@v6
         with:
-          repository: ${{ env.BREW_GIT_REPO_NAME }}
+          repository: ${{ vars.BREW_GIT_REPO_NAME }}
           token: ${{ env.GITHUB_DEVOPSHAZELCAST_SECRET }}
           path: 'homebrew-hz'
 
@@ -142,7 +136,7 @@ jobs:
           # Add a GitHub token be able to use a homebrew tap from the private repository
           git config --global url."https://${GITHUB_DEVOPSHAZELCAST_SECRET}@github.com/".insteadOf "https://github.com/"
 
-          brew tap ${BREW_TAP_NAME}
+          brew tap ${{ vars.BREW_TAP_NAME }}
           brew install ${HZ_DISTRIBUTION}@$BREW_PACKAGE_VERSION
 
       - name: Run Hazelcast
