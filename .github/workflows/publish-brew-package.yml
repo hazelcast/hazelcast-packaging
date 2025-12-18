@@ -59,6 +59,15 @@ jobs:
           sha256sum --version
           echo "PATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH" >> $GITHUB_ENV
 
+      - uses: s4u/maven-settings-action@894661b3ddae382f1ae8edbeab60987e08cf0788 # v4.0.0
+        with:
+          servers: |
+            [{
+                "id": "snapshot-internal",
+                "username": "${{ secrets.HZ_SNAPSHOT_INTERNAL_USERNAME }}",
+                "password": "${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}"
+            }]
+
       - name: Download the distribution file
         uses: hazelcast/docker-actions/download-hz-dist@master
         id: download-hz-dist
