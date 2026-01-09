@@ -23,10 +23,6 @@ on:
         required: true
         type: string
 
-env:
-  JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
-  JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
-
 concurrency:
   group: 'deb-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
 
@@ -71,6 +67,10 @@ jobs:
           distribution: ${{ env.HZ_DISTRIBUTION }}
           hz_version: ${{ env.HZ_VERSION }}
           packaging: "tar.gz"
+
+      - uses: ./.github/actions/authenticate-jfrog
+        with:
+          aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
 
       - name: Create & Upload DEB package
         run: |

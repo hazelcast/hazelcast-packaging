@@ -1,0 +1,30 @@
+name: Authenticate JFrog
+inputs:
+  aws-role-to-assume:
+    description: 'AWS Role to assume for accessing secrets'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: aws-actions/configure-aws-credentials@v5
+      with:
+        role-to-assume: ${{ inputs.aws-role-to-assume }}
+        aws-region: 'us-east-1'
+
+    - uses: aws-actions/aws-secretsmanager-get-secrets@v2
+      with:
+        secret-ids: |
+          JFROG
+        parse-json-secrets: true
+
+    - id: jfrog
+      uses: jfrog/setup-jfrog-cli@v4
+      env:
+        JF_URL: https://${{ env.JFROG_URL }}
+      with:
+        oidc-provider-name: ${{ github.repository_owner }}-write-dev-account
+
+    - shell: bash
+      run: |
+        echo "JFROG_USERNAME=${{ steps.jfrog.outputs.oidc-user }}" >> ${GITHUB_ENV}
+        echo "JFROG_TOKEN=${{ steps.jfrog.outputs.oidc-token }}" >> ${GITHUB_ENV}
