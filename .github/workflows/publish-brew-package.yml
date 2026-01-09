@@ -132,13 +132,6 @@ jobs:
             echo "No changes, this is probably a re-run."
           fi
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          aws-access-key-id: ${{ secrets.AWS_DEV_INFRA_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_DEV_INFRA_SECRET_ACCESS_KEY }}
-          aws-region: 'us-east-1'
-
       - name: Install Hazelcast from Homebrew
         run: |
           source ./common.sh
