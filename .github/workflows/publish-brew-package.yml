@@ -23,10 +23,6 @@ on:
         required: true
         type: string
 
-env:
-  JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
-  JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
-
 concurrency:
   group: 'brew-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
 
