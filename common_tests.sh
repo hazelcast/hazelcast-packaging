@@ -16,10 +16,10 @@ function assertReleaseType {
   local expected=$2
   . "$SCRIPT_DIR"/common.sh
   local msg="Version $HZ_VERSION should be a $expected release"
-  assert_eq $expected $RELEASE_TYPE "$msg" && log_success "$msg" || TESTS_RESULT=$?
+  assert_eq $expected ${RELEASE_CHANNEL} "$msg" && log_success "$msg" || TESTS_RESULT=$?
 }
 
-log_header "Tests for RELEASE_TYPE"
+log_header "Tests for RELEASE_CHANNEL"
 assertReleaseType "5.2.0-SNAPSHOT" "snapshot"
 assertReleaseType "5.2-SNAPSHOT" "snapshot"
 assertReleaseType "5.2.0-BETA-1" "beta"
