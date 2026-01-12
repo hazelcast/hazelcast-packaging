@@ -118,11 +118,9 @@ jobs:
 
       - name: Install Hazelcast from Homebrew
         run: |
-          source ./common.sh
           # Add a GitHub token be able to use a homebrew tap from the private repository
           git config --global url."https://${GITHUB_DEVOPSHAZELCAST_SECRET}@github.com/".insteadOf "https://github.com/"
 
-          brew tap ${{ vars.BREW_TAP_NAME }}
           brew install ${HZ_DISTRIBUTION}@$BREW_PACKAGE_VERSION
 
       - name: Run Hazelcast
