@@ -86,8 +86,6 @@ jobs:
 
       - name: Calculate Debian Repository Metadata
         run: |
-          source common.sh
-
           curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
             -X POST "https://repository.hazelcast.com/api/deb/reindex/${{ vars.DEBIAN_REPO }}"
 
@@ -123,7 +121,6 @@ jobs:
 
       - name: Uninstall Hazelcast from deb
         run: |
-          source ./common.sh
           sudo apt-get remove -y ${HZ_DISTRIBUTION}
 
       - name: Remove deb package from test repo
