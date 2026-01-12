@@ -63,7 +63,7 @@ BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}" "${BREW_PACKAGE_VERSION}")
 generateFormula "$BREW_CLASS" "${HZ_DISTRIBUTION}@${BREW_PACKAGE_VERSION}.rb"
 
 # Update hazelcast and hazelcast-x.y aliases only if the version is a stable release (not SNAPSHOT/BETA)
-if [[ "$RELEASE_TYPE" = "stable" ]]; then
+if [[ "${RELEASE_CHANNEL}" = "stable" ]]; then
     rm -f "Aliases/${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}" #migrate incrementally from symlinks to regular files
     BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}${HZ_MINOR_VERSION}")
     generateFormula "$BREW_CLASS" "${HZ_DISTRIBUTION}-${HZ_MINOR_VERSION}.rb"
@@ -96,8 +96,8 @@ else
     done
 
     if [ "${UPDATE_LATEST}" == "true" ]; then
-      BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}-$RELEASE_TYPE")
-      generateFormula "$BREW_CLASS" "${HZ_DISTRIBUTION}-${RELEASE_TYPE}.rb"
+      BREW_CLASS=$(brewClass "${HZ_DISTRIBUTION}-${RELEASE_CHANNEL}")
+      generateFormula "$BREW_CLASS" "${HZ_DISTRIBUTION}-${RELEASE_CHANNEL}.rb"
     fi
 fi
 

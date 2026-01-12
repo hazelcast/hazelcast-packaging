@@ -4,14 +4,14 @@ SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 source "$SCRIPT_DIR/logging.functions.sh"
 
-export RELEASE_TYPE=stable
+export RELEASE_CHANNEL=stable
 if [[ "$HZ_VERSION" == *"SNAPSHOT"* ]]; then
-  export RELEASE_TYPE=snapshot
+  export RELEASE_CHANNEL=snapshot
 fi
 if [[ "$HZ_VERSION" == *"BETA"* ]]; then
-  export RELEASE_TYPE=beta
+  export RELEASE_CHANNEL=beta
 fi
-export PACKAGE_REPO=$RELEASE_TYPE
+export PACKAGE_REPO=${RELEASE_CHANNEL}
 
 if [[ "$HZ_VERSION" == *"-"* ]]; then
   HZ_MINOR_VERSION="${HZ_VERSION}"
