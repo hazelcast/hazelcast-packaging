@@ -30,6 +30,8 @@ jobs:
   homebrew:
     environment: ${{ inputs.ENVIRONMENT }}
     runs-on: macos-latest
+    permissions:
+      id-token: write
     env:
       HZ_VERSION: ${{ inputs.HZ_VERSION }}
       PACKAGE_VERSION: ${{ inputs.PACKAGE_VERSION || inputs.HZ_VERSION }}
@@ -55,20 +57,12 @@ jobs:
           sha256sum --version
           echo "PATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH" >> $GITHUB_ENV
 
-      - uses: s4u/maven-settings-action@894661b3ddae382f1ae8edbeab60987e08cf0788 # v4.0.0
-        with:
-          servers: |
-            [{
-                "id": "snapshot-internal",
-                "username": "${{ secrets.HZ_SNAPSHOT_INTERNAL_USERNAME }}",
-                "password": "${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}"
-            }]
-
       - name: Download the distribution file
         uses: hazelcast/docker-actions/download-hz-dist@master
         id: download-hz-dist
         with:
           repo-vars-as-json: ${{ toJSON(vars) }}
+          aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
           distribution: ${{ env.HZ_DISTRIBUTION }}
           hz_version: ${{ env.HZ_VERSION }}
           packaging: "tar.gz"

@@ -34,6 +34,8 @@ jobs:
   deb:
     environment: ${{ inputs.ENVIRONMENT }}
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     container:
       image: debian:stable
     defaults:
@@ -60,20 +62,12 @@ jobs:
           apt-get update
           apt-get install -y curl gettext-base gpg sudo wget maven jq
 
-      - uses: s4u/maven-settings-action@894661b3ddae382f1ae8edbeab60987e08cf0788 # v4.0.0
-        with:
-          path: /usr/share/maven/conf/settings.xml
-          servers: |
-            [{
-                "id": "snapshot-internal",
-                "username": "${{ secrets.HZ_SNAPSHOT_INTERNAL_USERNAME }}",
-                "password": "${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}"
-            }]
-
       - name: Download the distribution file
         uses: hazelcast/docker-actions/download-hz-dist@master
         with:
           repo-vars-as-json: ${{ toJSON(vars) }}
+          aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+          maven-settings-path: /usr/share/maven/conf/settings.xml
           distribution: ${{ env.HZ_DISTRIBUTION }}
           hz_version: ${{ env.HZ_VERSION }}
           packaging: "tar.gz"
