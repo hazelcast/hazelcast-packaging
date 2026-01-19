@@ -63,7 +63,7 @@ jobs:
           apt-get install -y curl gettext-base gpg sudo wget maven jq
 
       - name: Download the distribution file
-        uses: hazelcast/docker-actions/download-hz-dist@authenticate-with-oidc
+        uses: hazelcast/docker-actions/download-hz-dist@master
         with:
           repo-vars-as-json: ${{ toJSON(vars) }}
           aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}

@@ -62,7 +62,7 @@ jobs:
           echo "PATH=$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH" >> $GITHUB_ENV
 
       - name: Download the distribution file
-        uses: hazelcast/docker-actions/download-hz-dist@authenticate-with-oidc
+        uses: hazelcast/docker-actions/download-hz-dist@master
         id: download-hz-dist
         with:
           repo-vars-as-json: ${{ toJSON(vars) }}
