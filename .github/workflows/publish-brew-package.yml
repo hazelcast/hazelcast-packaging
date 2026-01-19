@@ -98,41 +98,27 @@ jobs:
             GITHUB/DEVOPSHAZELCAST
           parse-json-secrets: true
 
-      - name: Checkout homebrew-hz repo
-        uses: actions/checkout@v6
-        with:
-          repository: ${{ vars.BREW_GIT_REPO_NAME }}
-          token: ${{ env.GITHUB_DEVOPSHAZELCAST_SECRET }}
-          path: 'homebrew-hz'
+      - name: Checkout ${{ vars.BREW_GIT_REPO_NAME }} repo
+        run: |
+          # Add a GitHub token be able to use a homebrew tap from the private repository
+          git config --global url."https://${GITHUB_DEVOPSHAZELCAST_SECRET}@github.com/".insteadOf "https://github.com/"
 
-      - name: Change the artifact in homebrew-hz
+          # Checkout via homebrew so that we can modify and test locally without having to push to the main upstream branch
+          brew tap ${{ vars.BREW_TAP_NAME }}
+
+          # https://github.com/Homebrew/brew/issues/1505#issuecomment-260505067
+          echo "BREW_GIT_REPO_LOCATION=$(brew --repo)/Library/Taps/${{ vars.BREW_GIT_REPO_NAME }}" >> ${GITHUB_ENV}
+
+      - name: Change the artifact in ${{ env.BREW_GIT_REPO_LOCATION }}
         run: |
           ./build-hazelcast-homebrew-package.sh
         env:
           HZ_PACKAGE_URL: ${{ steps.hz-dist-url.outputs.url }}
           JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
 
-      - name: Commit changes & Push to homebrew-hz repo
-        run: |
-          cd homebrew-hz
-          git config --global user.name "${GITHUB_ACTOR}"
-          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git add *.rb
-          if [[ `git status --porcelain --untracked-files=no` ]]; then
-            git commit -am "Hazelcast Homebrew Package ${PACKAGE_VERSION} release"
-            git pull --rebase
-            git push
-          else
-            echo "No changes, this is probably a re-run."
-          fi
-
       - name: Install Hazelcast from Homebrew
         run: |
           source ./common.sh
-          # Add a GitHub token be able to use a homebrew tap from the private repository
-          git config --global url."https://${GITHUB_DEVOPSHAZELCAST_SECRET}@github.com/".insteadOf "https://github.com/"
-
-          brew tap ${{ vars.BREW_TAP_NAME }}
           brew install ${HZ_DISTRIBUTION}@$BREW_PACKAGE_VERSION
 
       - name: Run Hazelcast
@@ -148,6 +134,20 @@ jobs:
         run: |
           source ./common.sh          
           brew uninstall ${HZ_DISTRIBUTION}@$BREW_PACKAGE_VERSION
+
+      - name: Commit changes & Push to ${{ env.BREW_GIT_REPO_NAME }} repo
+        working-directory: ${{ env.BREW_GIT_REPO_LOCATION }}
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git add *.rb
+          if [[ `git status --porcelain --untracked-files=no` ]]; then
+            git commit -am "Hazelcast Homebrew Package ${PACKAGE_VERSION} release"
+            git pull --rebase
+            git push
+          else
+            echo "No changes, this is probably a re-run."
+          fi
 
       - name: Store logs as artifact
         if: ${{ always() }}

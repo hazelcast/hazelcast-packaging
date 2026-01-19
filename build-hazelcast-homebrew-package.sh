@@ -39,7 +39,7 @@ echo "Building Homebrew package $HZ_DISTRIBUTION:${HZ_VERSION} package version $
 ASSET_SHASUM=$(sha256sum "${HZ_DISTRIBUTION_FILE}" | cut -d ' ' -f 1)
 
 TEMPLATE_FILE="$(pwd)/packages/brew/hazelcast-template.rb"
-cd homebrew-hz || exit 1
+cd "${BREW_GIT_REPO_LOCATION}" || exit 1
 
 function generateFormula {
   class=$1
