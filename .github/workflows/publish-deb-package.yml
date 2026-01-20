@@ -23,10 +23,6 @@ on:
         required: true
         type: string
 
-env:
-  JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
-  JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
-
 concurrency:
   group: 'deb-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
 
@@ -72,27 +68,38 @@ jobs:
           hz_version: ${{ env.HZ_VERSION }}
           packaging: "tar.gz"
 
+      - uses: hazelcast/docker-actions/get-jfrog-credentials@master
+        id: authenticate-jfrog-write-dev-account
+        with:
+          aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+          jfrog-oidc-provider-name: ${{ github.repository_owner }}-write-dev-account
+
       - name: Create & Upload DEB package
         run: |
           ./build-hazelcast-deb-package.sh
         env:
           JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
       - name: Calculate Debian Repository Metadata
         run: |
           curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
             -X POST "https://repository.hazelcast.com/api/deb/reindex/${{ vars.DEBIAN_REPO }}"
+        env:
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
       - name: Install Hazelcast from deb
         env:
           HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
+          JFROG_USER: ${{ steps.authenticate-jfrog-write-dev-account.outputs.user }}
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
         run: |
           source ./common.sh
 
           # Setup authentication file to access private repo
           sudo bash -c "cat >/etc/apt/auth.conf.d/hazelcast.conf <<EOF
             machine $(echo ${DEBIAN_REPO_BASE_URL} | sed -E 's#https?://([^/]+).*#\1#')
-            login ${JFROG_USERNAME}
+            login ${JFROG_USER}
             password ${JFROG_TOKEN}
           EOF"
 
@@ -124,6 +131,8 @@ jobs:
           curl -H "Authorization: Bearer ${JFROG_TOKEN}" \
             -X DELETE \
             "$DEBIAN_REPO_BASE_URL/${HZ_DISTRIBUTION}-${DEB_PACKAGE_VERSION}-all.deb"
+        env:          
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
       - name: Store logs as artifact
         if: ${{ always() }}

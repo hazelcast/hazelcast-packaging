@@ -23,10 +23,6 @@ on:
         required: true
         type: string
 
-env:
-  JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
-  JFROG_TOKEN: ${{ secrets.JFROG_TOKEN }}
-
 concurrency:
   group: 'rpm-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
 
@@ -69,8 +65,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
-          aws-access-key-id: ${{ secrets.AWS_DEV_INFRA_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_DEV_INFRA_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_DEV_INFRA_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
           aws-region: 'us-east-1'
 
       - name: Get Secrets
@@ -80,20 +75,31 @@ jobs:
             SIGNING_KEY,SIGNING/GPG-KEY-2011
           parse-json-secrets: true
 
+      - uses: hazelcast/docker-actions/get-jfrog-credentials@master
+        id: authenticate-jfrog-write-dev-account
+        with:
+          aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+          jfrog-oidc-provider-name: ${{ github.repository_owner }}-write-dev-account
+
       - name: Create & Sign & Upload RPM package
         run: |
           ./build-hazelcast-rpm-package.sh
         env:
           JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
       - name: Calculate YUM Repository Metadata
         run: |
           curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
             -X POST "https://repository.hazelcast.com/api/yum/${{ vars.RPM_REPO }}"
+        env:
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
       - name: Install Hazelcast from rpm
         env:
           HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
+          JFROG_USER: ${{ steps.authenticate-jfrog-write-dev-account.outputs.user }}
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
         run: |
           source ./common.sh
 
@@ -102,7 +108,7 @@ jobs:
             ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo \
             --header "Authorization: Bearer ${JFROG_TOKEN}" \
             --output-document - | \
-          sed "s#https://#https://${JFROG_USERNAME}:${JFROG_TOKEN}@#g" > \
+          sed "s#https://#https://${JFROG_USER}:${JFROG_TOKEN}@#g" > \
           /etc/yum.repos.d/hazelcast-rpm-${PACKAGE_REPO}.repo
 
           yum install -y ${HZ_DISTRIBUTION}-${RPM_HZ_VERSION}
@@ -124,6 +130,8 @@ jobs:
           curl -H "Authorization: Bearer ${JFROG_TOKEN}" \
             -X DELETE \
             "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
+        env:
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
       - name: Store logs as artifact
         if: ${{ always() }}
