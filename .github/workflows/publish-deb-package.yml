@@ -68,19 +68,22 @@ jobs:
           hz_version: ${{ env.HZ_VERSION }}
           packaging: "tar.gz"
 
-      - uses: ./.github/actions/authenticate-jfrog
+      - uses: hazelcast/docker-actions/get-jfrog-credentials@master
+        id: authenticate-jfrog-write-dev-account
         with:
           aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+          jfrog-oidc-provider-name: ${{ github.repository_owner }}-write-dev-account
 
       - name: Create & Upload DEB package
         run: |
           ./build-hazelcast-deb-package.sh
         env:
           JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
       - name: Calculate Debian Repository Metadata
         run: |
-          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
+          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}" \
             -X POST "https://repository.hazelcast.com/api/deb/reindex/${{ vars.DEBIAN_REPO }}"
 
       - name: Install Hazelcast from deb
@@ -92,8 +95,8 @@ jobs:
           # Setup authentication file to access private repo
           sudo bash -c "cat >/etc/apt/auth.conf.d/hazelcast.conf <<EOF
             machine $(echo ${DEBIAN_REPO_BASE_URL} | sed -E 's#https?://([^/]+).*#\1#')
-            login ${JFROG_USERNAME}
-            password ${JFROG_TOKEN}
+            login ${{ steps.authenticate-jfrog-write-dev-account.outputs.user }}
+            password ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
           EOF"
 
           sudo chmod 600 /etc/apt/auth.conf.d/hazelcast.conf
@@ -121,7 +124,7 @@ jobs:
         if: ${{ inputs.ENVIRONMENT == 'test' && (success() || failure()) }}
         run: |
           source ./common.sh
-          curl -H "Authorization: Bearer ${JFROG_TOKEN}" \
+          curl -H "Authorization: Bearer ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}" \
             -X DELETE \
             "$DEBIAN_REPO_BASE_URL/${HZ_DISTRIBUTION}-${DEB_PACKAGE_VERSION}-all.deb"
 

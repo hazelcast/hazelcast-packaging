@@ -75,19 +75,22 @@ jobs:
             SIGNING_KEY,SIGNING/GPG-KEY-2011
           parse-json-secrets: true
 
-      - uses: ./.github/actions/authenticate-jfrog
+      - uses: hazelcast/docker-actions/get-jfrog-credentials@master
+        id: authenticate-jfrog-write-dev-account
         with:
           aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+          jfrog-oidc-provider-name: ${{ github.repository_owner }}-write-dev-account
 
       - name: Create & Sign & Upload RPM package
         run: |
           ./build-hazelcast-rpm-package.sh
         env:
           JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
       - name: Calculate YUM Repository Metadata
         run: |
-          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
+          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}" \
             -X POST "https://repository.hazelcast.com/api/yum/${{ vars.RPM_REPO }}"
 
       - name: Install Hazelcast from rpm
@@ -99,9 +102,9 @@ jobs:
           # Bake authentication into the returned URLs
           wget \
             ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo \
-            --header "Authorization: Bearer ${JFROG_TOKEN}" \
+            --header "Authorization: Bearer ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}" \
             --output-document - | \
-          sed "s#https://#https://${JFROG_USERNAME}:${JFROG_TOKEN}@#g" > \
+          sed "s#https://#https://${{ steps.authenticate-jfrog-write-dev-account.outputs.user }}:${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}@#g" > \
           /etc/yum.repos.d/hazelcast-rpm-${PACKAGE_REPO}.repo
 
           yum install -y ${HZ_DISTRIBUTION}-${RPM_HZ_VERSION}
@@ -120,7 +123,7 @@ jobs:
         if: ${{ inputs.ENVIRONMENT == 'test' && (success() || failure()) }}
         run: |
           source ./common.sh
-          curl -H "Authorization: Bearer ${JFROG_TOKEN}" \
+          curl -H "Authorization: Bearer ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}" \
             -X DELETE \
             "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
 
