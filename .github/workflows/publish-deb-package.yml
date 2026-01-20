@@ -83,20 +83,24 @@ jobs:
 
       - name: Calculate Debian Repository Metadata
         run: |
-          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}" \
+          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
             -X POST "https://repository.hazelcast.com/api/deb/reindex/${{ vars.DEBIAN_REPO }}"
+        env:
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
       - name: Install Hazelcast from deb
         env:
           HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
+          JFROG_USER: ${{ steps.authenticate-jfrog-write-dev-account.outputs.user }}
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
         run: |
           source ./common.sh
 
           # Setup authentication file to access private repo
           sudo bash -c "cat >/etc/apt/auth.conf.d/hazelcast.conf <<EOF
             machine $(echo ${DEBIAN_REPO_BASE_URL} | sed -E 's#https?://([^/]+).*#\1#')
-            login ${{ steps.authenticate-jfrog-write-dev-account.outputs.user }}
-            password ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
+            login ${JFROG_USER}
+            password ${JFROG_TOKEN}
           EOF"
 
           sudo chmod 600 /etc/apt/auth.conf.d/hazelcast.conf
@@ -124,9 +128,11 @@ jobs:
         if: ${{ inputs.ENVIRONMENT == 'test' && (success() || failure()) }}
         run: |
           source ./common.sh
-          curl -H "Authorization: Bearer ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}" \
+          curl -H "Authorization: Bearer ${JFROG_TOKEN}" \
             -X DELETE \
             "$DEBIAN_REPO_BASE_URL/${HZ_DISTRIBUTION}-${DEB_PACKAGE_VERSION}-all.deb"
+        env:          
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
       - name: Store logs as artifact
         if: ${{ always() }}

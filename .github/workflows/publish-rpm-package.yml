@@ -90,21 +90,25 @@ jobs:
 
       - name: Calculate YUM Repository Metadata
         run: |
-          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}" \
+          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
             -X POST "https://repository.hazelcast.com/api/yum/${{ vars.RPM_REPO }}"
+        env:
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
       - name: Install Hazelcast from rpm
         env:
           HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
+          JFROG_USER: ${{ steps.authenticate-jfrog-write-dev-account.outputs.user }}
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
         run: |
           source ./common.sh
 
           # Bake authentication into the returned URLs
           wget \
             ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo \
-            --header "Authorization: Bearer ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}" \
+            --header "Authorization: Bearer ${JFROG_TOKEN}" \
             --output-document - | \
-          sed "s#https://#https://${{ steps.authenticate-jfrog-write-dev-account.outputs.user }}:${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}@#g" > \
+          sed "s#https://#https://${JFROG_USER}:${JFROG_TOKEN}@#g" > \
           /etc/yum.repos.d/hazelcast-rpm-${PACKAGE_REPO}.repo
 
           yum install -y ${HZ_DISTRIBUTION}-${RPM_HZ_VERSION}
@@ -123,9 +127,11 @@ jobs:
         if: ${{ inputs.ENVIRONMENT == 'test' && (success() || failure()) }}
         run: |
           source ./common.sh
-          curl -H "Authorization: Bearer ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}" \
+          curl -H "Authorization: Bearer ${JFROG_TOKEN}" \
             -X DELETE \
             "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
+        env:
+          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
       - name: Store logs as artifact
         if: ${{ always() }}
