@@ -6,8 +6,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-     # Should be a relative local path, but doesn't resolve when called from another repo
-    - uses: hazelcast/docker-actions/get-jfrog-credentials@expose-jfrog-credentials
+    - uses: hazelcast/docker-actions/get-jfrog-credentials@master
       id: jfrog
       with:
         aws-role-to-assume: ${{ inputs.aws-role-to-assume }}
