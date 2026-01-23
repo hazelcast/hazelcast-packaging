@@ -72,7 +72,7 @@ jobs:
         uses: aws-actions/aws-secretsmanager-get-secrets@v2
         with:
           secret-ids: |
-            SIGNING_KEY,SIGNING/GPG-KEY-2011
+            SIGNING_KEY,SIGNING/GPG-KEY-2025
           parse-json-secrets: true
 
       - uses: hazelcast/docker-actions/get-jfrog-credentials@master
