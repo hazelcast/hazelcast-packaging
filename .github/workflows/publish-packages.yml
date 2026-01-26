@@ -55,6 +55,7 @@ jobs:
       should_build_rpm: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'rpm' }}
       should_build_homebrew: ${{ env.PACKAGE_TYPES == 'all' || env.PACKAGE_TYPES == 'homebrew' }}
       ENVIRONMENT: ${{ steps.environment.outputs.ENVIRONMENT }}
+      release_channel: ${{ steps.release_channel.outputs.channel }}
       java_version: ${{ steps.jdks.outputs.default-jdk }}
     steps:
       - name: Checkout hazelcast-packaging repo
@@ -94,6 +95,14 @@ jobs:
         with:
           HZ_VERSION: ${{ steps.hz_version_step.outputs.hz_version }}
 
+      - name: Get release channel
+        id: release_channel
+        run: |
+          source common.sh
+          echo "channel=${RELEASE_CHANNEL}" >> ${GITHUB_OUTPUT}
+        env:
+          HZ_VERSION: ${{ steps.hz_version_step.outputs.hz_version }}
+
       - name: Add workflow inputs to summary
         run: |
           echo "### Workflow Setup" >> $GITHUB_STEP_SUMMARY
@@ -104,6 +113,7 @@ jobs:
           echo "| PACKAGE_TYPES | ${PACKAGE_TYPES} |" >> $GITHUB_STEP_SUMMARY
           echo "| RELEASE_TYPE | ${RELEASE_TYPE} |" >> $GITHUB_STEP_SUMMARY
           echo "| ENVIRONMENT | ${{ steps.environment.outputs.ENVIRONMENT }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| RELEASE_CHANNEL | ${{ steps.release_channel.outputs.channel }} |" >> $GITHUB_STEP_SUMMARY
           echo "| JAVA_VERSION | ${{ steps.jdks.outputs.default-jdk }} |" >> $GITHUB_STEP_SUMMARY
 
   # Debian builds
@@ -153,7 +163,7 @@ jobs:
       JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
 
   # Homebrew builds
-  brew-ee:
+  brew-ee-package:
     if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_ee == 'true'
     needs: prepare
     uses: ./.github/workflows/publish-brew-package.yml
@@ -163,9 +173,23 @@ jobs:
      HZ_DISTRIBUTION: hazelcast-enterprise
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
      JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
-  brew-oss:
+
+  # Only auto-promote SNAPSHOTs
+  brew-ee-promote:
+    if: needs.prepare.outputs.release_channel == 'snapshot'
+    needs:
+      - prepare
+      - brew-ee-package
+    uses: ./.github/workflows/promote-brew-package.yml
+    secrets: inherit
+    with:
+     HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
+     HZ_DISTRIBUTION: hazelcast-enterprise
+     ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
+
+  brew-oss-package:
     needs: prepare
-    if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_oss == 'true' && !contains(needs.prepare.outputs.hz_version, 'SNAPSHOT')
+    if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_oss == 'true' && needs.prepare.outputs.release_channel != 'snapshot'
     uses: ./.github/workflows/publish-brew-package.yml
     secrets: inherit
     with:
@@ -173,3 +197,16 @@ jobs:
       HZ_DISTRIBUTION: hazelcast
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
       JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
+
+  # Only auto-promote SNAPSHOTs
+  brew-oss-promote:
+    if: needs.prepare.outputs.release_channel == 'snapshot'
+    needs:
+      - prepare
+      - brew-oss-package
+    uses: ./.github/workflows/promote-brew-package.yml
+    secrets: inherit
+    with:
+     HZ_VERSION: ${{ needs.prepare.outputs.hz_version }}
+     HZ_DISTRIBUTION: hazelcast
+     ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
