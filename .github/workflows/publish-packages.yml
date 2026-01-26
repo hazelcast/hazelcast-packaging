@@ -109,7 +109,7 @@ jobs:
   # Debian builds
   deb-ee:
     if: needs.prepare.outputs.should_build_deb == 'true' && needs.prepare.outputs.should_build_ee == 'true'
-    needs: [prepare]
+    needs: prepare
     uses: ./.github/workflows/publish-deb-package.yml
     secrets: inherit
     with:
@@ -117,8 +117,9 @@ jobs:
      HZ_DISTRIBUTION: hazelcast-enterprise
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
      JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
+
   deb-oss:
-    needs: [ prepare ]
+    needs: prepare
     if: needs.prepare.outputs.should_build_deb == 'true' && needs.prepare.outputs.should_build_oss == 'true'
     uses: ./.github/workflows/publish-deb-package.yml
     secrets: inherit
@@ -127,10 +128,11 @@ jobs:
       HZ_DISTRIBUTION: hazelcast
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
       JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
+
   # RPM builds
   rpm-ee:
     if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_ee == 'true'
-    needs: [prepare]
+    needs: prepare
     uses: ./.github/workflows/publish-rpm-package.yml
     secrets: inherit
     with:
@@ -138,8 +140,9 @@ jobs:
      HZ_DISTRIBUTION: hazelcast-enterprise
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
      JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
+
   rpm-oss:
-    needs: [ prepare ]
+    needs: prepare
     if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_oss == 'true'
     uses: ./.github/workflows/publish-rpm-package.yml
     secrets: inherit
@@ -148,10 +151,11 @@ jobs:
       HZ_DISTRIBUTION: hazelcast
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
       JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
+
   # Homebrew builds
   brew-ee:
     if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_ee == 'true'
-    needs: [prepare]
+    needs: prepare
     uses: ./.github/workflows/publish-brew-package.yml
     secrets: inherit
     with:
@@ -160,7 +164,7 @@ jobs:
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
      JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
   brew-oss:
-    needs: [ prepare ]
+    needs: prepare
     if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_oss == 'true' && !contains(needs.prepare.outputs.hz_version, 'SNAPSHOT')
     uses: ./.github/workflows/publish-brew-package.yml
     secrets: inherit
