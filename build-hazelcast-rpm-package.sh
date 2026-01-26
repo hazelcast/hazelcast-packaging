@@ -40,8 +40,6 @@ export FILENAME='${FILENAME}'
 export JAVA_VERSION
 envsubst <packages/rpm/hazelcast.spec >build/rpmbuild/rpm/hazelcast.spec
 
-echo "${SIGNING_KEY_PRIVATE_KEY}" > private.key
-
 # Location on Debian based systems
 if [  -f "/usr/lib/gnupg2/gpg-preset-passphrase" ]; then
   GPG_PRESET_PASSPHRASE="/usr/lib/gnupg2/gpg-preset-passphrase"
@@ -52,14 +50,28 @@ if [  -f "/usr/libexec/gpg-preset-passphrase" ]; then
   GPG_PRESET_PASSPHRASE="/usr/libexec/gpg-preset-passphrase"
 fi
 
-gpg --batch --import private.key
+gpg --batch --import <<< "${SIGNING_KEY_PRIVATE_KEY}"
 echo 'allow-preset-passphrase' | tee ~/.gnupg/gpg-agent.conf
 gpg-connect-agent reloadagent /bye
-$GPG_PRESET_PASSPHRASE --passphrase ${SIGNING_KEY_PASSPHRASE} --preset 50907674C38F9E099C35345E246EBBA203D8E107
+
+function get_gpg_key_data {
+  local key=$1
+  local property=$2
+
+  gpg --show-keys --with-keygrip --with-colons <<< "${key}" | \
+  awk -F: -v property="${property}" '$1==property {print $10; exit}'
+
+  return 0
+}
+
+SIGNING_KEY_UID=$(get_gpg_key_data "${SIGNING_KEY_PRIVATE_KEY}" "uid")
+SIGNING_KEY_KEYGRIP=$(get_gpg_key_data "${SIGNING_KEY_PRIVATE_KEY}" "grp")
+
+${GPG_PRESET_PASSPHRASE} --passphrase "${SIGNING_KEY_PASSPHRASE}" --preset ${SIGNING_KEY_KEYGRIP}
 rpmbuild --define "_topdir $(realpath build/rpmbuild)" -bb build/rpmbuild/rpm/hazelcast.spec
 
 export GPG_TTY="" # to avoid 'warning: Could not set GPG_TTY to stdin: Inappropriate ioctl for device' for the next command
-rpm --define "_gpg_name deploy@hazelcast.com" --addsign build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm
+rpm --define "_gpg_name ${SIGNING_KEY_UID}" --addsign build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm
 
 RPM_SHA256SUM=$(sha256sum "build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" | cut -d ' ' -f 1)
 RPM_SHA1SUM=$(sha1sum "build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" | cut -d ' ' -f 1)
