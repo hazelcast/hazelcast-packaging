@@ -58,6 +58,7 @@ gpg-connect-agent reloadagent /bye
 $GPG_PRESET_PASSPHRASE --passphrase ${SIGNING_KEY_PASSPHRASE} --preset 50907674C38F9E099C35345E246EBBA203D8E107
 rpmbuild --define "_topdir $(realpath build/rpmbuild)" -bb build/rpmbuild/rpm/hazelcast.spec
 
+export GPG_TTY="" # to avoid 'warning: Could not set GPG_TTY to stdin: Inappropriate ioctl for device' for the next command
 rpm --define "_gpg_name deploy@hazelcast.com" --addsign build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm
 
 RPM_SHA256SUM=$(sha256sum "build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" | cut -d ' ' -f 1)
