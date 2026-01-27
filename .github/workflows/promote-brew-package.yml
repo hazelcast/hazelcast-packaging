@@ -1,0 +1,62 @@
+name: Promote BREW package
+
+on:
+  workflow_call:
+    inputs:
+      HZ_VERSION:
+        description: 'Version of Hazelcast to build the image for, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
+        required: true
+        type: string
+      HZ_DISTRIBUTION:
+        description: 'Distribution to be built: hazelcast or hazelcast-enterprise'
+        required: true
+        type: string
+      ENVIRONMENT:
+        description: 'Environment to use'
+        required: true
+        type: string
+
+jobs:
+  promote-homebrew:
+    environment: ${{ inputs.ENVIRONMENT }}
+    runs-on: ubuntu-slim
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_DEV_INFRA_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+          aws-region: 'us-east-1'
+
+      - uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          secret-ids: |
+            GITHUB/DEVOPSHAZELCAST
+          parse-json-secrets: true
+
+      - name: Merge PR
+        run: |
+          set -euo pipefail ${RUNNER_DEBUG:+-x}
+
+          source logging.functions.sh
+
+          # Get the username associated with the supplied token
+          USERNAME=$(gh api user --jq ".login")
+
+          # Find corresponding staged PRs
+          gh pr list \
+            --repo ${{ vars.BREW_GIT_REPO_NAME }} \
+            --search "'Hazelcast Homebrew Package ${HZ_VERSION} ${HZ_DISTRIBUTION} release' in:title author:${USERNAME}" \
+            --json url \
+            --jq '.[].url' \
+          | while read -r PR_URL; do
+              gh pr merge \
+                "${PR_URL}" \
+                --squash
+            done
+        env:
+          GH_TOKEN: ${{ env.GITHUB_DEVOPSHAZELCAST_SECRET }}
+          HZ_VERSION: ${{ inputs.HZ_VERSION }}
+          HZ_DISTRIBUTION: ${{ inputs.HZ_DISTRIBUTION }}
