@@ -7,8 +7,8 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
-      SOURCE_REF:
-        description: 'The hazelcast-packaging branch to build from'
+      VERSION:
+        description: 'The version to build'
         required: true
       PACKAGE_TYPES:
         description: 'Packages to build'
@@ -60,10 +60,10 @@ jobs:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v6
 
-      - name: Get pom.xml from ${{ inputs.SOURCE_REF }}
+      - name: Get pom.xml from ${{ inputs.VERSION }}
         uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.SOURCE_REF }}
+          ref: ${{ inputs.VERSION }}
           path: source_path
           sparse-checkout: "**/pom.xml"
           sparse-checkout-cone-mode: false
