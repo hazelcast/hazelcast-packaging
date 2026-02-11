@@ -75,7 +75,7 @@ jobs:
       - name: Set HZ_VERSION
         id: hz_version_step
         run: |
-          echo "hz_version=$(mvn help:evaluate -Dexpression=project.version --file source_path --quiet -DforceStdout)" >> ${GITHUB_OUTPUT}
+          echo "hz_version=$(mvn help:evaluate -Dexpression=project.version --file source_path --quiet -DforceStdout --raw-streams)" >> ${GITHUB_OUTPUT}
 
       - id: resolve-editions
         uses: hazelcast/docker-actions/resolve-editions@master
