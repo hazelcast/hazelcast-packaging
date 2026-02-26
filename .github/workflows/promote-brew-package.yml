@@ -46,16 +46,24 @@ jobs:
           USERNAME=$(gh api user --jq ".login")
 
           # Find corresponding staged PRs
-          gh pr list \
-            --repo ${{ vars.BREW_GIT_REPO_NAME }} \
-            --search "'Hazelcast Homebrew Package ${HZ_VERSION} ${HZ_DISTRIBUTION} release' in:title author:${USERNAME}" \
-            --json url \
-            --jq '.[].url' \
-          | while read -r PR_URL; do
-              gh pr merge \
-                "${PR_URL}" \
-                --squash
-            done
+          PR_URLS=$(
+            gh pr list \
+              --repo "${{ vars.BREW_GIT_REPO_NAME }}" \
+              --search "'Hazelcast Homebrew Package ${HZ_VERSION} ${HZ_DISTRIBUTION} release' in:title author:${USERNAME}" \
+              --json url \
+              --jq '.[].url'
+          )
+
+          if [[ -z "${PR_URLS}" ]]; then
+            echoerr "No PRs found to promote"
+            exit 1
+          else
+            while read -r PR_URL; do
+                gh pr merge \
+                  "${PR_URL}" \
+                  --squash
+              done <<< "${PR_URLS}"
+            fi
         env:
           GH_TOKEN: ${{ env.GITHUB_DEVOPSHAZELCAST_SECRET }}
           HZ_VERSION: ${{ inputs.HZ_VERSION }}
