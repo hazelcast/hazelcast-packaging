@@ -32,6 +32,8 @@ jobs:
     runs-on: macos-latest
     permissions:
       id-token: write
+    outputs:
+      pull-request-operation: ${{ steps.create-pull-request.outputs.pull-request-operation }}
     env:
       HZ_VERSION: ${{ inputs.HZ_VERSION }}
       PACKAGE_VERSION: ${{ inputs.PACKAGE_VERSION || inputs.HZ_VERSION }}

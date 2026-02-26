@@ -176,7 +176,8 @@ jobs:
 
   # Only auto-promote SNAPSHOTs
   brew-ee-promote:
-    if: needs.prepare.outputs.release_channel == 'snapshot'
+    # For SNAPSHOTs, there may not _be_ a PR to promote if there was a recent previous publish
+    if: needs.prepare.outputs.release_channel == 'snapshot' && needs.brew-ee-package.outputs.pull-request-operation == 'created'
     needs:
       - prepare
       - brew-ee-package
@@ -200,7 +201,8 @@ jobs:
 
   # Only auto-promote SNAPSHOTs
   brew-oss-promote:
-    if: needs.prepare.outputs.release_channel == 'snapshot'
+    # For SNAPSHOTs, there may not _be_ a PR to promote if there was a recent previous publish
+    if: needs.prepare.outputs.release_channel == 'snapshot' && needs.brew-oss-package.outputs.pull-request-operation == 'created'
     needs:
       - prepare
       - brew-oss-package
