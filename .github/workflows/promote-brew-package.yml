@@ -4,11 +4,11 @@ on:
   workflow_call:
     inputs:
       HZ_VERSION:
-        description: 'Version of Hazelcast to build the image for, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
+        description: 'Version of Hazelcast to promote for, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
         required: true
         type: string
       HZ_DISTRIBUTION:
-        description: 'Distribution to be built: hazelcast or hazelcast-enterprise'
+        description: 'Distribution to be promote: hazelcast or hazelcast-enterprise'
         required: true
         type: string
       ENVIRONMENT:
