@@ -36,6 +36,12 @@ jobs:
             GITHUB/DEVOPSHAZELCAST
           parse-json-secrets: true
 
+      - uses: ./.github/actions/get-homebrew-pr-title
+        id: get-homebrew-pr-title
+        with:
+          hz-version: ${{ inputs.HZ_VERSION }}
+          hz-distribution: ${{ inputs.HZ_DISTRIBUTION }}
+
       - name: Merge PR
         run: |
           set -euo pipefail ${RUNNER_DEBUG:+-x}
@@ -49,7 +55,7 @@ jobs:
           PR_URLS=$(
             gh pr list \
               --repo "${{ vars.BREW_GIT_REPO_NAME }}" \
-              --search "'Hazelcast Homebrew Package ${HZ_VERSION} ${HZ_DISTRIBUTION} release' in:title author:${USERNAME}" \
+              --search "'${{ steps.get-homebrew-pr-title.outputs.title }}' in:title author:${USERNAME}" \
               --json url \
               --jq '.[].url'
           )
