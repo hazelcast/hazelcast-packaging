@@ -1,0 +1,66 @@
+name: Promote from pre-prod to prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      VERSION:
+        description: 'The version to promote'
+        required: true
+      RELEASE_TYPE:
+        description: 'What should be promoted'
+        required: true
+        type: choice
+        options:
+          - ALL
+          - OSS
+          - EE
+      ENVIRONMENT:
+        description: 'Environment to use'
+        required: true
+        type: environment
+      distinct_id:
+        description: 'Required exclusively for automated execution to track status of workflow execution'
+        required: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-slim
+    outputs:
+      distribution-types: ${{ steps.distribution-type-matrix.outputs.matrix }}
+    steps:
+        # https://github.com/Codex-/return-dispatch#receiving-repository-action
+      - name: Logging distinct ID (${{ github.event.inputs.distinct_id }})
+        run: echo ${{ github.event.inputs.distinct_id }}
+
+      - id: resolve-editions
+        uses: hazelcast/docker-actions/resolve-editions@master
+        with:
+          release-type: ${{ inputs.RELEASE_TYPE }}
+          
+      - name: Compute distribution type matrix
+        id: distribution-type-matrix
+        run: |
+          # We expect at least _one_ output distribution type, otherwise will produce an empty array that will break GitHub matrixes
+          entries=()
+
+          if [ "${{ steps.resolve-editions.outputs.should_build_oss }}" = "true" ]; then
+            entries+=('{"distribution":"hazelcast"}')
+          fi
+          if [ "${{ steps.resolve-editions.outputs.should_build_ee }}" = "true" ]; then
+            entries+=('{"distribution":"hazelcast-enterprise"}')
+          fi
+
+          json="[$(IFS=,; echo "${entries[*]}")]"
+          echo "matrix=$json" >> "${GITHUB_OUTPUT}"
+
+  promote:
+    needs: prepare
+    uses: ./.github/workflows/promote-brew-package.yml
+    strategy:
+      matrix:
+        distribution-type: ${{ fromJSON(needs.prepare.outputs.distribution-types) }}
+    with:
+      HZ_VERSION: ${{ inputs.VERSION }}
+      HZ_DISTRIBUTION: ${{ matrix.distribution-type.distribution }}
+      ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
+    secrets: inherit

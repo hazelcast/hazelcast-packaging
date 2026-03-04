@@ -1,0 +1,16 @@
+# To ensure that both setter and getter use the same. format
+name: Get Homebrew PR Title
+
+inputs:
+  hz-version:
+    required: true
+  hz-distribution:
+    required: true
+outputs:
+  title:
+    value: Hazelcast Homebrew Package ${{ inputs.hz-version }} ${{ inputs.hz-distribution }} release
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: exit 0
