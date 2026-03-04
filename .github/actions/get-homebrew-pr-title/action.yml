@@ -8,7 +8,7 @@ inputs:
     required: true
 outputs:
   title:
-    value: Hazelcast Homebrew Package ${{ inputs.hz-version }} ${{ inputs.hz-hz-distribution }} release
+    value: Hazelcast Homebrew Package ${{ inputs.hz-version }} ${{ inputs.hz-distribution }} release
 runs:
   using: "composite"
   steps:
