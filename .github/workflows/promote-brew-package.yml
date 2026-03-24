@@ -30,7 +30,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_DEV_INFRA_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
           aws-region: 'us-east-1'
 
-      - uses: aws-actions/aws-secretsmanager-get-secrets@v2
+      - uses: aws-actions/aws-secretsmanager-get-secrets@v3
         with:
           secret-ids: |
             GITHUB/DEVOPSHAZELCAST
