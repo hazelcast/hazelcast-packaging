@@ -1,4 +1,4 @@
-run-name: Publish Hazelcast OS & EE packages (`${{ inputs.VERSION }}`/${{ inputs.ENVIRONMENT }})
+run-name: Publish Hazelcast OS & EE packages (`${{ inputs.VERSION }}`@${{ inputs.ENVIRONMENT }})
 
 on:
   push:
