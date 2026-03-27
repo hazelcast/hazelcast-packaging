@@ -1,5 +1,5 @@
 name: Promote from pre-prod to prod
-run-name: Promote from pre-prod to prod (`${{ inputs.VERSION }}`@${{ inputs.ENVIRONMENT }})
+run-name: ${{ github.workflow }} (`${{ inputs.VERSION }}`@${{ inputs.ENVIRONMENT }})
 
 on:
   workflow_dispatch:
