@@ -1,3 +1,4 @@
+name: Publish Hazelcast OS & EE packages
 run-name: Publish Hazelcast OS & EE packages (`${{ inputs.VERSION }}`@${{ inputs.ENVIRONMENT }})
 
 on:
