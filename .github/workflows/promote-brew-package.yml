@@ -72,5 +72,3 @@ jobs:
             fi
         env:
           GH_TOKEN: ${{ env.GITHUB_DEVOPSHAZELCAST_SECRET }}
-          HZ_VERSION: ${{ inputs.HZ_VERSION }}
-          HZ_DISTRIBUTION: ${{ inputs.HZ_DISTRIBUTION }}
