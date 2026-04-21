@@ -65,6 +65,8 @@ jobs:
             exit 1
           else
             while read -r PR_URL; do
+                gh pr ready "${PR_URL}"
+
                 gh pr merge \
                   "${PR_URL}" \
                   --squash
