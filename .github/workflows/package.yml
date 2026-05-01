@@ -1,0 +1,44 @@
+name: Package all images and deploy to pre-prod
+run-name: ${{ github.workflow }} (`${{ inputs.VERSION }}`@${{ inputs.ENVIRONMENT }})
+
+on:
+  # Called from release orchestrator
+  workflow_dispatch:
+    inputs:
+      VERSION:
+        description: 'The version to build (e.g. `5.4.1`)'
+        required: true
+      RELEASE_TYPE:
+        description: 'What should be built'
+        required: true
+        type: choice
+        options:
+          - ALL
+          - OSS
+          - EE
+      ENVIRONMENT:
+        description: 'Environment to use'
+        required: true
+        type: environment
+      distinct_id:
+        description: 'Required exclusively for automated execution to track status of workflow execution'
+        required: false
+
+jobs:
+  log-distinct-id:
+    runs-on: ubuntu-slim
+    if: inputs.distinct_id != ''
+    steps:
+        # https://github.com/Codex-/return-dispatch#receiving-repository-action
+      - name: Logging distinct ID (${{ inputs.distinct_id }})
+        run: echo "${DISTINCT_ID}"
+        env:
+          DISTINCT_ID: ${{ inputs.distinct_id }}
+
+  package:
+    uses: ./.github/workflows/publish-packages.yml
+    with:
+      VERSION: ${{ inputs.VERSION }}
+      RELEASE_TYPE: ${{ inputs.RELEASE_TYPE }}
+      ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
+    secrets: inherit
