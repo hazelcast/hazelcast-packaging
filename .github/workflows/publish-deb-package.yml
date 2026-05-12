@@ -68,7 +68,7 @@ jobs:
           hz_version: ${{ env.HZ_VERSION }}
           packaging: "tar.gz"
 
-      - uses: hazelcast/docker-actions/get-jfrog-credentials@master
+      - uses: hazelcast/docker-actions/get-jfrog-credentials@use-latest-jf
         id: authenticate-jfrog-write-dev-account
         with:
           aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
