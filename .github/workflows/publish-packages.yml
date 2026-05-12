@@ -113,7 +113,8 @@ jobs:
           echo "| Name | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| HZ_VERSION | ${{ steps.hz_version_step.outputs.hz_version }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| PACKAGE_TYPES | ${PACKAGE_TYPES} |" >> $GITHUB_STEP_SUMMARY          echo "| ENVIRONMENT | ${{ steps.environment.outputs.ENVIRONMENT }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| PACKAGE_TYPES | ${PACKAGE_TYPES} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ENVIRONMENT | ${{ steps.environment.outputs.ENVIRONMENT }} |" >> $GITHUB_STEP_SUMMARY
           echo "| RELEASE_CHANNEL | ${{ steps.release_channel.outputs.channel }} |" >> $GITHUB_STEP_SUMMARY
           echo "| JAVA_VERSION | ${{ steps.jdks.outputs.default-jdk }} |" >> $GITHUB_STEP_SUMMARY
 
