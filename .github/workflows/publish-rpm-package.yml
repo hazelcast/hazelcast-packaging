@@ -91,7 +91,7 @@ jobs:
       - name: Calculate YUM Repository Metadata
         run: |
           curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
-            -X POST "https://repository.hazelcast.com/api/yum/${{ vars.RPM_REPO }}"
+            -X POST "https://${{ steps.authenticate-jfrog-write-dev-account.outputs.url }}/artifactory/api/yum/${{ vars.RPM_REPO }}"
         env:
           JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
