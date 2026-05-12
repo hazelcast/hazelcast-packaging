@@ -50,9 +50,6 @@ on:
         required: true
         type: string
 
-env:
-  EVENT_NAME: ${{ github.event_name }}
-
 concurrency:
   group: '${{ github.workflow }}-${{ github.base_ref || github.ref_name}}'
 
@@ -60,7 +57,6 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     env:
-      RELEASE_TYPE: ${{ inputs.RELEASE_TYPE || 'EE' }}
       PACKAGE_TYPES: ${{ inputs.PACKAGE_TYPES || 'all' }}
     outputs:
       hz_version: ${{ steps.hz_version_step.outputs.hz_version }}
@@ -125,9 +121,7 @@ jobs:
           echo "| Name | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| HZ_VERSION | ${{ steps.hz_version_step.outputs.hz_version }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| PACKAGE_TYPES | ${PACKAGE_TYPES} |" >> $GITHUB_STEP_SUMMARY
-          echo "| RELEASE_TYPE | ${RELEASE_TYPE} |" >> $GITHUB_STEP_SUMMARY
-          echo "| ENVIRONMENT | ${{ steps.environment.outputs.ENVIRONMENT }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| PACKAGE_TYPES | ${PACKAGE_TYPES} |" >> $GITHUB_STEP_SUMMARY          echo "| ENVIRONMENT | ${{ steps.environment.outputs.ENVIRONMENT }} |" >> $GITHUB_STEP_SUMMARY
           echo "| RELEASE_CHANNEL | ${{ steps.release_channel.outputs.channel }} |" >> $GITHUB_STEP_SUMMARY
           echo "| JAVA_VERSION | ${{ steps.jdks.outputs.default-jdk }} |" >> $GITHUB_STEP_SUMMARY
 
