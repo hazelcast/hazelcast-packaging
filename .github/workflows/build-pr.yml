@@ -18,6 +18,6 @@ jobs:
     uses: ./.github/workflows/publish-packages.yml
     with:
       VERSION: ${{ github.ref }}
-      RELEASE_TYPE: all
+      RELEASE_TYPE: ALL
       ENVIRONMENT: test
     secrets: inherit
