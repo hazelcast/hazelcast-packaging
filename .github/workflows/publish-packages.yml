@@ -2,10 +2,6 @@ name: Publish Hazelcast OS & EE packages
 run-name: ${{ github.workflow }} (`${{ inputs.VERSION }}`@${{ inputs.ENVIRONMENT }})
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
   workflow_dispatch:
     inputs:
       VERSION:
