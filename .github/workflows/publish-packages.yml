@@ -53,7 +53,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     env:
-      PACKAGE_TYPES: ${{ inputs.PACKAGE_TYPES }}
+      PACKAGE_TYPES: ${{ inputs.PACKAGE_TYPES || 'all' }}
     outputs:
       hz_version: ${{ steps.hz_version_step.outputs.hz_version }}
       should_build_oss: ${{ steps.resolve-editions.outputs.should_build_oss == 'true' }}
