@@ -83,6 +83,7 @@ jobs:
 
       - name: Calculate Debian Repository Metadata
         run: |
+          jf --version
           jf api \
             -X POST "/api/deb/reindex/${{ vars.DEBIAN_REPO }}"
         env:

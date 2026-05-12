@@ -90,6 +90,7 @@ jobs:
 
       - name: Calculate YUM Repository Metadata
         run: |
+          jf --version
           jf api \
             -X POST "/api/yum/${{ vars.RPM_REPO }}"
         env:
