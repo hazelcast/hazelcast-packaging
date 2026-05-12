@@ -83,9 +83,8 @@ jobs:
 
       - name: Calculate Debian Repository Metadata
         run: |
-          jf --version
           jf api \
-            -X POST "/api/deb/reindex/${{ vars.DEBIAN_REPO }}"
+            -X POST "/deb/reindex/${{ vars.DEBIAN_REPO }}"
         env:
           JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
