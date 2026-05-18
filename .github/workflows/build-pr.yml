@@ -1,0 +1,23 @@
+name: Build PR
+
+on:
+  pull_request:
+
+jobs:
+  test-scripts:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout hazelcast-packaging repo
+        uses: actions/checkout@v6
+
+      - name: Test scripts
+        run: |
+          ./test_scripts.sh
+
+  publish-packages:
+    uses: ./.github/workflows/publish-packages.yml
+    with:
+      VERSION: ${{ github.ref }}
+      RELEASE_TYPE: ALL
+      ENVIRONMENT: test
+    secrets: inherit
