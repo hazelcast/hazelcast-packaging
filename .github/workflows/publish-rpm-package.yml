@@ -56,7 +56,7 @@ jobs:
         uses: hazelcast/docker-actions/download-hz-dist@master
         with:
           repo-vars-as-json: ${{ toJSON(vars) }}
-          aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+          aws-role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
           maven-settings-path: /usr/share/maven/conf/settings.xml
           distribution: ${{ env.HZ_DISTRIBUTION }}
           hz_version: ${{ env.HZ_VERSION }}
@@ -65,7 +65,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ secrets.AWS_DEV_INFRA_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+          role-to-assume: ${{ vars.AWS_DEV_INFRA_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
           aws-region: 'us-east-1'
 
       - name: Get Secrets
@@ -78,7 +78,7 @@ jobs:
       - uses: hazelcast/docker-actions/get-jfrog-credentials@master
         id: authenticate-jfrog-write-dev-account
         with:
-          aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+          aws-role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
           jfrog-oidc-provider-name: ${{ github.repository_owner }}-write-dev-account
 
       - name: Create & Sign & Upload RPM package
