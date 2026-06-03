@@ -1,6 +1,21 @@
 name: Promote BREW package
 
 on:
+  # For debugging only
+  workflow_dispatch:
+    inputs:
+      HZ_VERSION:
+        description: 'Version of Hazelcast to promote for, this is the Maven version - e.g.: 5.0.2 or 5.1-SNAPSHOT'
+        required: true
+        type: string
+      HZ_DISTRIBUTION:
+        description: 'Distribution to be promote: hazelcast or hazelcast-enterprise'
+        required: true
+        type: string
+      ENVIRONMENT:
+        description: 'Environment to use'
+        required: true
+        type: environment
   workflow_call:
     inputs:
       HZ_VERSION:
