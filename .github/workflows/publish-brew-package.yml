@@ -103,6 +103,7 @@ jobs:
 
           # Checkout via homebrew so that we can modify and test locally without having to push to the main upstream branch
           brew tap ${{ vars.BREW_TAP_NAME }}
+          brew trust ${{ vars.BREW_TAP_NAME }}
 
           # https://github.com/Homebrew/brew/issues/1505#issuecomment-260505067
           echo "BREW_GIT_REPO_LOCATION=$(brew --repo)/Library/Taps/${{ vars.BREW_GIT_REPO_NAME }}" >> ${GITHUB_ENV}
