@@ -66,22 +66,11 @@ jobs:
         uses: hazelcast/docker-actions/download-hz-dist@master
         id: download-hz-dist
         with:
-          repo-vars-as-json: ${{ toJSON(vars) }}
+          environment: ${{ inputs.ENVIRONMENT == 'test' && 'live' || inputs.ENVIRONMENT }}
           aws-role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
           distribution: ${{ env.HZ_DISTRIBUTION }}
           hz_version: ${{ env.HZ_VERSION }}
           packaging: "tar.gz"
-
-      - name: Get the distribution file URL
-        id: hz-dist-url
-        run: |
-          # Detect if the repo definition specifies authentication via a Maven server (e.g. "my-private-repo::::https://example.com/private-repo")
-          if [[ "${{ steps.download-hz-dist.outputs.maven_repo_url }}" == *[!:]::::* ]]; then
-            echo "Distribution URL requires authentication, aborting!";
-            exit 1;
-          else
-            echo "url=${{ steps.download-hz-dist.outputs.maven_repo_url }}/com/hazelcast/${HZ_DISTRIBUTION}-distribution/${HZ_VERSION}/${HZ_DISTRIBUTION}-distribution-${HZ_VERSION}.tar.gz" >> ${GITHUB_OUTPUT}
-          fi
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -112,7 +101,7 @@ jobs:
         run: |
           ./build-hazelcast-homebrew-package.sh
         env:
-          HZ_PACKAGE_URL: ${{ steps.hz-dist-url.outputs.url }}
+          HZ_PACKAGE_URL: ${{ steps.download-hz-dist.outputs.download_url }}
           JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
 
       - name: Install Hazelcast from Homebrew

@@ -55,7 +55,7 @@ jobs:
       - name: Download the distribution file
         uses: hazelcast/docker-actions/download-hz-dist@master
         with:
-          repo-vars-as-json: ${{ toJSON(vars) }}
+          environment: ${{ inputs.ENVIRONMENT == 'test' && 'live' || inputs.ENVIRONMENT }}
           aws-role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
           maven-settings-path: /usr/share/maven/conf/settings.xml
           distribution: ${{ env.HZ_DISTRIBUTION }}
