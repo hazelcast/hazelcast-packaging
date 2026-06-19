@@ -66,10 +66,10 @@ jobs:
       java_version: ${{ steps.jdks.outputs.default-jdk }}
     steps:
       - name: Checkout hazelcast-packaging repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Get pom.xml from ${{ inputs.VERSION }}
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.VERSION }}
           path: source_path

@@ -45,10 +45,10 @@ jobs:
 
     steps:
       - name: Checkout hazelcast-packaging repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Checkout hazelcast-docker repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: hazelcast/hazelcast-docker
           path: 'hazelcast-docker'
