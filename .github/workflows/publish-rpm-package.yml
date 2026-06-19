@@ -40,10 +40,10 @@ jobs:
       RPM_REPO_BASE_URL: https://repository.hazelcast.com/${{ vars.RPM_REPO }}
     steps:
       - name: Checkout hazelcast-packaging repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Checkout hazelcast-docker repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: hazelcast/hazelcast-docker
           path: 'hazelcast-docker'
