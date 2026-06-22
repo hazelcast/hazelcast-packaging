@@ -27,7 +27,7 @@ on:
         value: ${{ jobs.homebrew.outputs.pull-request-operation }}
 
 concurrency:
-  group: 'brew-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
+  group: 'brew-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
 
 jobs:
   homebrew:
