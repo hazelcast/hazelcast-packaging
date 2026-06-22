@@ -28,6 +28,7 @@ concurrency:
 
 jobs:
   rpm:
+    name: RPM (`${{ inputs.HZ_DISTRIBUTION }}`)
     environment: ${{ inputs.ENVIRONMENT }}
     runs-on: ubuntu-latest
     permissions:
