@@ -24,7 +24,7 @@ on:
         type: string
 
 concurrency:
-  group: 'rpm-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
+  group: 'rpm-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION }}'
 
 jobs:
   rpm:

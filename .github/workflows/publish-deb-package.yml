@@ -24,7 +24,7 @@ on:
         type: string
 
 concurrency:
-  group: 'deb-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
+  group: 'deb-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION }}'
 
 jobs:
   deb:
