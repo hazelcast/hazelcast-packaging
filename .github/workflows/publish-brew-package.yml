@@ -31,6 +31,7 @@ concurrency:
 
 jobs:
   homebrew:
+    name: Homebrew (`${{ inputs.HZ_DISTRIBUTION }}`)
     environment: ${{ inputs.ENVIRONMENT }}
     runs-on: macos-latest
     permissions:
