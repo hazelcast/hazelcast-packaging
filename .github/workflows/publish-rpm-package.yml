@@ -24,10 +24,11 @@ on:
         type: string
 
 concurrency:
-  group: 'rpm-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
+  group: 'rpm-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION }}'
 
 jobs:
   rpm:
+    name: RPM (`${{ inputs.HZ_DISTRIBUTION }}`)
     environment: ${{ inputs.ENVIRONMENT }}
     runs-on: ubuntu-latest
     permissions:

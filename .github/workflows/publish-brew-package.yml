@@ -27,10 +27,11 @@ on:
         value: ${{ jobs.homebrew.outputs.pull-request-operation }}
 
 concurrency:
-  group: 'brew-${{ github.job }}-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION}}'
+  group: 'brew-${{ inputs.HZ_VERSION }}-${{ inputs.HZ_DISTRIBUTION }}'
 
 jobs:
   homebrew:
+    name: Homebrew (`${{ inputs.HZ_DISTRIBUTION }}`)
     environment: ${{ inputs.ENVIRONMENT }}
     runs-on: macos-latest
     permissions:
@@ -129,7 +130,7 @@ jobs:
         run: |
           ./build-hazelcast-homebrew-package.sh
         env:
-          HZ_PACKAGE_URL: ${{ steps.hz-dist-url.outputs.url }}
+          HZ_PACKAGE_URL: ${{ steps.download-hz-dist.outputs.download_url }}
           JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
 
       - name: Install Hazelcast from Homebrew
