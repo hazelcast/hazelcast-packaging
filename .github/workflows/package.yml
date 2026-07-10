@@ -25,9 +25,12 @@ on:
         required: false
 
 jobs:
-  log-distinct-id:
-    runs-on: ubuntu-slim
-    if: inputs.distinct_id != ''
+  update-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ inputs.VERSION }}
     steps:
         # https://github.com/Codex-/return-dispatch#receiving-repository-action
       - name: Logging distinct ID (${{ inputs.distinct_id }})
@@ -35,7 +38,27 @@ jobs:
         env:
           DISTINCT_ID: ${{ inputs.distinct_id }}
 
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.VERSION }}
+
+      - name: Update `SNAPSHOT` to release version
+        run: |
+          mvn \
+            versions:set \
+            -DgenerateBackupPoms=false \
+            -DnewVersion=${VERSION}
+
+      - name: Commit
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+          git commit --all --message "Upgrade version to \`${VERSION}\`"
+          git push
+
   package:
+    needs: update-version
     uses: ./.github/workflows/publish-packages.yml
     with:
       VERSION: ${{ inputs.VERSION }}
