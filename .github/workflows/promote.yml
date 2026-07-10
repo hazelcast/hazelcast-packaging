@@ -26,6 +26,8 @@ on:
 jobs:
   prepare:
     runs-on: ubuntu-slim
+    permissions:
+      contents: write
     outputs:
       distribution-types: ${{ steps.distribution-type-matrix.outputs.matrix }}
     steps:
