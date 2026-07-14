@@ -46,6 +46,9 @@ jobs:
         run: |
           mvn \
             versions:set \
+            --batch-mode \
+            --no-transfer-progress \
+            --quiet \
             -DgenerateBackupPoms=false \
             -DnewVersion=${VERSION}
 
