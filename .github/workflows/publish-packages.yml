@@ -192,7 +192,7 @@ jobs:
 
   brew-oss-package:
     needs: prepare
-    if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_oss == 'true' && needs.prepare.outputs.release_channel != 'snapshot'
+    if: needs.prepare.outputs.should_build_homebrew == 'true' && needs.prepare.outputs.should_build_oss == 'true'
     uses: ./.github/workflows/publish-brew-package.yml
     secrets: inherit
     with:

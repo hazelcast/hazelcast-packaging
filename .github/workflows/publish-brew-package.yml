@@ -65,6 +65,7 @@ jobs:
 
       - name: Download the distribution file
         uses: hazelcast/docker-actions/download-hz-dist@master
+        id: download-hz-dist
         with:
           environment: ${{ inputs.ENVIRONMENT == 'test' && 'live' || inputs.ENVIRONMENT }}
           aws-role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
@@ -72,8 +73,37 @@ jobs:
           hz_version: ${{ env.HZ_VERSION }}
           packaging: "tar.gz"
 
-      - name: Get the distribution file URL
-        id: hz-dist-url
+      - name: Check if distribution URL is public
+        id: hz_dist_download_url_status
+        run: |
+          source logging.functions.sh
+
+          # Homebrew does not support private artifacts - so if the artefact was downloaded from a private URL, we won't be able to test installing from it
+
+          status=$(curl \
+            --head \
+            --location \
+            --output /dev/null \
+            --silent \
+            --write-out "%{http_code}" \
+            "${{ steps.download-hz-dist.outputs.download_url }}"
+          )
+
+          case "${status}" in
+            200)
+              echo "status=public" >> ${GITHUB_OUTPUT}
+              ;;
+            401)
+              echo "status=private" >> ${GITHUB_OUTPUT}
+              ;;
+            *)
+              echoerr "Unrecognized status `${status}`"
+              exit 1
+              ;;
+          esac
+
+      - name: Get the public distribution file URL
+        id: public-hz-dist-url
         run: |
           # Regardless of where the distribution was _actually_ downloaded from, we have to use a publicly accessible URL in the distribution (i.e. not pre-prod)
 
@@ -82,8 +112,7 @@ jobs:
           case "${HZ_DISTRIBUTION}" in
             hazelcast)
               if [[ "${HZ_VERSION}" == *"SNAPSHOT"* ]]; then
-                echoerr "No publicly available OSS SNAPSHOT"
-                exit 1
+                repository=${{ vars.MAVEN_OSS_SNAPSHOT_REPO }}
               else
                 repository=${{ vars.MAVEN_OSS_RELEASE_REPO }}
               fi
@@ -130,24 +159,28 @@ jobs:
         run: |
           ./build-hazelcast-homebrew-package.sh
         env:
-          HZ_PACKAGE_URL: ${{ steps.hz-dist-url.outputs.url }}
+          HZ_PACKAGE_URL: ${{ steps.public-hz-dist-url.outputs.url }}
           JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
 
       - name: Install Hazelcast from Homebrew
+        if: ${{ steps.hz_dist_download_url_status.outputs.status == 'public' }}
         run: |
           source ./common.sh
           brew install ${HZ_DISTRIBUTION}@$BREW_PACKAGE_VERSION
 
       - name: Run Hazelcast
+        if: ${{ steps.hz_dist_download_url_status.outputs.status == 'public' }}
         env:
           HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
         run: HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
       - name: Check Hazelcast health
+        if: ${{ steps.hz_dist_download_url_status.outputs.status == 'public' }}
         run: |
           ./check-hazelcast-health.sh "${HZ_DISTRIBUTION}" "${HZ_VERSION}"
 
       - name: Uninstall Hazelcast from homebrew
+        if: ${{ steps.hz_dist_download_url_status.outputs.status == 'public' }}
         run: |
           source ./common.sh          
           brew uninstall ${HZ_DISTRIBUTION}@$BREW_PACKAGE_VERSION
