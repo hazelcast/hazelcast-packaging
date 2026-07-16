@@ -112,7 +112,8 @@ jobs:
           case "${HZ_DISTRIBUTION}" in
             hazelcast)
               if [[ "${HZ_VERSION}" == *"SNAPSHOT"* ]]; then
-                repository=${{ vars.MAVEN_OSS_SNAPSHOT_REPO }}
+                echoerr "No publicly available OSS SNAPSHOT"
+                exit 1
               else
                 repository=${{ vars.MAVEN_OSS_RELEASE_REPO }}
               fi
