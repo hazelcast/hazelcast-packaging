@@ -84,10 +84,8 @@ jobs:
 
       - name: Calculate Debian Repository Metadata
         run: |
-          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
-            -X POST "https://${{ steps.authenticate-jfrog-write-dev-account.outputs.url }}/artifactory/api/deb/reindex/${{ vars.DEBIAN_REPO }}"
-        env:
-          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
+          jf rt curl --fail-with-body --retry 10 --retry-max-time 240 \
+            -X POST "api/deb/reindex/${{ vars.DEBIAN_REPO }}"
 
       - name: Install Hazelcast from deb
         env:
