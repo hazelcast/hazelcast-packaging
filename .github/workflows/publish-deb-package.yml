@@ -57,14 +57,13 @@ jobs:
       - name: Install prerequisites
         run: |
           apt-get update
-          apt-get install -y curl gettext-base gpg sudo wget maven jq
+          apt-get install -y curl gettext-base gpg sudo wget jq
 
       - name: Download the distribution file
         uses: hazelcast/docker-actions/download-hz-dist@master
         with:
           environment: ${{ inputs.ENVIRONMENT == 'test' && 'live' || inputs.ENVIRONMENT }}
           aws-role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
-          maven-settings-path: /usr/share/maven/conf/settings.xml
           distribution: ${{ env.HZ_DISTRIBUTION }}
           hz_version: ${{ env.HZ_VERSION }}
           packaging: "tar.gz"
