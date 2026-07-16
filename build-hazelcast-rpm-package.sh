@@ -70,26 +70,11 @@ SIGNING_KEY_KEYGRIP=$(get_gpg_key_data "${SIGNING_KEY_PRIVATE_KEY}" "grp")
 ${GPG_PRESET_PASSPHRASE} --passphrase "${SIGNING_KEY_PASSPHRASE}" --preset ${SIGNING_KEY_KEYGRIP}
 rpmbuild --define "_topdir $(realpath build/rpmbuild)" -bb build/rpmbuild/rpm/hazelcast.spec
 
+RPM_FILE="build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
+
 export GPG_TTY="" # to avoid 'warning: Could not set GPG_TTY to stdin: Inappropriate ioctl for device' for the next command
-rpm --define "_gpg_name ${SIGNING_KEY_UID}" --addsign build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm
+rpm --define "_gpg_name ${SIGNING_KEY_UID}" --addsign "${RPM_FILE}"
 
-RPM_SHA256SUM=$(sha256sum "build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" | cut -d ' ' -f 1)
-RPM_SHA1SUM=$(sha1sum "build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" | cut -d ' ' -f 1)
-RPM_MD5SUM=$(md5sum "build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" | cut -d ' ' -f 1)
-
-
-PACKAGE_URL="$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
-HTTP_STATUS=$(curl -o /dev/null --silent --head --write-out '%{http_code}' -H "Authorization: Bearer ${JFROG_TOKEN}" "$PACKAGE_URL")
-
-if [ "$HTTP_STATUS" -eq 200 ]; then
-  # Delete any package that exists - previous version of the same package
-  curl --fail-with-body -H "Authorization: Bearer ${JFROG_TOKEN}" \
-    -X DELETE \
-    "$PACKAGE_URL"
-fi
-
-curl --fail-with-body -H "Authorization: Bearer ${JFROG_TOKEN}" -H "X-Checksum-Deploy: false" -H "X-Checksum-Sha256: $RPM_SHA256SUM" \
-  -H "X-Checksum-Sha1: $RPM_SHA1SUM" -H "X-Checksum-MD5: $RPM_MD5SUM" \
-  -T"build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" \
-  -X PUT \
-  "$PACKAGE_URL"
+jf rt upload \
+  "${RPM_FILE}" \
+  "${RPM_REPO}/${RELEASE_CHANNEL}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
