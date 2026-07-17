@@ -11,7 +11,6 @@ fi
 if [[ "$HZ_VERSION" == *"BETA"* ]]; then
   export RELEASE_CHANNEL=beta
 fi
-export PACKAGE_REPO=${RELEASE_CHANNEL}
 
 if [[ "$HZ_VERSION" == *"-"* ]]; then
   HZ_MINOR_VERSION="${HZ_VERSION}"
