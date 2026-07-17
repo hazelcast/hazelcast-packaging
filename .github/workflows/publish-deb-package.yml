@@ -58,7 +58,7 @@ jobs:
       - name: Install prerequisites
         run: |
           apt-get update
-          apt-get install -y curl gettext-base gpg sudo wget maven jq
+          apt-get install -y curl gettext-base gpg sudo maven jq
 
       - name: Download the distribution file
         uses: hazelcast/docker-actions/download-hz-dist@master
