@@ -22,7 +22,37 @@ on:
         type: environment
 
 jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ inputs.VERSION }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.VERSION }}
+
+      - name: Update `SNAPSHOT` to release version
+        run: |
+          mvn \
+            versions:set \
+            --batch-mode \
+            --no-transfer-progress \
+            --quiet \
+            -DgenerateBackupPoms=false \
+            -DnewVersion=${VERSION}
+
+      - name: Commit
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+          git commit --all --message "Upgrade version to \`${VERSION}\`"
+          git push
+
   package:
+    needs: update-version
     uses: ./.github/workflows/publish-packages.yml
     with:
       VERSION: ${{ inputs.VERSION }}

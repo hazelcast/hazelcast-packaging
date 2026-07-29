@@ -23,6 +23,8 @@ on:
 jobs:
   prepare:
     runs-on: ubuntu-slim
+    permissions:
+      contents: write
     outputs:
       distribution-types: ${{ steps.distribution-type-matrix.outputs.matrix }}
     steps:
@@ -46,6 +48,11 @@ jobs:
 
           json="[$(IFS=,; echo "${entries[*]}")]"
           echo "matrix=$json" >> "${GITHUB_OUTPUT}"
+
+      - uses: hazelcast/docker-actions/create-tag@master
+        with:
+          TOKEN: ${{ github.token }}
+          BRANCH: ${{ inputs.VERSION }}
 
   promote:
     needs: prepare
