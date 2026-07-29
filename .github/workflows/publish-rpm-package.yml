@@ -38,7 +38,7 @@ jobs:
       HZ_VERSION: ${{ inputs.HZ_VERSION }}
       PACKAGE_VERSION: ${{ inputs.PACKAGE_VERSION || inputs.HZ_VERSION }}
       HZ_DISTRIBUTION: ${{ inputs.HZ_DISTRIBUTION }}
-      RPM_REPO_BASE_URL: https://repository.hazelcast.com/${{ vars.RPM_REPO }}
+      RPM_REPO: ${{ vars.RPM_REPO }}
     steps:
       - name: Checkout hazelcast-packaging repo
         uses: actions/checkout@v7
@@ -51,14 +51,20 @@ jobs:
 
       - name: Install Required tools
         run: |
-          yum install -y maven rpm-sign rpm-build wget gettext systemd-rpm-macros jq
+          yum install -y \
+            gettext \
+            jq \
+            rpm-build \
+            rpm-sign \
+            systemd-rpm-macros \
+            wget \
+            which
 
       - name: Download the distribution file
         uses: hazelcast/docker-actions/download-hz-dist@master
         with:
           environment: ${{ inputs.ENVIRONMENT == 'test' && 'live' || inputs.ENVIRONMENT }}
           aws-role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
-          maven-settings-path: /usr/share/maven/conf/settings.xml
           distribution: ${{ env.HZ_DISTRIBUTION }}
           hz_version: ${{ env.HZ_VERSION }}
           packaging: "tar.gz"
@@ -87,14 +93,11 @@ jobs:
           ./build-hazelcast-rpm-package.sh
         env:
           JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
-          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
       - name: Calculate YUM Repository Metadata
         run: |
-          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
-            -X POST "https://${{ steps.authenticate-jfrog-write-dev-account.outputs.url }}/artifactory/api/yum/${{ vars.RPM_REPO }}"
-        env:
-          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
+          # https://docs.jfrog.com/artifactory/reference/calculateyumrepositorymetadata
+          jf api --method POST "/artifactory/api/yum/${RPM_REPO}"
 
       - name: Install Hazelcast from rpm
         env:
@@ -106,11 +109,11 @@ jobs:
 
           # Bake authentication into the returned URLs
           wget \
-            ${RPM_REPO_BASE_URL}/${PACKAGE_REPO}/hazelcast-rpm-${PACKAGE_REPO}.repo \
+            https://repository.hazelcast.com/${RPM_REPO}/${RELEASE_CHANNEL}/hazelcast-rpm-${RELEASE_CHANNEL}.repo \
             --header "Authorization: Bearer ${JFROG_TOKEN}" \
             --output-document - | \
           sed "s#https://#https://${JFROG_USER}:${JFROG_TOKEN}@#g" > \
-          /etc/yum.repos.d/hazelcast-rpm-${PACKAGE_REPO}.repo
+          /etc/yum.repos.d/hazelcast-rpm-${RELEASE_CHANNEL}.repo
 
           yum install -y ${HZ_DISTRIBUTION}-${RPM_HZ_VERSION}
           HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
@@ -128,11 +131,7 @@ jobs:
         if: ${{ inputs.ENVIRONMENT == 'test' && (success() || failure()) }}
         run: |
           source ./common.sh
-          curl -H "Authorization: Bearer ${JFROG_TOKEN}" \
-            -X DELETE \
-            "$RPM_REPO_BASE_URL/${PACKAGE_REPO}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
-        env:
-          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
+          jf rt delete "${RPM_REPO}/${RELEASE_CHANNEL}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
 
       - name: Store logs as artifact
         if: ${{ always() }}

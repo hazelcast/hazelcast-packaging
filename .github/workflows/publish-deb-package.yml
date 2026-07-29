@@ -42,7 +42,8 @@ jobs:
       HZ_VERSION: ${{ inputs.HZ_VERSION }}
       PACKAGE_VERSION: ${{ inputs.PACKAGE_VERSION || inputs.HZ_VERSION }}
       HZ_DISTRIBUTION: ${{ inputs.HZ_DISTRIBUTION }}
-      DEBIAN_REPO_BASE_URL: https://repository.hazelcast.com/${{ vars.DEBIAN_REPO }}
+      REPO_URL: https://repository.hazelcast.com
+      DEBIAN_REPO: ${{ vars.DEBIAN_REPO }}
 
     steps:
       - name: Checkout hazelcast-packaging repo
@@ -57,14 +58,18 @@ jobs:
       - name: Install prerequisites
         run: |
           apt-get update
-          apt-get install -y curl gettext-base gpg sudo wget maven jq
+          apt-get install -y \
+            curl \
+            gettext-base \
+            gpg \
+            jq \
+            sudo
 
       - name: Download the distribution file
         uses: hazelcast/docker-actions/download-hz-dist@master
         with:
           environment: ${{ inputs.ENVIRONMENT == 'test' && 'live' || inputs.ENVIRONMENT }}
           aws-role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
-          maven-settings-path: /usr/share/maven/conf/settings.xml
           distribution: ${{ env.HZ_DISTRIBUTION }}
           hz_version: ${{ env.HZ_VERSION }}
           packaging: "tar.gz"
@@ -80,14 +85,11 @@ jobs:
           ./build-hazelcast-deb-package.sh
         env:
           JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
-          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
 
       - name: Calculate Debian Repository Metadata
         run: |
-          curl --fail-with-body --retry 10 --retry-max-time 240 -H "Authorization: Bearer ${JFROG_TOKEN}" \
-            -X POST "https://${{ steps.authenticate-jfrog-write-dev-account.outputs.url }}/artifactory/api/deb/reindex/${{ vars.DEBIAN_REPO }}"
-        env:
-          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
+          # https://docs.jfrog.com/artifactory/reference/calculatedebianrepositorymetadata
+          jf api --method POST "/artifactory/api/deb/reindex/${DEBIAN_REPO}"
 
       - name: Install Hazelcast from deb
         env:
@@ -99,7 +101,7 @@ jobs:
 
           # Setup authentication file to access private repo
           sudo bash -c "cat >/etc/apt/auth.conf.d/hazelcast.conf <<EOF
-            machine $(echo ${DEBIAN_REPO_BASE_URL} | sed -E 's#https?://([^/]+).*#\1#')
+            machine $(echo https://repository.hazelcast.com/${DEBIAN_REPO} | sed -E 's#https?://([^/]+).*#\1#')
             login ${JFROG_USER}
             password ${JFROG_TOKEN}
           EOF"
@@ -113,7 +115,7 @@ jobs:
               --quiet \
               | gpg --dearmor \
               | sudo tee /usr/share/keyrings/hazelcast-archive-keyring.gpg > /dev/null \
-            && echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] ${DEBIAN_REPO_BASE_URL} ${PACKAGE_REPO} main" | sudo tee -a /etc/apt/sources.list.d/hazelcast.list \
+            && echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] https://repository.hazelcast.com/${DEBIAN_REPO} ${RELEASE_CHANNEL} main" | sudo tee -a /etc/apt/sources.list.d/hazelcast.list \
             && sudo apt-get update && sudo apt-get install -y ${HZ_DISTRIBUTION}=${HZ_VERSION}
           HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
 
@@ -129,11 +131,7 @@ jobs:
         if: ${{ inputs.ENVIRONMENT == 'test' && (success() || failure()) }}
         run: |
           source ./common.sh
-          curl -H "Authorization: Bearer ${JFROG_TOKEN}" \
-            -X DELETE \
-            "$DEBIAN_REPO_BASE_URL/${HZ_DISTRIBUTION}-${DEB_PACKAGE_VERSION}-all.deb"
-        env:          
-          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
+          jf rt delete "${DEBIAN_REPO}/${HZ_DISTRIBUTION}-${DEB_PACKAGE_VERSION}-all.deb"
 
       - name: Store logs as artifact
         if: ${{ always() }}
