@@ -51,7 +51,8 @@ jobs:
 
       - name: Install Required tools
         run: |
-          yum install -y \
+          yum install \
+            --assumeyes \
             gettext \
             jq \
             rpm-build \
@@ -99,9 +100,8 @@ jobs:
           # https://docs.jfrog.com/artifactory/reference/calculateyumrepositorymetadata
           jf api --method POST "/artifactory/api/yum/${RPM_REPO}"
 
-      - name: Install Hazelcast from rpm
+      - name: Configure Yum for Hazelcast installation
         env:
-          HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
           JFROG_USER: ${{ steps.authenticate-jfrog-write-dev-account.outputs.user }}
           JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
         run: |
@@ -115,8 +115,22 @@ jobs:
           sed "s#https://#https://${JFROG_USER}:${JFROG_TOKEN}@#g" > \
           /etc/yum.repos.d/hazelcast-rpm-${RELEASE_CHANNEL}.repo
 
-          yum install -y ${HZ_DISTRIBUTION}-${RPM_HZ_VERSION}
-          HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
+      - name: Install Hazelcast from rpm
+        run: |
+          source ./common.sh
+
+          yum install \
+            --assumeyes \
+            --verbose \
+            ${HZ_DISTRIBUTION}-${RPM_HZ_VERSION}
+
+      - name: Start Hazelcast
+        background: true
+        env:
+          HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
+          HAZELCAST_CONFIG: config/integration-test-hazelcast.yaml
+        run: |
+          hz-start
 
       - name: Check Hazelcast health
         run: |
@@ -125,17 +139,10 @@ jobs:
       - name: Uninstall Hazelcast from rpm
         run: |
           source ./common.sh
-          yum remove -y ${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}
+          yum remove --assumeyes ${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}
 
       - name: Remove rpm package from test repo
         if: ${{ inputs.ENVIRONMENT == 'test' && (success() || failure()) }}
         run: |
           source ./common.sh
           jf rt delete "${RPM_REPO}/${RELEASE_CHANNEL}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
-
-      - name: Store logs as artifact
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: rpm-${{ env.HZ_DISTRIBUTION }}-hz.log
-          path: hz.log
