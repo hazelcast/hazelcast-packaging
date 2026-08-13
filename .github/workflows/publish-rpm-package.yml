@@ -125,14 +125,19 @@ jobs:
             ${HZ_DISTRIBUTION}-${RPM_HZ_VERSION}
 
       - name: Start Hazelcast
+        id: run-hazelcast
+        background: true
         env:
           HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
         run: |
-          HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
+          HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1
 
       - name: Check Hazelcast health
         run: |
           ./check-hazelcast-health.sh "${HZ_DISTRIBUTION}" "${HZ_VERSION}"
+
+      - name: Stop Hazelcast
+        cancel: run-hazelcast
 
       - name: Uninstall Hazelcast from rpm
         run: |
