@@ -93,7 +93,6 @@ jobs:
 
       - name: Install Hazelcast from deb
         env:
-          HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
           JFROG_USER: ${{ steps.authenticate-jfrog-write-dev-account.outputs.user }}
           JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
         run: |
@@ -117,11 +116,21 @@ jobs:
               | sudo tee /usr/share/keyrings/hazelcast-archive-keyring.gpg > /dev/null \
             && echo "deb [signed-by=/usr/share/keyrings/hazelcast-archive-keyring.gpg] https://repository.hazelcast.com/${DEBIAN_REPO} ${RELEASE_CHANNEL} main" | sudo tee -a /etc/apt/sources.list.d/hazelcast.list \
             && sudo apt-get update && sudo apt-get install -y ${HZ_DISTRIBUTION}=${HZ_VERSION}
-          HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
+
+      - name: Run Hazelcast
+        id: run-hazelcast
+        background: true
+        env:
+          HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
+        run: |
+          HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1
 
       - name: Check Hazelcast health
         run: |
           ./check-hazelcast-health.sh "${HZ_DISTRIBUTION}" "${HZ_VERSION}"
+
+      - name: Stop Hazelcast
+        cancel: run-hazelcast
 
       - name: Uninstall Hazelcast from deb
         run: |

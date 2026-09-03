@@ -171,14 +171,19 @@ jobs:
 
       - name: Run Hazelcast
         if: ${{ steps.hz_dist_download_url_status.outputs.status == 'public' }}
+        id: run-hazelcast
+        background: true
         env:
           HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
-        run: HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1 &
+        run: HAZELCAST_CONFIG="$(pwd)/config/integration-test-hazelcast.yaml" hz-start > hz.log 2>&1
 
       - name: Check Hazelcast health
         if: ${{ steps.hz_dist_download_url_status.outputs.status == 'public' }}
         run: |
           ./check-hazelcast-health.sh "${HZ_DISTRIBUTION}" "${HZ_VERSION}"
+
+      - name: Stop Hazelcast
+        cancel: run-hazelcast
 
       - name: Uninstall Hazelcast from homebrew
         if: ${{ steps.hz_dist_download_url_status.outputs.status == 'public' }}
