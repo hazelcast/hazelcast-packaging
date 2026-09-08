@@ -176,8 +176,7 @@ jobs:
      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
      JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
 
-  # Only auto-promote SNAPSHOTs
-  brew-ee-promote:
+  brew-ee-snapshot-auto-promote:
     # For SNAPSHOTs, there may not _be_ a PR to promote if there was a recent previous publish
     if: needs.prepare.outputs.release_channel == 'snapshot' && needs.brew-ee-package.outputs.pull-request-operation == 'created'
     needs:
@@ -201,8 +200,7 @@ jobs:
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
       JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
 
-  # Only auto-promote SNAPSHOTs
-  brew-oss-promote:
+  brew-oss-snapshot-auto-promote:
     # For SNAPSHOTs, there may not _be_ a PR to promote if there was a recent previous publish
     if: needs.prepare.outputs.release_channel == 'snapshot' && needs.brew-oss-package.outputs.pull-request-operation == 'created'
     needs:
