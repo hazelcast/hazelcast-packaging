@@ -36,7 +36,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
       with:
-        sparse-checkout: "hazelcast-rpm.repo.template"
+        sparse-checkout: "packages/rpm/hazelcast-rpm.repo.template"
         sparse-checkout-cone-mode: false
 
     - uses: hazelcast/docker-actions/get-jfrog-credentials@master
@@ -53,7 +53,7 @@ jobs:
         export RELEASE_CHANNEL_DISPLAY_NAME
         export RPM_REPO
 
-        envsubst <hazelcast-rpm.repo.template >${OUTPUT_FILE}
+        envsubst <packages/rpm/hazelcast-rpm.repo.template >${OUTPUT_FILE}
 
     - name: Upload
       run: |
