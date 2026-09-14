@@ -142,9 +142,20 @@ jobs:
       JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
 
   # RPM builds
-  rpm-ee:
-    if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_ee == 'true'
+  rpm-repo-definition:
     needs: prepare
+    if: needs.prepare.outputs.should_build_rpm == 'true'
+    uses: ./.github/workflows/publish-rpm-repo-definition.yml
+    secrets: inherit
+    with:
+      RELEASE_CHANNEL: ${{ needs.prepare.outputs.release_channel }}
+      ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
+
+  rpm-ee:
+    if: needs.prepare.outputs.should_build_ee == 'true'
+    needs:
+      - prepare
+      - rpm-repo-definition
     uses: ./.github/workflows/publish-rpm-package.yml
     secrets: inherit
     with:
@@ -154,8 +165,10 @@ jobs:
      JAVA_VERSION: ${{ needs.prepare.outputs.java_version }}
 
   rpm-oss:
-    needs: prepare
-    if: needs.prepare.outputs.should_build_rpm == 'true' && needs.prepare.outputs.should_build_oss == 'true'
+    if: needs.prepare.outputs.should_build_oss == 'true'
+    needs:
+      - prepare
+      - rpm-repo-definition
     uses: ./.github/workflows/publish-rpm-package.yml
     secrets: inherit
     with:

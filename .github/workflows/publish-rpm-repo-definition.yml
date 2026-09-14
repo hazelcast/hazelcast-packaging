@@ -1,0 +1,62 @@
+name: Publish RPM repository definition file
+run-name: ${{ github.workflow }} (`${{ inputs.VERSION }}`@${{ inputs.ENVIRONMENT }})
+
+on:
+  # For debugging only
+  workflow_dispatch:
+    inputs:
+      RELEASE_CHANNEL:
+        required: true
+        type: string
+      ENVIRONMENT:
+        description: 'Environment to use'
+        required: true
+        type: environment
+  workflow_call:
+    inputs:
+      RELEASE_CHANNEL:
+        required: true
+        type: string
+      ENVIRONMENT:
+        description: 'Environment to use'
+        required: true
+        type: string
+
+jobs:
+  publish:
+    name: Publish RPM repository definition (`${{ inputs.RELEASE_CHANNEL }}`@${{ inputs.ENVIRONMENT }})
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    environment: ${{ inputs.ENVIRONMENT }}
+    env:
+      RELEASE_CHANNEL: ${{ inputs.RELEASE_CHANNEL }}
+      RPM_REPO: ${{ vars.RPM_REPO }}
+      OUTPUT_FILE: hazelcast-rpm-${{ inputs.RELEASE_CHANNEL }}.repo
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        sparse-checkout: "hazelcast-rpm.repo.template"
+        sparse-checkout-cone-mode: false
+
+    - uses: hazelcast/docker-actions/get-jfrog-credentials@master
+      id: authenticate-jfrog-write-dev-account
+      with:
+        aws-role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+        jfrog-oidc-provider-name: ${{ github.repository_owner }}-write-dev-account
+
+    - name: Generate
+      run: |
+        RELEASE_CHANNEL_DISPLAY_NAME="${RELEASE_CHANNEL^}"
+
+        export RELEASE_CHANNEL
+        export RELEASE_CHANNEL_DISPLAY_NAME
+        export RPM_REPO
+
+        envsubst <hazelcast-rpm.repo.template >${OUTPUT_FILE}
+
+    - name: Upload
+      run: |
+        jf rt upload \
+          ${OUTPUT_FILE} \
+          "${RPM_REPO}/${RELEASE_CHANNEL}/"

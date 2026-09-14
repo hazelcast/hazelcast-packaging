@@ -1,6 +1,6 @@
-[Hazelcast-Snapshot-RPM]
-name=Hazelcast RPM Snapshot Repository
-baseurl=https://repository.hazelcast.com/rpm/snapshot
+[Hazelcast-${RELEASE_CHANNEL_DISPLAY_NAME}-RPM]
+name=Hazelcast RPM ${RELEASE_CHANNEL_DISPLAY_NAME} Repository
+baseurl=https://repository.hazelcast.com/${RPM_REPO}/${RELEASE_CHANNEL}
 enabled=1
 gpgcheck=1
 gpgkey=https://repository.hazelcast.com/api/security/keypair/public/repositories/rpm https://repository.hazelcast.com/api/security/keypair/gpg-key-2011/public
