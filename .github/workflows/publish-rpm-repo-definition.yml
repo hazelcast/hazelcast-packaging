@@ -1,5 +1,5 @@
 name: Publish RPM repository definition file
-run-name: ${{ github.workflow }} (`${{ inputs.VERSION }}`@${{ inputs.ENVIRONMENT }})
+run-name: ${{ github.workflow }} (`${{ inputs.RELEASE_CHANNEL }}`@${{ inputs.ENVIRONMENT }})
 
 on:
   # For debugging only
