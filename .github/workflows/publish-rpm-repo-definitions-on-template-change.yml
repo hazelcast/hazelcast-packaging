@@ -4,6 +4,8 @@ on:
   push:
     branches: master
     paths:
+      - .github/workflows/publish-rpm-repo-definitions-on-template-change.yml
+      - .github/workflows/publish-rpm-repo-definition.yml
       - packages/rpm/hazelcast-rpm.repo.template
 
 jobs:

@@ -146,7 +146,6 @@ jobs:
     needs: prepare
     if: needs.prepare.outputs.should_build_rpm == 'true'
     uses: ./.github/workflows/publish-rpm-repo-definition.yml
-    secrets: inherit
     with:
       RELEASE_CHANNEL: ${{ needs.prepare.outputs.release_channel }}
       ENVIRONMENT: ${{ needs.prepare.outputs.ENVIRONMENT }}
