@@ -4,7 +4,7 @@ on:
   push:
     branches: master
     paths:
-      - hazelcast-rpm.repo.template
+      - packages/rpm/hazelcast-rpm.repo.template
 
 jobs:
   list-environments:
