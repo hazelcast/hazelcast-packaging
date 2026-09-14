@@ -55,6 +55,10 @@ jobs:
 
         envsubst <packages/rpm/hazelcast-rpm.repo.template >${OUTPUT_FILE}
 
+    - name: Log `${{ env.OUTPUT_FILE }}`
+      run: |
+        cat ${OUTPUT_FILE}
+
     - name: Upload
       run: |
         jf rt upload \
