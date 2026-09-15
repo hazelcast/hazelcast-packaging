@@ -1,0 +1,43 @@
+name: Publish RPM repository definitions on template change
+
+on:
+  push:
+    branches: master
+    paths:
+      - .github/workflows/publish-rpm-repo-definitions-on-template-change.yml
+      - .github/workflows/publish-rpm-repo-definition.yml
+      - packages/rpm/hazelcast-rpm.repo.template
+
+jobs:
+  list-environments:
+    runs-on: ubuntu-slim
+    outputs:
+      environments: ${{ steps.environments.outputs.environments }}
+    steps:
+      - id: environments
+        run: |
+          environments=$(gh api \
+            "/repos/${GITHUB_REPOSITORY}/environments" \
+            --jq '{"environment": [.environments[].name]}'
+          )
+
+          echo "environments=${environments}" >> "${GITHUB_OUTPUT}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  publish:
+    needs: list-environments
+    permissions:
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        release-channel:
+          - beta
+          - snapshot
+          - stable
+        environment: ${{ fromJSON(needs.list-environments.outputs.environments).environment }}
+    uses: ./.github/workflows/publish-rpm-repo-definition.yml
+    with:
+      RELEASE_CHANNEL: ${{ matrix.release-channel }}
+      ENVIRONMENT: ${{ matrix.environment }}
