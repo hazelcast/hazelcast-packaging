@@ -95,10 +95,25 @@ jobs:
         env:
           JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
 
+      - name: Debug log yum metadata pre resync
+        run: |
+          curl -fsSL \
+            'https://repository.hazelcast.com/rpm-local/stable/repodata/repomd.xml'
+
       - name: Calculate YUM Repository Metadata
         run: |
           # https://docs.jfrog.com/artifactory/reference/calculateyumrepositorymetadata
           jf api --method POST "/artifactory/api/yum/${RPM_REPO}"
+
+      - name: Debug log yum metadata after resync
+        run: |
+          for i in {1..10}; do
+            printf '%s: ' "$(date '+%H:%M:%S')"
+            curl -fsSL \
+              'https://repository.hazelcast.com/rpm-local/stable/repodata/repomd.xml'
+            echo
+            sleep 1
+          done
 
       - name: Configure Yum for Hazelcast installation
         env:
