@@ -61,6 +61,11 @@ jobs:
             wget \
             which
 
+      - name: Setup directories
+        run: |
+          mkdir -p build/rpmbuild/SOURCES/
+          mkdir -p build/rpmbuild/rpm
+
       - name: Download the distribution file
         uses: hazelcast/docker-actions/download-hz-dist@master
         with:
@@ -69,6 +74,7 @@ jobs:
           distribution: ${{ env.HZ_DISTRIBUTION }}
           hz_version: ${{ env.HZ_VERSION }}
           packaging: "tar.gz"
+          output_file: "build/rpmbuild/SOURCES/${{ env.HZ_DISTRIBUTION }}-${{ env.HZ_VERSION }}.tar.gz"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -89,40 +95,62 @@ jobs:
           aws-role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
           jfrog-oidc-provider-name: ${{ github.repository_owner }}-write-dev-account
 
-      - name: Create & Sign & Upload RPM package
+      - name: Create RPM package
+        id: create-rpm-package
         run: |
-          ./build-hazelcast-rpm-package.sh
+          source ./common.sh
+
+          cp packages/common/hazelcast.service build/rpmbuild/SOURCES/hazelcast.service
+
+          export RPM_BUILD_ROOT='$RPM_BUILD_ROOT'
+          export FILENAME='${FILENAME}'
+          export JAVA_VERSION
+          envsubst <packages/rpm/hazelcast.spec >build/rpmbuild/rpm/hazelcast.spec
+
+          rpmbuild \
+            --define "_topdir $(realpath build/rpmbuild)" \
+            -bb build/rpmbuild/rpm/hazelcast.spec
+
+          echo "file=build/rpmbuild/RPMS/noarch/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm" >> ${GITHUB_OUTPUT}
         env:
           JAVA_VERSION: ${{ inputs.JAVA_VERSION }}
 
-      - name: Calculate YUM Repository Metadata
-        run: |
-          # https://docs.jfrog.com/artifactory/reference/calculateyumrepositorymetadata
-          jf api --method POST "/artifactory/api/yum/${RPM_REPO}"
-
-      - name: Configure Yum for Hazelcast installation
-        env:
-          JFROG_USER: ${{ steps.authenticate-jfrog-write-dev-account.outputs.user }}
-          JFROG_TOKEN: ${{ steps.authenticate-jfrog-write-dev-account.outputs.token }}
+      - name: Sign RPM package
         run: |
           source ./common.sh
 
-          # Bake authentication into the returned URLs
-          wget \
-            https://repository.hazelcast.com/${RPM_REPO}/${RELEASE_CHANNEL}/hazelcast-rpm-${RELEASE_CHANNEL}.repo \
-            --header "Authorization: Bearer ${JFROG_TOKEN}" \
-            --output-document - | \
-          sed "s#https://#https://${JFROG_USER}:${JFROG_TOKEN}@#g" > \
-          /etc/yum.repos.d/hazelcast-rpm-${RELEASE_CHANNEL}.repo
+          gpg --batch --import <<< "${SIGNING_KEY_PRIVATE_KEY}"
+          echo 'allow-preset-passphrase' | tee ~/.gnupg/gpg-agent.conf
+          gpg-connect-agent reloadagent /bye
+
+          function get_gpg_key_data {
+            local key=$1
+            local property=$2
+
+            gpg --show-keys --with-keygrip --with-colons <<< "${key}" | \
+            awk -F: -v property="${property}" '$1==property {print $10; exit}'
+
+            return 0
+          }
+
+          SIGNING_KEY_UID=$(get_gpg_key_data "${SIGNING_KEY_PRIVATE_KEY}" "uid")
+          SIGNING_KEY_KEYGRIP=$(get_gpg_key_data "${SIGNING_KEY_PRIVATE_KEY}" "grp")
+
+          /usr/libexec/gpg-preset-passphrase \
+            --passphrase "${SIGNING_KEY_PASSPHRASE}" \
+            --preset ${SIGNING_KEY_KEYGRIP}
+
+          export GPG_TTY="" # to avoid 'warning: Could not set GPG_TTY to stdin: Inappropriate ioctl for device' for the next command
+          rpm \
+            --define "_gpg_name ${SIGNING_KEY_UID}" \
+            --addsign "${{ steps.create-rpm-package.outputs.file }}"
 
       - name: Install Hazelcast from rpm
         run: |
-          source ./common.sh
-
           yum install \
             --assumeyes \
             --verbose \
-            ${HZ_DISTRIBUTION}-${RPM_HZ_VERSION}
+            "${{ steps.create-rpm-package.outputs.file }}"
 
       - name: Start Hazelcast
         id: run-hazelcast
@@ -143,6 +171,19 @@ jobs:
         run: |
           source ./common.sh
           yum remove --assumeyes ${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}
+
+      - name: Upload RPM package
+        run: |
+          source ./common.sh
+
+          jf rt upload \
+            "${{ steps.create-rpm-package.outputs.file }}" \
+            "${RPM_REPO}/${RELEASE_CHANNEL}/${HZ_DISTRIBUTION}-${RPM_PACKAGE_VERSION}.noarch.rpm"
+
+      - name: Calculate YUM Repository Metadata
+        run: |
+          # https://docs.jfrog.com/artifactory/reference/calculateyumrepositorymetadata
+          jf api --method POST "/artifactory/api/yum/${RPM_REPO}"
 
       - name: Remove rpm package from test repo
         if: ${{ inputs.ENVIRONMENT == 'test' && (success() || failure()) }}
