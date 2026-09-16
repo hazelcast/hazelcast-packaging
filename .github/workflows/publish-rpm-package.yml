@@ -92,6 +92,8 @@ jobs:
       - name: Create RPM package
         id: create-rpm-package
         run: |
+          set -euo pipefail ${RUNNER_DEBUG:+-x}
+
           source ./common.sh
 
           cp packages/common/hazelcast.service build/rpmbuild/SOURCES/hazelcast.service
@@ -111,6 +113,8 @@ jobs:
 
       - name: Sign RPM package
         run: |
+          set -euo pipefail ${RUNNER_DEBUG:+-x}
+
           source ./common.sh
 
           gpg --batch --import <<< "${SIGNING_KEY_PRIVATE_KEY}"
