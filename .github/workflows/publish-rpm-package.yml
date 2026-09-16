@@ -143,10 +143,14 @@ jobs:
             --define "_gpg_name ${SIGNING_KEY_UID}" \
             --addsign "${{ steps.create-rpm-package.outputs.file }}"
 
+          gpg --armor --export "${SIGNING_KEY_UID}" > public-key.asc
+          rpm --import public-key.asc
+
       - name: Install Hazelcast from rpm
         run: |
           yum install \
             --assumeyes \
+            --setopt=localpkg_gpgcheck=1 \
             --verbose \
             "${{ steps.create-rpm-package.outputs.file }}"
 
