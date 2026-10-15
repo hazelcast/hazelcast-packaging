@@ -177,7 +177,8 @@ jobs:
           HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
           # Expects absolute path
           HAZELCAST_CONFIG: ${{ github.workspace }}/config/integration-test-hazelcast.yaml
-        run: hz-start > hz.log 2>&1
+        run: |
+          hz-start > hz.log 2>&1
 
       - name: Check Hazelcast health
         if: ${{ steps.hz_dist_download_url_status.outputs.status == 'public' }}
