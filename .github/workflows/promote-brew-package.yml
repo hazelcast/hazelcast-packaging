@@ -45,10 +45,11 @@ jobs:
           role-to-assume: ${{ vars.AWS_DEV_INFRA_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
           aws-region: 'us-east-1'
 
-      - uses: aws-actions/aws-secretsmanager-get-secrets@v3
+      - name: Get Secrets
+        uses: aws-actions/aws-secretsmanager-get-secrets@v3
         with:
           secret-ids: |
-            GITHUB/DEVOPSHAZELCAST
+            GH_USER, ${{ vars.AWS_GH_USER_ID }}
           parse-json-secrets: true
 
       - uses: ./.github/actions/get-homebrew-pr-title
@@ -88,4 +89,4 @@ jobs:
               done <<< "${PR_URLS}"
             fi
         env:
-          GH_TOKEN: ${{ env.GITHUB_DEVOPSHAZELCAST_SECRET }}
+          GH_TOKEN: ${{ env.GH_USER_API_TOKEN }}
