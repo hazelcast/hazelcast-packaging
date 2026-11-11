@@ -141,13 +141,13 @@ jobs:
         uses: aws-actions/aws-secretsmanager-get-secrets@v3
         with:
           secret-ids: |
-            GITHUB/DEVOPSHAZELCAST
+            GH_USER, ${{ vars.AWS_GH_USER_ID }}
           parse-json-secrets: true
 
       - name: Checkout ${{ vars.BREW_GIT_REPO_NAME }} repo
         run: |
           # Add a GitHub token be able to use a homebrew tap from the private repository
-          git config --global url."https://${GITHUB_DEVOPSHAZELCAST_SECRET}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://${GH_USER_API_TOKEN}@github.com/".insteadOf "https://github.com/"
 
           # Checkout via homebrew so that we can modify and test locally without having to push to the main upstream branch
           brew tap ${{ vars.BREW_TAP_NAME }}
@@ -204,7 +204,7 @@ jobs:
         uses: peter-evans/create-pull-request@15733dbdfeedb4f7fdb73d13c6f5ac83b710fab8 # v8.1.2
         id: create-pull-request
         with:
-          token: ${{ env.GITHUB_DEVOPSHAZELCAST_SECRET }}
+          token: ${{ env.GH_USER_API_TOKEN }}
           path: ${{ env.BREW_GIT_REPO_LOCATION }}
           branch: ${{ github.job }}_run_${{ github.run_id }}_${{ job.check_run_id }}
           title: ${{ steps.get-homebrew-pr-title.outputs.title }}
