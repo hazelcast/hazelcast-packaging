@@ -160,11 +160,9 @@ jobs:
             "${GITHUB_SERVER_URL}/${SOURCE_REPO}.git" \
             .
 
-          BASIC_AUTH=$(printf "x-access-token:%s" "${GH_TOKEN}" | base64 | tr -d '\n')
-          git -c "http.${GITHUB_SERVER_URL}/.extraheader=AUTHORIZATION: basic ${BASIC_AUTH}" \
-            push \
+          git push \
             --force \
-            "${GITHUB_SERVER_URL}/${TARGET_REPO}.git" \
+            "https://x-access-token:${GH_TOKEN}@github.com/${TARGET_REPO}.git" \
             "refs/heads/${DEFAULT_BRANCH}:refs/heads/${DEFAULT_BRANCH}"
 
       - name: Checkout ${{ vars.BREW_GIT_REPO_NAME }} repo
