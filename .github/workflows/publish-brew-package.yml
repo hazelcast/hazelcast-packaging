@@ -150,15 +150,17 @@ jobs:
           GH_TOKEN: ${{ env.GH_USER_API_TOKEN }}
           SOURCE_REPO: hazelcast/homebrew-hz
           TARGET_REPO: ${{ vars.BREW_GIT_REPO_NAME }}
-          DEFAULT_BRANCH: master
         run: |
-          echo "Syncing '${DEFAULT_BRANCH}@${TARGET_REPO}' from '${DEFAULT_BRANCH}@${SOURCE_REPO}'"
+          echo "Syncing default branch from '${SOURCE_REPO}' to '${TARGET_REPO}'"
+
           cd "$(mktemp -d)"
 
           git clone \
             --bare \
             "${GITHUB_SERVER_URL}/${SOURCE_REPO}.git" \
             .
+
+          DEFAULT_BRANCH=$(git symbolic-ref HEAD --short)
 
           git push \
             --force \
