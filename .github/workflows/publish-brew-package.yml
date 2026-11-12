@@ -168,16 +168,35 @@ jobs:
             "refs/heads/${DEFAULT_BRANCH}:refs/heads/${DEFAULT_BRANCH}"
 
       - name: Checkout ${{ vars.BREW_GIT_REPO_NAME }} repo
+        env:
+          RETRIES: 5
+          BREW_TAP_NAME: ${{ vars.BREW_TAP_NAME }}
+          BREW_GIT_REPO_NAME: ${{ vars.BREW_GIT_REPO_NAME }}
         run: |
-          # Add a GitHub token be able to use a homebrew tap from the private repository
+          # Add a GitHub token to be able to use a homebrew tap from the private repository
           git config --global url."https://${GH_USER_API_TOKEN}@github.com/".insteadOf "https://github.com/"
 
-          # Checkout via homebrew so that we can modify and test locally without having to push to the main upstream branch
-          brew tap ${{ vars.BREW_TAP_NAME }}
-          brew trust ${{ vars.BREW_TAP_NAME }}
+          # Checkout via homebrew so that we can modify and test locally without having to push to the main 
+          # upstream branch
+          for attempt in $(seq 1 "${RETRIES}"); do
+            if brew tap "${BREW_TAP_NAME}"; then
+              break
+            fi
+
+            if [ "${attempt}" -eq "${RETRIES}" ]; then
+              echo "brew tap ${BREW_TAP_NAME} failed after ${RETRIES} attempts."
+              exit 1
+            fi
+
+            echo "brew tap failed (attempt ${attempt}/${RETRIES}), retrying in 2s..."
+            rm -rf "$(brew --repo)/Library/Taps/${BREW_GIT_REPO_NAME}"
+            sleep 2
+          done
+
+          brew trust "${BREW_TAP_NAME}"
 
           # https://github.com/Homebrew/brew/issues/1505#issuecomment-260505067
-          echo "BREW_GIT_REPO_LOCATION=$(brew --repo)/Library/Taps/${{ vars.BREW_GIT_REPO_NAME }}" >> ${GITHUB_ENV}
+          echo "BREW_GIT_REPO_LOCATION=$(brew --repo)/Library/Taps/${BREW_GIT_REPO_NAME}" >> "${GITHUB_ENV}"
 
       - name: Change the artifact in ${{ env.BREW_GIT_REPO_LOCATION }}
         run: |
