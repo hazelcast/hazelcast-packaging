@@ -144,6 +144,25 @@ jobs:
             GH_USER, ${{ vars.AWS_GH_USER_ID }}
           parse-json-secrets: true
 
+      - name: Sync ${{ vars.BREW_GIT_REPO_NAME }} repo
+        if: ${{ inputs.ENVIRONMENT == 'test' }}
+        env:
+          GH_TOKEN: ${{ env.GH_USER_API_TOKEN }}
+          TARGET_REPO: ${{ vars.BREW_GIT_REPO_NAME }}
+        run: |
+          echo "Syncing 'master@${TARGET_REPO} from 'master@hazelcast/homebrew-hz'"
+          cd "$(mktemp -d)"
+
+          git clone \
+            --bare \
+            "https://github.com/hazelcast/homebrew-hz.git" \
+            .
+
+          git push \
+            --force \
+            "https://x-access-token:${GH_TOKEN}@github.com/${TARGET_REPO}.git" \
+            refs/heads/master:refs/heads/master
+
       - name: Checkout ${{ vars.BREW_GIT_REPO_NAME }} repo
         run: |
           # Add a GitHub token be able to use a homebrew tap from the private repository
