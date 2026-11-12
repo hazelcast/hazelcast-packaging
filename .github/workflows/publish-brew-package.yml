@@ -148,20 +148,24 @@ jobs:
         if: ${{ inputs.ENVIRONMENT == 'test' }}
         env:
           GH_TOKEN: ${{ env.GH_USER_API_TOKEN }}
+          SOURCE_REPO: hazelcast/homebrew-hz
           TARGET_REPO: ${{ vars.BREW_GIT_REPO_NAME }}
+          DEFAULT_BRANCH: master
         run: |
-          echo "Syncing 'master@${TARGET_REPO} from 'master@hazelcast/homebrew-hz'"
+          echo "Syncing '${DEFAULT_BRANCH}@${TARGET_REPO}' from '${DEFAULT_BRANCH}@${SOURCE_REPO}'"
           cd "$(mktemp -d)"
 
           git clone \
             --bare \
-            "https://github.com/hazelcast/homebrew-hz.git" \
+            "${GITHUB_SERVER_URL}/${SOURCE_REPO}.git" \
             .
 
-          git push \
+          BASIC_AUTH=$(printf "x-access-token:%s" "${GH_TOKEN}" | base64)
+          git -c "http.${GITHUB_SERVER_URL}/.extraheader=AUTHORIZATION: basic ${BASIC_AUTH}" \
+            push \
             --force \
-            "https://x-access-token:${GH_TOKEN}@github.com/${TARGET_REPO}.git" \
-            refs/heads/master:refs/heads/master
+            "${GITHUB_SERVER_URL}/${TARGET_REPO}.git" \
+            "refs/heads/${DEFAULT_BRANCH}:refs/heads/${DEFAULT_BRANCH}"
 
       - name: Checkout ${{ vars.BREW_GIT_REPO_NAME }} repo
         run: |
